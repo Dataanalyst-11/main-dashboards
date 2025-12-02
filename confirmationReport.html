@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confirmer Performance Dashboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        text-align: center;
+        padding: 20px;
+        background: #34495e;
+        color: white;
+        margin: 0;
+    }
+
+    .table-container {
+        height: 85vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: 95%;
+        margin: 0 auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background: #2c3e50;
+        color: white;
+        font-size: 14px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    tr:hover {
+        background: #f1f1f1;
+    }
+
+    .score-high { background: #27ae60; color: white; }
+    .score-medium { background: #f1c40f; color: black; }
+    .score-low { background: #e74c3c; color: white; }
+
+    #lastUpdated {
+        text-align: center;
+        color: #555;
+        font-size: 14px;
+    }
+</style>
+</head>
+<body>
+
+<h1>Confirmer Performance Report</h1>
+<p id="lastUpdated">Last updated: --</p>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Confirmation Attendant</th>
+                <th>Branch</th>
+                <th>Total Orders</th>
+                <th>Line Items</th>
+                <th>Avg Items per Order</th>
+                <th>Orders per Hour</th>
+                <th>Efficiency Score (%)</th>
+            </tr>
+        </thead>
+
+        <tbody id="performanceBody"></tbody>
+    </table>
+</div>
+
+<script src="config.js"></script>
+
+<script>
+// ====== SAVE SCROLL POSITION & DIRECTION ======
+let savedScrollTop = 0;
+let savedDirection = 1;
+let currentDirection = 1;
+
+// =============== API CONFIG ===================
+let today = new Date();
+let yyyy = today.getFullYear();
+let mm = String(today.getMonth() + 1).padStart(2, '0');
+let dd = String(today.getDate()).padStart(2, '0');
+let formatted = `${yyyy}-${mm}-${dd}`;
+
+// Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
+const urlParams = new URLSearchParams(window.location.search);
+const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
+
+const API_URL = `${window.API_CONFIG.API_URL}order-confirmer-reports?&orgBranchId=${branchId}&startDate=${formatted}`;
+
+const API_TOKEN = window.API_CONFIG.API_TOKEN;
+
+// =============== SCORING FORMULA ===================
+function calculatePerformance(attendant) {
+  const hoursWorked = 8;
+  const orders = attendant.numberOfOrders || 0;
+  const items = attendant.numberOfLineItems || 0;
+  const amount = attendant.orderAmount || 0;
+
+  const avgItemsPerOrder = orders > 0 ? items / orders : 0;
+  const ordersPerHour = orders / hoursWorked;
+  const avgOrderValue = orders > 0 ? amount / orders : 0;
+
+  const scoreOrders = Math.min((ordersPerHour / 20) * 100, 100);
+  const scoreItems  = Math.min((avgItemsPerOrder / 10) * 100, 100);
+  const scoreValue  = Math.min((avgOrderValue / 5000) * 100, 100);
+
+  const finalScore = (
+    (scoreOrders * 0.4) +
+    (scoreItems  * 0.3) +
+    (scoreValue  * 0.3)
+  );
+
+  return {
+    avgItemsPerOrder,
+    avgOrderValue,
+    ordersPerHour,
+    score: finalScore
+  };
+}
+
+function scoreClass(score) {
+  if (score >= 80) return "score-high";
+  if (score >= 50) return "score-medium";
+  return "score-low";
+}
+
+// =============== LOAD & RENDER ===================
+async function loadPerformanceData() {
+    const tbody = document.getElementById("performanceBody");
+    const container = document.querySelector(".table-container");
+
+    // Save scroll BEFORE reload
+    savedScrollTop = container.scrollTop;
+    savedDirection = currentDirection;
+
+    tbody.innerHTML = "<tr><td colspan='9'>Loading...</td></tr>";
+
+    try {
+        const response = await fetch(API_URL, {
+            headers: {
+                "Authorization": API_TOKEN,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+
+        const json = await response.json();
+        const attendants = Array.isArray(json) ? json : json.data || [];
+
+        if (attendants.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='9'>No data</td></tr>";
+            return;
+        }
+
+        attendants.forEach(a => a.performance = calculatePerformance(a));
+        attendants.sort((a, b) => b.performance.score - a.performance.score);
+
+        tbody.innerHTML = attendants.map(a => `
+            <tr>
+                <td>${a.itemsConfirmedByName}</td>
+                <td>${a.orgBranchName}</td>
+                <td>${a.numberOfOrders}</td>
+                <td>${a.numberOfLineItems}</td>
+                <td>${a.performance.avgItemsPerOrder.toFixed(2)}</td>
+                <td>${a.performance.ordersPerHour.toFixed(2)}</td>
+                <td class="${scoreClass(a.performance.score)}">${a.performance.score.toFixed(1)}%</td>
+            </tr>
+        `).join("");
+
+        document.getElementById("lastUpdated").textContent =
+            "Last updated: " + new Date().toLocaleTimeString();
+
+        startAutoScroll();
+
+        // Restore scroll smoothly
+        container.scrollTop = savedScrollTop;
+
+    } catch (e) {
+        console.error(e);
+        tbody.innerHTML = "<tr><td colspan='9' style='color:red;'>Error loading data</td></tr>";
+    }
+}
+
+// =============== AUTO SCROLL ===================
+let scrollInterval;
+
+function startAutoScroll() {
+    const container = document.querySelector(".table-container");
+    clearInterval(scrollInterval);
+
+    if (container.scrollHeight <= container.clientHeight) return;
+
+    const speed = 40;
+    const step = 1;
+
+    let direction = savedDirection || 1;
+    let scrollTop = savedScrollTop || 0;
+
+    scrollInterval = setInterval(() => {
+
+        scrollTop += direction * step;
+        container.scrollTo({ top: scrollTop, behavior: "smooth" });
+
+        currentDirection = direction;
+
+        if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
+            direction = 0;
+            setTimeout(() => { direction = -1; }, 2000);
+        }
+
+        if (scrollTop <= 0 && direction === -1) {
+            direction = 1;
+        }
+
+    }, speed);
+}
+
+// =============== AUTO REFRESH EVERY 30 SECONDS ===================
+setInterval(loadPerformanceData, 30000);
+loadPerformanceData();
+</script>
+
+</body>
+</html>
