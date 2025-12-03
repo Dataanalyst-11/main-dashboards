@@ -174,6 +174,47 @@ let formatted = `${yyyy}-${mm}-${dd}`;
 // Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
 const urlParams = new URLSearchParams(window.location.search);
 const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
+  
+  // Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
+      const urlParams = new URLSearchParams(window.location.search);
+      const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
+      // 🗺️ Optional: map of human-readable branch names
+       const branchNames = {
+       "orgbranch-683976e3994a072a600cbd7a": "Head Office",
+       "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
+       "orgbranch-68455bea76bd774c32f031cc": "Kitengela",
+       "orgbranch-68458a4b76bd774c32f10527": "Githu Pharma",
+       "orgbranch-684593b176bd774c32f150c6": "Kawangware Wholesale",
+        "orgbranch-685001107d3c6f75c8c1d42e": "Karatina",
+       "orgbranch-685001217d3c6f75c8c1d491": "Meru",
+       "orgbranch-6850012f7d3c6f75c8c1d4f4": "Busia",
+       "orgbranch-685001387d3c6f75c8c1d557": "Mombasa Wholesale",
+       "orgbranch-685001457d3c6f75c8c1d5ba": "Kisii",
+       "orgbranch-685001557d3c6f75c8c1d61d": "Philton",
+       "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
+       "orgbranch-685001667d3c6f75c8c1d6e3": "Malindi",
+       "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
+       "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
+        "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
+       "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
+       "orgbranch-685001c17d3c6f75c8c1d8d2": "Thika",
+       "orgbranch-685001ce7d3c6f75c8c1d935": "Voi",
+       "orgbranch-685001e27d3c6f75c8c1d998": "Kendia", 
+         "orgbranch-685001f37d3c6f75c8c1d9fb": "Kakamega",
+       "orgbranch-685001ff7d3c6f75c8c1da5e": "Bungoma",
+       "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
+       "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
+       "orgbranch-685002247d3c6f75c8c1dc25": "Embu",
+       
+   // Add as many as you want
+  };
+
+// Use readable name if available
+const displayName = branchNames[branchId] || branchId;
+
+// 🧭 Display detected branch at top of dashboard
+const header = document.querySelector('h2');
+header.textContent += ` — [${displayName}]`;
 
 const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&startDate=${formatted}`;
 
