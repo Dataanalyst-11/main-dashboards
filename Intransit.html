@@ -189,7 +189,7 @@ const displayName = branchNames[branchId] || branchId;
 const header = document.querySelector('h2');
 header.textContent += ` — [${displayName}]`;
 
-     const API_URL = `${window.API_CONFIG.API_URL}list?status=IN_TRANSIT&orgBranchId=${branchId}&startDate=${formatted}`;
+     const API_URL = `${window.API_CONFIG.API_URL}list?status=IN_TRANSIT&orgBranchId=${branchId}&startDate=${formatted}&pageSize=350`;
 
 
     const API_TOKEN = window.API_CONFIG.API_TOKEN;
