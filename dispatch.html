@@ -171,9 +171,6 @@ let mm = String(today.getMonth() + 1).padStart(2, '0');
 let dd = String(today.getDate()).padStart(2, '0');
 let formatted = `${yyyy}-${mm}-${dd}`;
 
-// Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
-const urlParams = new URLSearchParams(window.location.search);
-const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
   
   // Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
       const urlParams = new URLSearchParams(window.location.search);
