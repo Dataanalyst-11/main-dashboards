@@ -289,7 +289,7 @@ header.textContent += ` — [${displayName}]`;
         startElapsedTimer(timerId, timeObj);
       });
 
-      startAutoScroll();
+    
     }
 
     /* Timer Under STORE TIME IN */
@@ -343,10 +343,12 @@ header.textContent += ` — [${displayName}]`;
     }
 
 
+     /* Auto-refresh every 30 seconds */
+      setInterval(fetchInvoices, 30000);
 
-    /* Auto-refresh every 30 seconds */
-    setInterval(fetchInvoices, 30000);
-    fetchInvoices();
+    // Initial load + start scroll only once
+    fetchInvoices().then(() => startAutoScroll());
+
   </script>
 
 </body>
