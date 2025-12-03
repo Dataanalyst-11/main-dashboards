@@ -165,6 +165,22 @@
     // Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
       const urlParams = new URLSearchParams(window.location.search);
       const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
+      // 🗺️ Optional: map of human-readable branch names
+       const branchNames = {
+       "orgbranch-683976e3994a072a600cbd7a": "Head Office",
+       "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
+       "orgbranch-685001387d3c6f75c8c1d557": "Mombasa Wholesale",
+       "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
+       "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
+   // Add as many as you want
+  };
+
+// Use readable name if available
+const displayName = branchNames[branchId] || branchId;
+
+// 🧭 Display detected branch at top of dashboard
+const header = document.querySelector('h2');
+header.textContent += ` — [${displayName}]`;
 
       const API_URL = `${window.API_CONFIG.API_URL}list?status=ORDER_POSTED&orgBranchId=${branchId}&startDate=${formatted}`;
 
