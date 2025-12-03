@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -292,8 +291,7 @@ header.textContent += ` — [${displayName}]`;
         startElapsedTimer(timerId, timeObj);
       });
 
-      startAutoScroll();
-    }
+      }
 
     /* Timer Under STORE TIME IN */
     function startElapsedTimer(timerId, timeObj) {
@@ -347,8 +345,11 @@ header.textContent += ` — [${displayName}]`;
 
 
     /* Auto-refresh every 30 seconds */
-    setInterval(fetchInvoices, 30000);
-    fetchInvoices();
+  setInterval(fetchInvoices, 30000);
+
+// Initial load + start scroll only once
+  fetchInvoices().then(() => startAutoScroll());
+
   </script>
 
 </body>
