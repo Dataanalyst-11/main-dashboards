@@ -260,8 +260,7 @@ header.textContent += ` — [${displayName}]`;
         startElapsedTimer(timerId, timeObj);
       });
 
-      startAutoScroll();
-    }
+      }
 
     // ================================
     // Timer Under Confirmation Time In
@@ -318,10 +317,12 @@ header.textContent += ` — [${displayName}]`;
       }
 
      // ================================
-     // Auto-refresh every 30 seconds
-     // ================================
-     setInterval(fetchInvoices, 30000);
-     fetchInvoices();
+     /* Auto-refresh every 30 seconds */
+      setInterval(fetchInvoices, 30000);
+
+   // Initial load + start scroll only once
+     fetchInvoices().then(() => startAutoScroll());
+
   </script>
 
 </body>
