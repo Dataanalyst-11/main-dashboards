@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,7 +33,7 @@
     /* Summary Bar */
     #summary {
       text-align: center;
-      background: #f35555;
+      background: linear-gradient(90deg, #f35555, #f88989);
       font-size: 1.2em;
       padding: 8px;
       margin: 0;
@@ -43,6 +42,7 @@
       position: sticky;
       top: 52px;
       z-index: 100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     /* Scrollable Table Section */
@@ -96,20 +96,10 @@
       font-weight: bold;
     }
 
-    /* Timer text under time */
     .timer {
       display: block;
       font-size: 12px;
       margin-top: 2px;
-    }
-
-    .status {
-      padding: 4px 8px;
-      border-radius: 8px;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-      display: inline-block;
     }
 
     .footer {
@@ -122,14 +112,9 @@
 </head>
 
 <body>
-
-  <!-- Dashboard Title -->
   <h2>🧑‍💻Invoices Pending to be Dispatched 📦</h2>
-
-  <!-- Summary Counter -->
   <div id="summary">Total Invoices at Dispatch: 0</div>
 
-  <!-- Scrollable Table -->
   <div class="table-container">
     <table id="invoiceTable">
       <thead>
@@ -139,7 +124,6 @@
           <th>Customer Name</th>
           <th>Credit Terms</th>
           <th>Route</th>
-          
           <th>Order Date</th>
         </tr>
       </thead>
@@ -149,35 +133,22 @@
 
   <div class="footer">
     Last updated: <span id="lastUpdated"></span>
-   <div>Designed and Managed by MIS.DPT</div>
+    <div>Designed and Managed by MIS.DPT</div>
   </div>
 
-  <!-- Load the config first -->
   <script src="config.js"></script>
+  <script>
+    let savedScrollTop = 0;
+    let currentDirection = 1;
+    let scrollInterval;
 
-<script>
+    const today = new Date();
+    const formatted = today.toISOString().split("T")[0];
 
-// ====== SAVE SCROLL POSITION & DIRECTION ======
-let savedScrollTop = 0;
-let savedDirection = 1;
-let currentDirection = 1;
-
-let scrollInterval;
-
-// =============== API CONFIG ===================
-let today = new Date();
-let yyyy = today.getFullYear();
-let mm = String(today.getMonth() + 1).padStart(2, '0');
-let dd = String(today.getDate()).padStart(2, '0');
-let formatted = `${yyyy}-${mm}-${dd}`;
-
-  
-  // Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
-      const urlParams = new URLSearchParams(window.location.search);
-      const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
-      // 🗺️ Optional: map of human-readable branch names
-       const branchNames = {
-       "orgbranch-683976e3994a072a600cbd7a": "Head Office",
+    const urlParams = new URLSearchParams(window.location.search);
+    const branchId = urlParams.get('branch') || 'orgbranch-default';
+    const branchNames = {
+      "orgbranch-683976e3994a072a600cbd7a": "Head Office",
        "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
        "orgbranch-68455bea76bd774c32f031cc": "Kitengela",
        "orgbranch-68458a4b76bd774c32f10527": "Githu Pharma",
@@ -202,160 +173,122 @@ let formatted = `${yyyy}-${mm}-${dd}`;
        "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
        "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
        "orgbranch-685002247d3c6f75c8c1dc25": "Embu",
-       
-   // Add as many as you want
-  };
+      // ... add others
+    };
+    const displayName = branchNames[branchId] || branchId;
+    document.querySelector('h2').textContent += ` — [${displayName}]`;
 
-// Use readable name if available
-const displayName = branchNames[branchId] || branchId;
+    const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&startDate=${formatted}`;
+    const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-// 🧭 Display detected branch at top of dashboard
-const header = document.querySelector('h2');
-header.textContent += ` — [${displayName}]`;
-
-const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&startDate=${formatted}`;
-
-const API_TOKEN = window.API_CONFIG.API_TOKEN;
-
-
-// =============== TIMER UNDER CONFIRM TIME ===============
-function startElapsedTimer(timerId, timeObj) {
-  function update() {
-    const diff = Date.now() - timeObj;
-    const mins = Math.floor(diff / 60000);
-    const hrs = Math.floor(mins / 60);
-
-    const elem = document.getElementById(timerId);
-    if (elem) elem.textContent = `Waiting: ${hrs}h ${mins % 60}m`;
-  }
-
-  update();
-  setInterval(update, 60000);
-}
-
-
-// =============== ROW COLOR LOGIC ===============
-function getRowClass(diffMinutes) {
-  if (diffMinutes <= 25) return "green-row";
-  if (diffMinutes <= 50) return "yellow-row";
-  return "red-row";
-}
-
-
-// =============== DISPLAY INVOICES ===============
-function displayInvoices(data) {
-  const tbody = document.querySelector("#invoiceTable tbody");
-  tbody.innerHTML = "";
-
-  document.getElementById("summary").textContent =
-    `Total Invoices at Dispatch: ${data.length}`;
-
-  data.forEach(item => {
-    const row = document.createElement("tr");
-
-    const timeObj = new Date(item.orderConfirmationCheckoutAt);
-    const diffMs = Date.now() - timeObj.getTime();
-    const diffMinutes = diffMs / 60000;
-
-    row.classList.add(getRowClass(diffMinutes));
-
-    const displayTime = timeObj.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-
-    const timerId = `timer-${item.id}`;
-
-    row.innerHTML = `
-      <td>${item.invoiceNumber}</td>
-      <td>${displayTime}<br><span class="timer" id="${timerId}"></span></td>
-      <td>${item.customerName}</td>
-      <td>${item.creditTerm.replace(/_/g, " ")}</td>
-      <td>${item.routeName}</td>
-      <td>${timeObj.toLocaleDateString()}</td>
-    `;
-
-    tbody.appendChild(row);
-    startElapsedTimer(timerId, timeObj);
-  });
-
-  // Restore scroll & restart auto-scroll
-  const container = document.querySelector(".table-container");
-  container.scrollTop = savedScrollTop;
-  startAutoScroll();
-}
-
-
-// =============== LOAD DATA (WITH SCROLL RESTORE) ===============
-async function loadPerformanceData() {
-  const container = document.querySelector(".table-container");
-  savedScrollTop = container.scrollTop;
-  savedDirection = currentDirection;
-
-  try {
-    const response = await fetch(API_URL, {
-      headers: {
-        "Authorization": API_TOKEN,
-        "Content-Type": "application/json"
+    // ================= TIMER =================
+    function startElapsedTimer(timerId, timeObj) {
+      function update() {
+        const diff = Date.now() - timeObj;
+        const mins = Math.floor(diff / 60000);
+        const hrs = Math.floor(mins / 60);
+        const elem = document.getElementById(timerId);
+        if (elem) elem.textContent = `Waiting: ${hrs}h ${mins % 60}m`;
       }
-    });
-
-    if (!response.ok) throw new Error("API Error " + response.status);
-
-    const json = await response.json();
-    const data = Array.isArray(json) ? json : json.data || [];
-
-    displayInvoices(data);
-
-    document.getElementById("lastUpdated").textContent =
-      new Date().toLocaleTimeString();
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-
-// =============== AUTO SCROLL (BOUNCE EFFECT) ===============
-function startAutoScroll() {
-  const container = document.querySelector(".table-container");
-  clearInterval(scrollInterval);
-
-  if (container.scrollHeight <= container.clientHeight) return;
-
-  const step = 1;
-  const speed = 40;
-
-  let direction = savedDirection;
-  let scrollTop = savedScrollTop;
-
-  scrollInterval = setInterval(() => {
-    scrollTop += direction * step;
-    container.scrollTo({ top: scrollTop, behavior: "smooth" });
-
-    currentDirection = direction;
-
-    // Bottom pause then go up
-    if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
-      direction = 0;
-      setTimeout(() => direction = -1, 2000);
+      update();
+      setInterval(update, 60000);
     }
 
-    // Top then go down
-    if (scrollTop <= 0 && direction === -1) {
-      direction = 1;
+    function getRowClass(diffMinutes) {
+      if (diffMinutes <= 25) return "green-row";
+      if (diffMinutes <= 50) return "yellow-row";
+      return "red-row";
     }
 
-  }, speed);
-}
+    // ================= DISPLAY INVOICES =================
+    function displayInvoices(data) {
+      const tbody = document.querySelector("#invoiceTable tbody");
+      const oldScrollTop = document.querySelector(".table-container").scrollTop;
 
+      document.getElementById("summary").textContent =
+        `Total Invoices at Dispatch: ${data.length}`;
 
-// =============== AUTO REFRESH EVERY 30 SECONDS ===============
-setInterval(loadPerformanceData, 30000);
-loadPerformanceData();
+      // Build new rows silently
+      const fragment = document.createDocumentFragment();
 
-</script>
+      data.forEach(item => {
+        const row = document.createElement("tr");
+        const timeObj = new Date(item.orderConfirmationCheckoutAt);
+        const diffMinutes = (Date.now() - timeObj.getTime()) / 60000;
+        row.classList.add(getRowClass(diffMinutes));
 
+        const displayTime = timeObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const timerId = `timer-${item.id}`;
 
+        row.innerHTML = `
+          <td>${item.invoiceNumber}</td>
+          <td>${displayTime}<br><span class="timer" id="${timerId}"></span></td>
+          <td>${item.customerName}</td>
+          <td>${item.creditTerm.replace(/_/g, " ")}</td>
+          <td>${item.routeName}</td>
+          <td>${timeObj.toLocaleDateString()}</td>
+        `;
+        fragment.appendChild(row);
+        startElapsedTimer(timerId, timeObj);
+      });
+
+      // Replace content smoothly without reflow jump
+      tbody.innerHTML = "";
+      tbody.appendChild(fragment);
+
+      // Restore previous scroll
+      document.querySelector(".table-container").scrollTop = oldScrollTop;
+    }
+
+    // ================= LOAD DATA =================
+    async function loadPerformanceData() {
+      try {
+        const response = await fetch(API_URL, {
+          headers: {
+            "Authorization": API_TOKEN,
+            "Content-Type": "application/json"
+          }
+        });
+        if (!response.ok) throw new Error("API Error " + response.status);
+        const json = await response.json();
+        const data = Array.isArray(json) ? json : json.data || [];
+        displayInvoices(data);
+        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ================= AUTO SCROLL =================
+    function startAutoScroll() {
+      const container = document.querySelector(".table-container");
+      if (scrollInterval) return; // prevent multiple intervals
+      if (container.scrollHeight <= container.clientHeight) return;
+
+      const step = 1;
+      const speed = 40;
+      let direction = 1;
+      let scrollTop = 0;
+
+      scrollInterval = setInterval(() => {
+        scrollTop += direction * step;
+        container.scrollTo({ top: scrollTop, behavior: "smooth" });
+        savedScrollTop = scrollTop;
+        currentDirection = direction;
+
+        if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
+          direction = 0;
+          setTimeout(() => direction = -1, 2000);
+        }
+        if (scrollTop <= 0 && direction === -1) {
+          direction = 1;
+        }
+      }, speed);
+    }
+
+    // ================= INIT =================
+    setInterval(loadPerformanceData, 30000);
+    loadPerformanceData().then(() => startAutoScroll());
+  </script>
 </body>
 </html>
