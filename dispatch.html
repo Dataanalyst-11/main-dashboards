@@ -142,10 +142,10 @@
     let currentDirection = 1;
     let scrollInterval;
 
-    //const today = new Date();
-    //const formatted = today.toISOString().split("T")[0];
+    const today = new Date();
+    const formatted = today.toISOString().split("T")[0];
 
-    let today = new Date();
+    /*let today = new Date();
     let yyyy = today.getFullYear();
     let mm = String(today.getMonth() + 1).padStart(2, '0');
     let dd = String(today.getDate()).padStart(2, '0');
@@ -157,7 +157,7 @@
     let pastY = pastDate.getFullYear();
     let pastM = String(pastDate.getMonth() + 1).padStart(2, '0');
     let pastD = String(pastDate.getDate()).padStart(2, '0');
-    let formattedStart = `${pastY}-${pastM}-${pastD}`;
+    let formattedStart = `${pastY}-${pastM}-${pastD}`;*/
 
     const urlParams = new URLSearchParams(window.location.search);
     const branchId = urlParams.get('branch') || 'orgbranch-default';
@@ -192,7 +192,7 @@
     const displayName = branchNames[branchId] || branchId;
     document.querySelector('h2').textContent += ` — [${displayName}]`;
 
-    const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&pageSize=500&startDate=${formattedStart}&endDate=${formattedEnd}`;
+    const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&pageSize=500&startDate=${formatted}`;
     const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
     // ================= TIMER =================
