@@ -102,6 +102,15 @@
       margin-top: 2px;
     }
 
+    .status {
+      padding: 4px 8px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      display: inline-block;
+    }
+
     .footer {
       text-align: center;
       font-size: 14px;
@@ -139,13 +148,15 @@
   <script src="config.js"></script>
   <script>
     let savedScrollTop = 0;
+    let savedDirection = 1;
     let currentDirection = 1;
+
     let scrollInterval;
+    
+    //const today = new Date();
+    //const formatted = today.toISOString().split("T")[0];
 
-    const today = new Date();
-    const formatted = today.toISOString().split("T")[0];
-
-    /*let today = new Date();
+    let today = new Date();
     let yyyy = today.getFullYear();
     let mm = String(today.getMonth() + 1).padStart(2, '0');
     let dd = String(today.getDate()).padStart(2, '0');
@@ -157,7 +168,7 @@
     let pastY = pastDate.getFullYear();
     let pastM = String(pastDate.getMonth() + 1).padStart(2, '0');
     let pastD = String(pastDate.getDate()).padStart(2, '0');
-    let formattedStart = `${pastY}-${pastM}-${pastD}`;*/
+    let formattedStart = `${pastY}-${pastM}-${pastD}`;
 
     const urlParams = new URLSearchParams(window.location.search);
     const branchId = urlParams.get('branch') || 'orgbranch-default';
@@ -216,93 +227,115 @@
 
     // ================= DISPLAY INVOICES =================
     function displayInvoices(data) {
-      const tbody = document.querySelector("#invoiceTable tbody");
-      const oldScrollTop = document.querySelector(".table-container").scrollTop;
+  const tbody = document.querySelector("#invoiceTable tbody");
+  tbody.innerHTML = "";
 
-      document.getElementById("summary").textContent =
-        `Total Invoices at Dispatch: ${data.length}`;
+  document.getElementById("summary").textContent =
+    `Total Invoices at Dispatch: ${data.length}`;
 
-      // Build new rows silently
-      const fragment = document.createDocumentFragment();
+  data.forEach(item => {
+    const row = document.createElement("tr");
 
-      data.forEach(item => {
-        const row = document.createElement("tr");
-        const timeObj = new Date(item.orderConfirmationCheckoutAt);
-        const diffMinutes = (Date.now() - timeObj.getTime()) / 60000;
-        row.classList.add(getRowClass(diffMinutes));
+    const timeObj = new Date(item.orderConfirmationCheckoutAt);
+    const diffMs = Date.now() - timeObj.getTime();
+    const diffMinutes = diffMs / 60000;
 
-        const displayTime = timeObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const timerId = `timer-${item.id}`;
+    row.classList.add(getRowClass(diffMinutes));
 
-        row.innerHTML = `
-          <td>${item.invoiceNumber}</td>
-          <td>${displayTime}<br><span class="timer" id="${timerId}"></span></td>
-          <td>${item.customerName}</td>
-          <td>${item.creditTerm.replace(/_/g, " ")}</td>
-          <td>${item.routeName}</td>
-          <td>${timeObj.toLocaleDateString()}</td>
-        `;
-        fragment.appendChild(row);
-        startElapsedTimer(timerId, timeObj);
-      });
+    const displayTime = timeObj.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
 
-      // Replace content smoothly without reflow jump
-      tbody.innerHTML = "";
-      tbody.appendChild(fragment);
+    const timerId = `timer-${item.id}`;
 
-      // Restore previous scroll
-      document.querySelector(".table-container").scrollTop = oldScrollTop;
-    }
+    row.innerHTML = `
+      <td>${item.invoiceNumber}</td>
+      <td>${displayTime}<br><span class="timer" id="${timerId}"></span></td>
+      <td>${item.customerName}</td>
+      <td>${item.creditTerm.replace(/_/g, " ")}</td>
+      <td>${item.routeName}</td>
+      <td>${timeObj.toLocaleDateString()}</td>
+    `;
+
+    tbody.appendChild(row);
+    startElapsedTimer(timerId, timeObj);
+  });
+
+
+     // Restore scroll & restart auto-scroll
+  const container = document.querySelector(".table-container");
+  container.scrollTop = savedScrollTop;
+  startAutoScroll();
+}
 
     // ================= LOAD DATA =================
     async function loadPerformanceData() {
-      try {
-        const response = await fetch(API_URL, {
-          headers: {
-            "Authorization": API_TOKEN,
-            "Content-Type": "application/json"
-          }
-        });
-        if (!response.ok) throw new Error("API Error " + response.status);
-        const json = await response.json();
-        const data = Array.isArray(json) ? json : json.data || [];
-        displayInvoices(data);
-        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
-      } catch (err) {
-        console.error(err);
+  const container = document.querySelector(".table-container");
+  savedScrollTop = container.scrollTop;
+  savedDirection = currentDirection;
+
+  try {
+    const response = await fetch(API_URL, {
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
       }
+    });
+
+    if (!response.ok) throw new Error("API Error " + response.status);
+
+    const json = await response.json();
+    const data = Array.isArray(json) ? json : json.data || [];
+
+    displayInvoices(data);
+
+    document.getElementById("lastUpdated").textContent =
+      new Date().toLocaleTimeString();
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+// =============== AUTO SCROLL (BOUNCE EFFECT) ===============
+function startAutoScroll() {
+  const container = document.querySelector(".table-container");
+  clearInterval(scrollInterval);
+
+  if (container.scrollHeight <= container.clientHeight) return;
+
+  const step = 1;
+  const speed = 40;
+
+  let direction = savedDirection;
+  let scrollTop = savedScrollTop;
+
+  scrollInterval = setInterval(() => {
+    scrollTop += direction * step;
+    container.scrollTo({ top: scrollTop, behavior: "smooth" });
+
+    currentDirection = direction;
+
+    // Bottom pause then go up
+    if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
+      direction = 0;
+      setTimeout(() => direction = -1, 2000);
     }
 
-    // ================= AUTO SCROLL =================
-    function startAutoScroll() {
-      const container = document.querySelector(".table-container");
-      if (scrollInterval) return; // prevent multiple intervals
-      if (container.scrollHeight <= container.clientHeight) return;
-
-      const step = 1;
-      const speed = 40;
-      let direction = 1;
-      let scrollTop = 0;
-
-      scrollInterval = setInterval(() => {
-        scrollTop += direction * step;
-        container.scrollTo({ top: scrollTop, behavior: "smooth" });
-        savedScrollTop = scrollTop;
-        currentDirection = direction;
-
-        if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
-          direction = 0;
-          setTimeout(() => direction = -1, 2000);
-        }
-        if (scrollTop <= 0 && direction === -1) {
-          direction = 1;
-        }
-      }, speed);
+    // Top then go down
+    if (scrollTop <= 0 && direction === -1) {
+      direction = 1;
     }
 
-    // ================= INIT =================
-    setInterval(loadPerformanceData, 30000);
-    loadPerformanceData().then(() => startAutoScroll());
+  }, speed);
+}
+
+
+// =============== AUTO REFRESH EVERY 30 SECONDS ===============
+setInterval(loadPerformanceData, 30000);
+loadPerformanceData();
   </script>
 </body>
 </html>
