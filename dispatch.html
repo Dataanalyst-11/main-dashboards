@@ -203,7 +203,7 @@
     const displayName = branchNames[branchId] || branchId;
     document.querySelector('h2').textContent += ` — [${displayName}]`;
 
-    const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&pageSize=500&startDate=${formatted}`;
+    const API_URL = `${window.API_CONFIG.API_URL}list?status=PENDING_DISPATCH&orgBranchId=${branchId}&pageSize=500&startDate=${formattedStart}&endDate=${formattedEnd}`;
     const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
     // ================= TIMER =================
