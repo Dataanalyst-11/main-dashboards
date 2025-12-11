@@ -54,20 +54,39 @@
     .score-medium { background: #f1c40f; color: black; }
     .score-low { background: #e74c3c; color: white; }
 
-    #lastUpdated {
+    /* ===== FIXED FOOTER ===== */
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ecf0f1;
+        border-top: 2px solid #ccc;
         text-align: center;
-        color: #555;
         font-size: 14px;
+        color: #555;
+        padding: 8px 0;
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+        th, td { font-size: 12px; padding: 8px; }
+        h1 { font-size: 18px; }
+        #clock { font-size: 1.2rem; }
     }
 </style>
 </head>
 <body>
 
-<h1>Store Performance Report</h1>
-<p id="lastUpdated">Last updated: --</p>
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <h1>Store Performance Report</h1>
+    <div id="clock"></div>
+</div>
+
 
 <div class="table-container">
-    <table>
+    <table aria-label="Store performance metrics table">
         <thead>
             <tr>
                 <th>Store Attendant</th>
@@ -83,9 +102,29 @@
     </table>
 </div>
 
+    <!-- ===== FIXED FOOTER ===== -->
+<div class="footer">
+    <div>Last updated: <span id="lastUpdated"></span></div>
+    <div>Designed and Managed by MIS.DPT</div>
+</div>
+    
 <script src="config.js"></script>
 
 <script>
+    // =============== CLOCK ===================
+function updateClock() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+    const timeStr = now.toLocaleTimeString();
+    document.getElementById("clock").textContent = `${dateStr} – ${timeStr}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
 // ====== SAVE SCROLL POSITION & DIRECTION ======
 let savedScrollTop = 0;
 let savedDirection = 1;
