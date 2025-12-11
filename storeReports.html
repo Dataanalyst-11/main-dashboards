@@ -238,8 +238,7 @@ async function loadPerformanceData() {
             </tr>
         `).join("");
 
-        document.getElementById("lastUpdated").textContent =
-            "Last updated: " + new Date().toLocaleTimeString();
+        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
 
         startAutoScroll();
 
