@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Flip Controller</title>
+<title>Rider&Intransit Flip Controller</title>
 
 <style>
   body {
@@ -46,11 +46,11 @@
 
   // Build iframe URLs with branch preserved
   const riderURL = `rider.html?branch=${branch}`;
-  const dispatchURL = `dispatch.html?branch=${branch}`;
+  const transitURL = `Intransit.html?branch=${branch}`;
 
   // Load the dashboards
   document.getElementById("iframe1").src = riderURL;
-  document.getElementById("iframe2").src = dispatchURL;
+  document.getElementById("iframe2").src = transitURL;
 
   let toggle = 0;
 
