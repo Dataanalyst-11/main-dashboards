@@ -150,10 +150,7 @@ async function loadData() {
   const tbody = document.getElementById("tableBody");
   const branches = getBranchFilters();
 
-  document.getElementById("branchLabel").textContent =
-    branches ? branches.join(" + ") : "ALL BRANCHES";
-
-  try {
+    try {
     const res = await fetch(API_URL, {
       cache: "no-store",
       headers: {
