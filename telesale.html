@@ -117,9 +117,11 @@ const API_TOKEN = "8wxg7Z87jaDKVLgshbiEbWhQLgJ9IOUT";
 const REFRESH_INTERVAL = 30000;
 
 /* ================= HELPERS ================= */
-function getBranchFilter() {
+function getBranchFilters() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("location"); // null = ALL
+  const raw = params.get("location");
+  if (!raw) return null;
+  return raw.split(",").map(b => b.trim().toUpperCase());
 }
 
 /* ================= AUTO SCROLL ================= */
@@ -146,10 +148,10 @@ function startAutoScroll() {
 /* ================= DATA ================= */
 async function loadData() {
   const tbody = document.getElementById("tableBody");
-  const branchFilter = getBranchFilter();
+  const branches = getBranchFilters();
 
   document.getElementById("branchLabel").textContent =
-    branchFilter ? branchFilter : "ALL BRANCHES";
+    branches ? branches.join(" + ") : "ALL BRANCHES";
 
   try {
     const res = await fetch(API_URL, {
@@ -165,8 +167,8 @@ async function loadData() {
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error("Invalid JSON");
 
-    const filtered = branchFilter
-      ? data.filter(d => d.locationCode === branchFilter)
+    const filtered = branches
+      ? data.filter(d => branches.includes((d.locationCode || "").toUpperCase()))
       : data;
 
     filtered.sort((a, b) => (b.dailySalesScore || 0) - (a.dailySalesScore || 0));
@@ -175,7 +177,10 @@ async function loadData() {
     filtered.forEach(d => {
       const sales = Number(d.dailySalesScore || 0);
       const conv = Number(d.dailyCustomerScore || 0);
-      const cls = sales >= 60 ? "conversion-high" : sales >= 10 ? "conversion-medium" : "conversion-low";
+      const cls =
+        sales >= 60 ? "conversion-high" :
+        sales >= 10 ? "conversion-medium" :
+        "conversion-low";
 
       tbody.innerHTML += `
         <tr>
@@ -201,6 +206,7 @@ async function loadData() {
 loadData();
 setInterval(loadData, REFRESH_INTERVAL);
 </script>
+
 
 </body>
 </html>
