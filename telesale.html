@@ -25,7 +25,6 @@
     font-size: 28px;
     background: #ba9305;
     border-bottom: 2px solid #121957;
-    flex-shrink: 0;
   }
 
   .container {
@@ -40,9 +39,7 @@
     scrollbar-width: none;
   }
 
-  .table-container::-webkit-scrollbar {
-    display: none;
-  }
+  .table-container::-webkit-scrollbar { display: none; }
 
   table {
     width: 100%;
@@ -54,7 +51,6 @@
     background: #1e293b;
     position: sticky;
     top: 0;
-    z-index: 10;
     text-transform: uppercase;
     font-size: 16px;
     color: #93c5fd;
@@ -62,17 +58,11 @@
 
   th, td {
     padding: 14px;
-    text-align: left;
     border-bottom: 1px solid #334155;
   }
 
-  tbody tr:nth-child(even) {
-    background: #020617;
-  }
-
-  tbody tr:hover {
-    background: #1e293b;
-  }
+  tbody tr:nth-child(even) { background: #020617; }
+  tbody tr:hover { background: #1e293b; }
 
   .sales { color: #e30a0a; }
 
@@ -84,10 +74,9 @@
     text-align: center;
     padding: 10px;
     font-size: 14px;
-    color: #000;
     background: #fff;
+    color: #000;
     border-top: 2px solid #1e293b;
-    flex-shrink: 0;
   }
 </style>
 </head>
@@ -123,56 +112,47 @@
 
 <script>
 /* ================= CONFIG ================= */
-const BASE_API_URL = "http://192.168.4.3:7063/api/syncSalesPersonReport";
+const API_URL = "http://192.168.4.3:7063/api/syncSalesPersonReport";
 const API_TOKEN = "8wxg7Z87jaDKVLgshbiEbWhQLgJ9IOUT";
 const REFRESH_INTERVAL = 30000;
 
 /* ================= HELPERS ================= */
-function getLocationCode() {
+function getBranchFilter() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("location") || "HQ";
+  return params.get("location"); // null = ALL
 }
 
-/* ================= SCROLL ================= */
-let scrollInterval;
-let direction = 1;
-let scrollTop = 0;
+/* ================= AUTO SCROLL ================= */
+let scrollInterval, direction = 1, scrollTop = 0;
 
 function startAutoScroll() {
-  const container = document.getElementById("scrollContainer");
+  const c = document.getElementById("scrollContainer");
   clearInterval(scrollInterval);
-
-  if (container.scrollHeight <= container.clientHeight) return;
-
-  const step = 1;
-  const speed = 40;
+  if (c.scrollHeight <= c.clientHeight) return;
 
   scrollInterval = setInterval(() => {
-    scrollTop += direction * step;
-    container.scrollTop = scrollTop;
+    scrollTop += direction;
+    c.scrollTop = scrollTop;
 
-    if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
-      direction = 0;
-      setTimeout(() => direction = -1, 2000);
+    if (scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
+      direction = 0; setTimeout(() => direction = -1, 2000);
     }
-
     if (scrollTop <= 0 && direction === -1) {
-      direction = 0;
-      setTimeout(() => direction = 1, 5000);
+      direction = 0; setTimeout(() => direction = 1, 5000);
     }
-  }, speed);
+  }, 40);
 }
 
 /* ================= DATA ================= */
 async function loadData() {
   const tbody = document.getElementById("tableBody");
-  const locationCode = getLocationCode();
-  const apiUrl = `${BASE_API_URL}?locationCode=${encodeURIComponent(locationCode)}`;
+  const branchFilter = getBranchFilter();
 
-  document.getElementById("branchLabel").textContent = locationCode;
+  document.getElementById("branchLabel").textContent =
+    branchFilter ? branchFilter : "ALL BRANCHES";
 
   try {
-    const res = await fetch(apiUrl, {
+    const res = await fetch(API_URL, {
       cache: "no-store",
       headers: {
         "Accept": "application/json",
@@ -180,42 +160,30 @@ async function loadData() {
       }
     });
 
-    if (res.status === 401) {
-      tbody.innerHTML = `<tr><td colspan="4">Unauthorized – invalid token</td></tr>`;
-      return;
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    if (!res.ok) {
-      tbody.innerHTML = `<tr><td colspan="4">API error (${res.status})</td></tr>`;
-      return;
-    }
-
-    const text = await res.text();
-    if (!text) throw new Error("Empty response");
-
-    const data = JSON.parse(text);
+    const data = await res.json();
     if (!Array.isArray(data)) throw new Error("Invalid JSON");
 
-    data.sort((a, b) => (b.dailySalesScore || 0) - (a.dailySalesScore || 0));
+    const filtered = branchFilter
+      ? data.filter(d => d.locationCode === branchFilter)
+      : data;
+
+    filtered.sort((a, b) => (b.dailySalesScore || 0) - (a.dailySalesScore || 0));
     tbody.innerHTML = "";
 
-    data.forEach(item => {
-      const sales = Number(item.dailySalesScore || 0);
-      const conv = Number(item.dailyCustomerScore || 0);
-
-      const cls =
-        sales >= 60 ? "conversion-high" :
-        sales >= 10 ? "conversion-medium" :
-        "conversion-low";
+    filtered.forEach(d => {
+      const sales = Number(d.dailySalesScore || 0);
+      const conv = Number(d.dailyCustomerScore || 0);
+      const cls = sales >= 60 ? "conversion-high" : sales >= 10 ? "conversion-medium" : "conversion-low";
 
       tbody.innerHTML += `
         <tr>
-          <td>${item.code || "-"}</td>
-          <td>${item.locationCode || "-"}</td>
+          <td>${d.code || "-"}</td>
+          <td>${d.locationCode || "-"}</td>
           <td class="sales">${sales.toFixed(1)}%</td>
           <td class="${cls}">${conv.toFixed(1)}%</td>
-        </tr>
-      `;
+        </tr>`;
     });
 
     document.getElementById("lastUpdated").textContent =
@@ -223,8 +191,8 @@ async function loadData() {
 
     startAutoScroll();
 
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e);
     tbody.innerHTML = `<tr><td colspan="4">Failed to load data</td></tr>`;
   }
 }
