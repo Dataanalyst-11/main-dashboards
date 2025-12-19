@@ -19,7 +19,7 @@
     flex-direction: column;
   }
 
-  /* ===== FIXED HEADER ===== */
+  /* ===== HEADER ===== */
   header {
     padding: 16px;
     text-align: center;
@@ -52,7 +52,7 @@
     font-size: 20px;
   }
 
-  /* ===== STICKY TABLE HEADER ===== */
+  /* ===== STICKY HEADER ===== */
   thead th {
     position: sticky;
     top: 0;
@@ -60,7 +60,7 @@
     background: #1e293b;
     color: #93c5fd;
     text-transform: uppercase;
-    font-size: 16px;
+    font-size: 15px;
     letter-spacing: 1px;
   }
 
@@ -78,12 +78,18 @@
     background: #1e293b;
   }
 
-  .sales { color: #e30a0a; }
-  .high { color: #22c55e; }
-  .medium { color: #facc15; }
-  .low { color: #ef4444; }
+  /* ===== COLORS BASED ON SALES ===== */
+  .high { color: #2563eb; }     /* ≥10% */
+  .medium { color: #facc15; }   /* ≥5%  */
+  .low { color: #ef4444; }      /* ≥1%  */
 
-  /* ===== FIXED FOOTER ===== */
+  .rank {
+    color: #38bdf8;
+    font-weight: bold;
+    width: 60px;
+  }
+
+  /* ===== FOOTER ===== */
   footer {
     text-align: center;
     padding: 10px;
@@ -106,6 +112,7 @@
     <table>
       <thead>
         <tr>
+          <th>#</th>
           <th>Telesale Name</th>
           <th>Branch</th>
           <th>Sales (%)</th>
@@ -113,7 +120,7 @@
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="4">Loading data…</td></tr>
+        <tr><td colspan="5">Loading data…</td></tr>
       </tbody>
     </table>
   </div>
@@ -127,6 +134,7 @@
 <script src="config.js"></script>
 
 <script>
+/* ================= CONFIG ================= */
 function getLocationParam() {
   const params = new URLSearchParams(window.location.search);
   const location = params.get("location");
@@ -139,10 +147,32 @@ const API_URL =
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
 const REFRESH_INTERVAL = 30000;
 
-let scrollInterval;
-let direction = 1;
-let scrollTop = 0;
+/* ================= AUTO SCROLL ================= */
+let scrollInterval, direction = 1, scrollTop = 0;
 
+function startAutoScroll() {
+  const c = document.getElementById("scrollContainer");
+  clearInterval(scrollInterval);
+
+  if (c.scrollHeight <= c.clientHeight) return;
+
+  scrollInterval = setInterval(() => {
+    scrollTop += direction;
+    c.scrollTop = scrollTop;
+
+    if (scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
+      direction = 0;
+      setTimeout(() => direction = -1, 2000);
+    }
+
+    if (scrollTop <= 0 && direction === -1) {
+      direction = 0;
+      setTimeout(() => direction = 1, 5000);
+    }
+  }, 40);
+}
+
+/* ================= DATA ================= */
 async function loadData() {
   try {
     const response = await fetch(API_URL, {
@@ -157,35 +187,42 @@ async function loadData() {
     }
 
     const json = await response.json();
-
-    /* ✅ YOUR EXACT BACKEND STRUCTURE */
     const data = json.data;
 
     if (!Array.isArray(data)) {
       throw new Error("No data array found");
     }
 
+    /* 🔹 Filter sales >= 1% */
+    const filtered = data
+      .filter(d => Number(d.dailySalesScore) >= 1)
+      .sort((a, b) => b.dailySalesScore - a.dailySalesScore);
+
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
-    /* Sort by sales score (desc) */
-    data.sort((a, b) => b.dailySalesScore - a.dailySalesScore);
+    if (filtered.length === 0) {
+      tbody.innerHTML =
+        `<tr><td colspan="5">No sales ≥ 1%</td></tr>`;
+      return;
+    }
 
-    data.forEach(item => {
-      const sales = Number(item.dailySalesScore || 0);
-      const conv = Number(item.dailyCustomerScore || 0);
+    filtered.forEach((item, index) => {
+      const sales = Number(item.dailySalesScore);
+      const conv  = Number(item.dailyCustomerScore);
 
       const cls =
-        conv >= 10 ? "high" :
-        conv >= 5  ? "medium" :
+        sales >= 10 ? "high" :
+        sales >= 5  ? "medium" :
         "low";
 
       tbody.innerHTML += `
         <tr>
+          <td class="rank">${index + 1}</td>
           <td>${item.salesPersonName}</td>
           <td>${item.locationCode}</td>
-          <td class="sales">${sales.toFixed(1)}</td>
-          <td class="${cls}">${conv.toFixed(1)}</td>
+          <td class="${cls}">${sales.toFixed(1)}%</td>
+          <td>${conv.toFixed(1)}%</td>
         </tr>
       `;
     });
@@ -198,36 +235,11 @@ async function loadData() {
   } catch (err) {
     console.error(err);
     document.getElementById("tableBody").innerHTML =
-      `<tr><td colspan="4">Failed to load data</td></tr>`;
+      `<tr><td colspan="5">Failed to load data</td></tr>`;
   }
 }
 
-/* ===== SYMMETRIC AUTO SCROLL ===== */
-function startAutoScroll() {
-  const container = document.getElementById("scrollContainer");
-  clearInterval(scrollInterval);
-
-  if (container.scrollHeight <= container.clientHeight) return;
-
-  const step = 1;
-  const speed = 40;
-
-  scrollInterval = setInterval(() => {
-    scrollTop += direction * step;
-    container.scrollTop = scrollTop;
-
-    if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
-      direction = 0;
-      setTimeout(() => direction = -1, 2000);
-    }
-
-    if (scrollTop <= 0 && direction === -1) {
-      direction = 0;
-      setTimeout(() => direction = 1, 5000);
-    }
-  }, speed);
-}
-
+/* ================= INIT ================= */
 loadData();
 setInterval(loadData, REFRESH_INTERVAL);
 </script>
