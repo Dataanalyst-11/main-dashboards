@@ -11,7 +11,7 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    font-weight: bolder;
+    font-weight: bold;
     background: #0f172a;
     color: #e5e7eb;
     height: 100vh;
@@ -19,14 +19,17 @@
     flex-direction: column;
   }
 
+  /* ===== FIXED HEADER ===== */
   header {
     padding: 16px;
     text-align: center;
     font-size: 28px;
     background: #ba9305;
-    border-bottom: 2px solid #121957;
+    color: #020617;
+    flex-shrink: 0;
   }
 
+  /* ===== CONTENT ===== */
   .container {
     flex: 1;
     padding: 0 20px;
@@ -39,7 +42,9 @@
     scrollbar-width: none;
   }
 
-  .table-container::-webkit-scrollbar { display: none; }
+  .table-container::-webkit-scrollbar {
+    display: none;
+  }
 
   table {
     width: 100%;
@@ -47,36 +52,45 @@
     font-size: 20px;
   }
 
+  /* ===== STICKY TABLE HEADER ===== */
   thead th {
-    background: #1e293b;
     position: sticky;
     top: 0;
+    z-index: 10;
+    background: #1e293b;
+    color: #93c5fd;
     text-transform: uppercase;
     font-size: 16px;
-    color: #93c5fd;
+    letter-spacing: 1px;
   }
 
   th, td {
     padding: 14px;
+    text-align: left;
     border-bottom: 1px solid #334155;
   }
 
-  tbody tr:nth-child(even) { background: #020617; }
-  tbody tr:hover { background: #1e293b; }
+  tbody tr:nth-child(even) {
+    background: #020617;
+  }
+
+  tbody tr:hover {
+    background: #1e293b;
+  }
 
   .sales { color: #e30a0a; }
+  .high { color: #22c55e; }
+  .medium { color: #facc15; }
+  .low { color: #ef4444; }
 
-  .conversion-high { color: #0f29cf; }
-  .conversion-medium { color: #facc15; }
-  .conversion-low { color: #11d839; }
-
-  .footer {
+  /* ===== FIXED FOOTER ===== */
+  footer {
     text-align: center;
     padding: 10px;
     font-size: 14px;
-    background: #fff;
-    color: #000;
-    border-top: 2px solid #1e293b;
+    background: #f8fafc;
+    color: #020617;
+    flex-shrink: 0;
   }
 </style>
 </head>
@@ -84,7 +98,7 @@
 <body>
 
 <header>
-  Telesale Performance Dashboard 
+  Telesale Performance Dashboard
 </header>
 
 <div class="container">
@@ -94,7 +108,7 @@
         <tr>
           <th>Telesale Name</th>
           <th>Branch</th>
-          <th>Sales</th>
+          <th>Sales (%)</th>
           <th>Call Conversion (%)</th>
         </tr>
       </thead>
@@ -105,87 +119,67 @@
   </div>
 </div>
 
-<div class="footer">
+<footer>
   Last updated: <span id="lastUpdated"></span><br>
   Designed and Managed by MIS.DPT
-</div>
+</footer>
+
+<script src="config.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-const API_URL = "http://192.168.4.3:7063/api/syncSalesPersonReport";
-const API_TOKEN = "8wxg7Z87jaDKVLgshbiEbWhQLgJ9IOUT";
+const API_URL = window.API_CONFIG.API_URL + "telesales-reports";
+const API_TOKEN = window.API_CONFIG.API_TOKEN;
 const REFRESH_INTERVAL = 30000;
 
-/* ================= HELPERS ================= */
-function getBranchFilters() {
-  const params = new URLSearchParams(window.location.search);
-  const raw = params.get("location");
-  if (!raw) return null;
-  return raw.split(",").map(b => b.trim().toUpperCase());
-}
+let scrollInterval;
+let direction = 1;
+let scrollTop = 0;
 
-/* ================= AUTO SCROLL ================= */
-let scrollInterval, direction = 1, scrollTop = 0;
-
-function startAutoScroll() {
-  const c = document.getElementById("scrollContainer");
-  clearInterval(scrollInterval);
-  if (c.scrollHeight <= c.clientHeight) return;
-
-  scrollInterval = setInterval(() => {
-    scrollTop += direction;
-    c.scrollTop = scrollTop;
-
-    if (scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
-      direction = 0; setTimeout(() => direction = -1, 2000);
-    }
-    if (scrollTop <= 0 && direction === -1) {
-      direction = 0; setTimeout(() => direction = 1, 5000);
-    }
-  }, 40);
-}
-
-/* ================= DATA ================= */
 async function loadData() {
-  const tbody = document.getElementById("tableBody");
-  const branches = getBranchFilters();
-
-    try {
-    const res = await fetch(API_URL, {
-      cache: "no-store",
+  try {
+    const response = await fetch(API_URL, {
       headers: {
-        "Accept": "application/json",
-        "Authorization": API_TOKEN
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
       }
     });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
 
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error("Invalid JSON");
+    const json = await response.json();
 
-    const filtered = branches
-      ? data.filter(d => branches.includes((d.locationCode || "").toUpperCase()))
-      : data;
+    /* ✅ YOUR EXACT BACKEND STRUCTURE */
+    const data = json.data;
 
-    filtered.sort((a, b) => (b.dailySalesScore || 0) - (a.dailySalesScore || 0));
+    if (!Array.isArray(data)) {
+      throw new Error("No data array found");
+    }
+
+    const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
-    filtered.forEach(d => {
-      const sales = Number(d.dailySalesScore || 0);
-      const conv = Number(d.dailyCustomerScore || 0);
+    /* Sort by sales score (desc) */
+    data.sort((a, b) => b.dailySalesScore - a.dailySalesScore);
+
+    data.forEach(item => {
+      const sales = Number(item.dailySalesScore || 0);
+      const conv = Number(item.dailyCustomerScore || 0);
+
       const cls =
-        sales >= 60 ? "conversion-high" :
-        sales >= 10 ? "conversion-medium" :
-        "conversion-low";
+        conv >= 10 ? "high" :
+        conv >= 5  ? "medium" :
+        "low";
 
       tbody.innerHTML += `
         <tr>
-          <td>${d.code || "-"}</td>
-          <td>${d.locationCode || "-"}</td>
-          <td class="sales">${sales.toFixed(1)}%</td>
-          <td class="${cls}">${conv.toFixed(1)}%</td>
-        </tr>`;
+          <td>${item.salesPersonName}</td>
+          <td>${item.locationCode}</td>
+          <td class="sales">${sales.toFixed(1)}</td>
+          <td class="${cls}">${conv.toFixed(1)}</td>
+        </tr>
+      `;
     });
 
     document.getElementById("lastUpdated").textContent =
@@ -193,17 +187,42 @@ async function loadData() {
 
     startAutoScroll();
 
-  } catch (e) {
-    console.error(e);
-    tbody.innerHTML = `<tr><td colspan="4">Failed to load data</td></tr>`;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("tableBody").innerHTML =
+      `<tr><td colspan="4">Failed to load data</td></tr>`;
   }
 }
 
-/* ================= INIT ================= */
+/* ===== SYMMETRIC AUTO SCROLL ===== */
+function startAutoScroll() {
+  const container = document.getElementById("scrollContainer");
+  clearInterval(scrollInterval);
+
+  if (container.scrollHeight <= container.clientHeight) return;
+
+  const step = 1;
+  const speed = 40;
+
+  scrollInterval = setInterval(() => {
+    scrollTop += direction * step;
+    container.scrollTop = scrollTop;
+
+    if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
+      direction = 0;
+      setTimeout(() => direction = -1, 2000);
+    }
+
+    if (scrollTop <= 0 && direction === -1) {
+      direction = 0;
+      setTimeout(() => direction = 1, 5000);
+    }
+  }, speed);
+}
+
 loadData();
 setInterval(loadData, REFRESH_INTERVAL);
 </script>
-
 
 </body>
 </html>
