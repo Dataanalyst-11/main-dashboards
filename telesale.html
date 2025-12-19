@@ -145,7 +145,8 @@ const API_URL =
   window.API_CONFIG.API_URL + "telesales-reports" + getLocationParam();
 
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
-const REFRESH_INTERVAL = 30000;
+ /* Refresh after 5 Minutes*/
+const REFRESH_INTERVAL = 300000;
 
 /* ================= AUTO SCROLL ================= */
 let scrollInterval, direction = 1, scrollTop = 0;
@@ -162,12 +163,12 @@ function startAutoScroll() {
 
     if (scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
       direction = 0;
-      setTimeout(() => direction = -1, 2000);
+      setTimeout(() => direction = -1, 5000);
     }
 
     if (scrollTop <= 0 && direction === -1) {
       direction = 0;
-      setTimeout(() => direction = 1, 5000);
+      setTimeout(() => direction = 1, 7000);
     }
   }, 40);
 }
