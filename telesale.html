@@ -213,8 +213,8 @@ async function loadData() {
       const conv  = Number(item.dailyCustomerScore);
 
       const cls =
-        sales >= 10 ? "high" :
-        sales >= 5  ? "medium" :
+        sales >= 60 ? "high" :
+        sales >= 50  ? "medium" :
         "low";
 
       tbody.innerHTML += `
