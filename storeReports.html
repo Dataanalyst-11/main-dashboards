@@ -3,228 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <title>Store Performance Dashboard</title>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        font-weight: bolder;
-        background: #f4f6f9;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        overflow: hidden; /* Prevent double scrollbars */
-    }
-    h1 {
-        text-align: center;
-        padding: 20px;
-        background: #34495e;
-        color: white;
-        margin: 0;
-    }
+body {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    background: #f4f6f9;
+    margin: 0;
+    overflow: hidden;
+}
 
-    #clock {
-        text-align: center;
-        font-size: 1.6rem;
-        font-weight: bold;
-        margin: 10px 0 20px;
-        color: #2c3e50;
-    }
+h1 {
+    text-align: center;
+    padding: 20px;
+    background: #34495e;
+    color: white;
+    margin: 0;
+}
 
-    .table-container {
-        height: 85vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        width: 95%;
-        margin: 0 auto;
-    }
+#clock {
+    text-align: center;
+    font-size: 1.6rem;
+    margin: 10px 0;
+    color: #2c3e50;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+.table-container {
+    height: 85vh;
+    overflow-y: auto;
+    width: 95%;
+    margin: auto;
+}
 
-    th, td {
-        padding: 12px;
-        text-align: center;
-        border: 1px solid #ddd;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
 
-    th {
-        background: #2c3e50;
-        color: white;
-        font-size: 14px;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
 
-    tr:hover { background: #f1f1f1; }
+th {
+    background: #2c3e50;
+    color: white;
+    position: sticky;
+    top: 0;
+}
 
-    .score-high { background: #27ae60; color: white; }
-    .score-medium { background: #f1c40f; color: black; }
-    .score-low { background: #e74c3c; color: white; }
+.score-high { background: #27ae60; color: white; }
+.score-medium { background: #f1c40f; color: black; }
+.score-low { background: #e74c3c; color: white; }
 
-    /* ===== FIXED FOOTER ===== */
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #ecf0f1;
-        border-top: 2px solid #ccc;
-        text-align: center;
-        font-size: 14px;
-        color: #555;
-        padding: 8px 0;
-        box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-    }
-
-    @media (max-width: 768px) {
-        th, td { font-size: 12px; padding: 8px; }
-        h1 { font-size: 18px; }
-        #clock { font-size: 1.2rem; }
-    }
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #ecf0f1;
+    text-align: center;
+    font-size: 14px;
+    padding: 6px;
+}
 </style>
 </head>
+
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="header">
-    <h1>Store Performance Report</h1>
-    <div id="clock"></div>
-</div>
-
+<h1>Store Performance Report</h1>
+<div id="clock"></div>
 
 <div class="table-container">
-    <table aria-label="Store performance metrics table">
-        <thead>
-            <tr>
-                <th>Store Attendant</th>
-                <th>Branch</th>
-                <th>Total Orders</th>
-                <th>Line Items</th>
-                <th>Avg Items per Order</th>
-                <th>Orders per Hour</th>
-                <th>Efficiency Score (%)</th>
-            </tr>
-        </thead>
-        <tbody id="performanceBody"></tbody>
-    </table>
+<table>
+<thead>
+<tr>
+    <th>Store Attendant</th>
+    <th>Branch</th>
+    <th>Total Orders</th>
+    <th>Line Items</th>
+    <th>Avg Items / Order</th>
+    <th>Orders / Hour</th>
+    <th>Efficiency (%)</th>
+</tr>
+</thead>
+<tbody id="performanceBody"></tbody>
+</table>
 </div>
 
-    <!-- ===== FIXED FOOTER ===== -->
+<!-- ===== FIXED FOOTER ===== -->
 <div class="footer">
     <div>Last updated: <span id="lastUpdated"></span></div>
     <div>Designed and Managed by MIS.DPT</div>
 </div>
-    
+
 <script src="config.js"></script>
 
 <script>
-    // =============== CLOCK ===================
+// ===== CLOCK =====
 function updateClock() {
     const now = new Date();
-    const dateStr = now.toLocaleDateString(undefined, {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-    });
-    const timeStr = now.toLocaleTimeString();
-    document.getElementById("clock").textContent = `${dateStr} – ${timeStr}`;
+    document.getElementById("clock").textContent =
+        now.toLocaleDateString(undefined, { weekday:"short", year:"numeric", month:"short", day:"numeric" }) +
+        " – " + now.toLocaleTimeString();
 }
 setInterval(updateClock, 1000);
 updateClock();
-// ====== SAVE SCROLL POSITION & DIRECTION ======
-let savedScrollTop = 0;
-let savedDirection = 1;
-let currentDirection = 1;
 
-// =============== API CONFIG ===================
-let today = new Date();
-let yyyy = today.getFullYear();
-let mm = String(today.getMonth() + 1).padStart(2, '0');
-let dd = String(today.getDate()).padStart(2, '0');
-let formatted = `${yyyy}-${mm}-${dd}`;
+// ===== DATE =====
+const today = new Date().toISOString().split("T")[0];
 
-// Read branch ID dynamically from the URL, e.g. ?branch=orgbranch-12345
-const urlParams = new URLSearchParams(window.location.search);
-const branchId = urlParams.get('branch') || 'orgbranch-default'; // fallback if missing
+// ===== URL PARAM =====
+const branchId = new URLSearchParams(window.location.search).get("branch") || "orgbranch-default";
 
-const API_URL = `${window.API_CONFIG.API_URL}store-picker-reports?&orgBranchId=${branchId}&startDate=${formatted}`;
-
+const API_URL = `${window.API_CONFIG.API_URL}store-picker-reports?orgBranchId=${branchId}&startDate=${today}`;
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-// =============== SCORING FORMULA ===================
-function calculatePerformance(attendant) {
-  const hoursWorked = 8;
-  const orders = attendant.numberOfOrders || 0;
-  const items = attendant.numberOfLineItems || 0;
-  const amount = attendant.orderAmount || 0;
+// ===== PERCENTILE SCORING =====
+function calculatePercentilePerformance(attendants) {
 
-  const avgItemsPerOrder = orders > 0 ? items / orders : 0;
-  const ordersPerHour = orders / hoursWorked;
-  const avgOrderValue = orders > 0 ? amount / orders : 0;
+    const ordersPerHourArr = attendants.map(a => (a.numberOfOrders || 0) / 8);
+    const avgItemsArr = attendants.map(a => a.numberOfOrders ? a.numberOfLineItems / a.numberOfOrders : 0);
 
-  const scoreOrders = Math.min((ordersPerHour / 20) * 100, 100);
-  const scoreItems  = Math.min((avgItemsPerOrder / 10) * 100, 100);
-  const scoreValue  = Math.min((avgOrderValue / 5000) * 100, 100);
+    function percentile(arr, val) {
+        return arr.length ? (arr.filter(v => v <= val).length / arr.length) * 100 : 0;
+    }
 
-  const finalScore = (
-    (scoreOrders * 0.4) +
-    (scoreItems  * 0.3) +
-    (scoreValue  * 0.3)
-  );
+    attendants.forEach(a => {
+        const ordersPerHour = (a.numberOfOrders || 0) / 8;
+        const avgItems = a.numberOfOrders ? a.numberOfLineItems / a.numberOfOrders : 0;
 
-  return {
-    avgItemsPerOrder,
-    avgOrderValue,
-    ordersPerHour,
-    score: finalScore
-  };
+        a.performance = {
+            ordersPerHour,
+            avgItemsPerOrder: avgItems,
+            score:
+                percentile(ordersPerHourArr, ordersPerHour) * 0.6 +
+                percentile(avgItemsArr, avgItems) * 0.4
+        };
+    });
 }
 
+// ===== SCORE COLOR =====
 function scoreClass(score) {
-  if (score >= 80) return "score-high";
-  if (score >= 50) return "score-medium";
-  return "score-low";
+    if (score >= 70) return "score-high";
+    if (score >= 50) return "score-medium";
+    return "score-low";
 }
 
-// =============== LOAD & RENDER ===================
+// ===== LOAD DATA =====
 async function loadPerformanceData() {
     const tbody = document.getElementById("performanceBody");
-    const container = document.querySelector(".table-container");
 
-    // SAVE current scroll before refresh
-    savedScrollTop = container.scrollTop;
-    savedDirection = currentDirection;
-
-    tbody.innerHTML = "<tr><td colspan='9'>Loading...</td></tr>";
+    tbody.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
 
     try {
-        const response = await fetch(API_URL, {
-            headers: {
-                "Authorization": API_TOKEN,
-                "Content-Type": "application/json"
-            }
+        const res = await fetch(API_URL, {
+            headers: { Authorization: API_TOKEN }
         });
 
-        if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+        const json = await res.json();
+        const attendants = json.data || json || [];
 
-        const json = await response.json();
-        const attendants = Array.isArray(json) ? json : json.data || [];
-
-        if (attendants.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='9'>No data</td></tr>";
+        if (!attendants.length) {
+            tbody.innerHTML = `<tr><td colspan="7">No data</td></tr>`;
             return;
         }
 
-        attendants.forEach(a => a.performance = calculatePerformance(a));
+        calculatePercentilePerformance(attendants);
 
-        attendants.sort((a, b) => b.performance.score - a.performance.score);
+        attendants.sort((a,b) => b.performance.score - a.performance.score);
 
         tbody.innerHTML = attendants.map(a => `
             <tr>
@@ -234,58 +182,38 @@ async function loadPerformanceData() {
                 <td>${a.numberOfLineItems}</td>
                 <td>${a.performance.avgItemsPerOrder.toFixed(2)}</td>
                 <td>${a.performance.ordersPerHour.toFixed(2)}</td>
-                <td class="${scoreClass(a.performance.score)}">${a.performance.score.toFixed(1)}%</td>
+                <td class="${scoreClass(a.performance.score)}">
+                    ${a.performance.score.toFixed(1)}%
+                </td>
             </tr>
         `).join("");
 
         document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
-
         startAutoScroll();
 
-        // RESTORE scroll position
-        container.scrollTop = savedScrollTop;
-
-    } catch (e) {
-        console.error(e);
-        tbody.innerHTML = "<tr><td colspan='9' style='color:red;'>Error loading data</td></tr>";
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="7" style="color:red">Error loading data</td></tr>`;
     }
 }
 
-// =============== AUTO SCROLL ===================
+// ===== AUTO SCROLL =====
 let scrollInterval;
-
 function startAutoScroll() {
     const container = document.querySelector(".table-container");
     clearInterval(scrollInterval);
 
     if (container.scrollHeight <= container.clientHeight) return;
 
-    const speed = 40;
-    const step = 1;
-
-    let direction = savedDirection || 1;
-    let scrollTop = savedScrollTop || 0;
-
+    let dir = 1;
     scrollInterval = setInterval(() => {
-
-        scrollTop += direction * step;
-        container.scrollTo({ top: scrollTop, behavior: "smooth" });
-
-        currentDirection = direction;
-
-        if (scrollTop >= container.scrollHeight - container.clientHeight && direction === 1) {
-            direction = 0;
-            setTimeout(() => { direction = -1; }, 2000);
-        }
-
-        if (scrollTop <= 0 && direction === -1) {
-            direction = 1;
-        }
-
-    }, speed);
+        container.scrollTop += dir;
+        if (container.scrollTop >= container.scrollHeight - container.clientHeight) dir = -1;
+        if (container.scrollTop <= 0) dir = 1;
+    }, 40);
 }
 
-// =============== AUTO REFRESH EVERY 60 SECONDS ===================
+// ===== AUTO REFRESH =====
 setInterval(loadPerformanceData, 60000);
 loadPerformanceData();
 </script>
