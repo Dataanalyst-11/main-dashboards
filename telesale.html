@@ -6,98 +6,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    background: #0f172a;
-    color: #e5e7eb;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  background: #0f172a;
+  color: #e5e7eb;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ===== HEADER ===== */
-  header {
-    padding: 16px;
-    text-align: center;
-    font-size: 28px;
-    background: #ba9305;
-    color: #020617;
-    flex-shrink: 0;
-  }
+/* ===== HEADER ===== */
+header {
+  padding: 16px;
+  text-align: center;
+  font-size: 28px;
+  background: #ba9305;
+  color: #020617;
+  flex-shrink: 0;
+}
 
-  /* ===== CONTENT ===== */
-  .container {
-    flex: 1;
-    padding: 0 20px;
-    overflow: hidden;
-  }
+/* ===== CONTENT ===== */
+.container {
+  flex: 1;
+  padding: 0 20px;
+  overflow: hidden;
+}
 
-  .table-container {
-    height: 100%;
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
+.table-container {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
 
-  .table-container::-webkit-scrollbar {
-    display: none;
-  }
+.table-container::-webkit-scrollbar {
+  display: none;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 20px;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 20px;
+}
 
-  /* ===== STICKY HEADER ===== */
-  thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #1e293b;
-    color: #93c5fd;
-    text-transform: uppercase;
-    font-size: 15px;
-    letter-spacing: 1px;
-  }
+/* ===== STICKY HEADER ===== */
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #1e293b;
+  color: #93c5fd;
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
 
-  th, td {
-    padding: 14px;
-    text-align: left;
-    border-bottom: 1px solid #334155;
-  }
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+}
 
-  tbody tr:nth-child(even) {
-    background: #020617;
-  }
+tbody tr:nth-child(even) {
+  background: #020617;
+}
 
-  tbody tr:hover {
-    background: #1e293b;
-  }
+tbody tr:hover {
+  background: #1e293b;
+}
 
-  /* ===== COLORS BASED ON SALES ===== */
-  .high { color: #2563eb; }     /* ≥10% */
-  .medium { color: #facc15; }   /* ≥5%  */
-  .low { color: #ef4444; }      /* ≥1%  */
+/* ===== COLORS BASED ON SALES ===== */
+.high   { color: #2563eb; }
+.medium { color: #facc15; }
+.low    { color: #ef4444; }
 
-  .rank {
-    color: #38bdf8;
-    font-weight: bold;
-    width: 60px;
-  }
+.rank {
+  color: #38bdf8;
+  font-weight: bold;
+  width: 60px;
+}
 
-  /* ===== FOOTER ===== */
-  footer {
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    background: #f8fafc;
-    color: #020617;
-    flex-shrink: 0;
-  }
+/* ===== FOOTER ===== */
+footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  background: #f8fafc;
+  color: #020617;
+  flex-shrink: 0;
+}
 </style>
 </head>
 
@@ -134,18 +134,23 @@
 <script src="config.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-function getLocationParam() {
+/* ================= MULTI-LOCATION SUPPORT ================= */
+function getSelectedLocations() {
   const params = new URLSearchParams(window.location.search);
-  const location = params.get("location");
-  return location ? `?locationCode=${location}` : "";
+  const raw = params.get("location");
+
+  if (!raw) return null;
+
+  return raw
+    .split(",")
+    .map(l => l.trim().toUpperCase());
 }
 
-const API_URL =
-  window.API_CONFIG.API_URL + "telesales-reports" + getLocationParam();
+const SELECTED_LOCATIONS = getSelectedLocations();
 
+/* ================= CONFIG ================= */
+const API_URL = window.API_CONFIG.API_URL + "telesales-reports";
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
- /* Refresh after 5 Minutes*/
 const REFRESH_INTERVAL = 300000;
 
 /* ================= AUTO SCROLL ================= */
@@ -183,26 +188,32 @@ async function loadData() {
       }
     });
 
-    if (!response.ok) {
-      throw new Error("HTTP " + response.status);
-    }
+    if (!response.ok) throw new Error("HTTP " + response.status);
 
     const json = await response.json();
     const data = json.data;
 
-    if (!Array.isArray(data)) {
-      throw new Error("No data array found");
-    }
+    if (!Array.isArray(data)) throw new Error("Invalid data format");
 
-    /* 🔹 Filter sales >= 1% */
     const filtered = data
-      .filter(d => Number(d.dailySalesScore) >= 1)
+      .filter(d => {
+        const salesOK = Number(d.dailySalesScore) >= 1;
+
+        if (!SELECTED_LOCATIONS) return salesOK;
+
+        return (
+          salesOK &&
+          SELECTED_LOCATIONS.includes(
+            String(d.locationCode).toUpperCase()
+          )
+        );
+      })
       .sort((a, b) => b.dailySalesScore - a.dailySalesScore);
 
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
-    if (filtered.length === 0) {
+    if (!filtered.length) {
       tbody.innerHTML =
         `<tr><td colspan="5">No sales Data Available</td></tr>`;
       return;
@@ -214,7 +225,7 @@ async function loadData() {
 
       const cls =
         sales >= 60 ? "high" :
-        sales >= 50  ? "medium" :
+        sales >= 50 ? "medium" :
         "low";
 
       tbody.innerHTML += `
