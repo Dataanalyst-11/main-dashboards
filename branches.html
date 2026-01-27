@@ -7,6 +7,7 @@
 <style>
   :root {
     --header-height: 0px;
+    --footer-height: 0px;
   }
 
   body {
@@ -14,6 +15,7 @@
     background: #f4f6f9;
     margin: 0;
     padding-top: var(--header-height);
+    padding-bottom: var(--footer-height);
   }
 
   /* ===== FIXED DASHBOARD HEADER ===== */
@@ -36,7 +38,7 @@
     font-size: 1rem;
     margin-top: 6px;
     color: #2c3e50;
-    font-weight: bold;
+    font-weight: bolder;
   }
 
   table {
@@ -49,14 +51,22 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
-    font-weight: bold;
+    font-weight: bolder;
   }
+
+  /* Left-align only the first column (Branch) */
+   table th:first-child,
+   table td:first-child {
+   text-align: left;
+   padding-left: 16px;
+  }
+
 
   th {
     background: #1f4e79;
     color: white;
     position: sticky;
-    top: var(--header-height); /* PERFECT ALIGNMENT */
+    top: var(--header-height);
     z-index: 500;
   }
 
@@ -65,14 +75,22 @@
   }
 
   tr:hover {
-    background: #eef;
+    background: rgb(184, 184, 250);
   }
 
+  /* ===== FIXED FOOTER ===== */
   .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #f4f6f9;
+    border-top: 1px solid #ddd;
     text-align: center;
-    font-size: 0.6em;
-    margin: 10px 0;
+    font-size: 14px;
+    padding: 6px 0;
+    font-weight: bolder;
     color: gray;
+    z-index: 1000;
   }
 
   html {
@@ -104,7 +122,8 @@
   <tbody id="dataBody"></tbody>
 </table>
 
-<div class="footer">
+<!-- FIXED FOOTER -->
+<div class="footer" id="dashboardFooter">
   Last updated: <span id="lastUpdated"></span>
   <div>Designed and Managed by MIS.DPT</div>
 </div>
@@ -113,19 +132,25 @@
 
 <script>
 /* ===============================
-   SET HEADER HEIGHT DYNAMICALLY
+   SET HEADER & FOOTER HEIGHTS
    =============================== */
-function setHeaderHeight() {
+function setLayoutHeights() {
   const header = document.getElementById("dashboardHeader");
-  const height = header.offsetHeight;
+  const footer = document.getElementById("dashboardFooter");
+
   document.documentElement.style.setProperty(
     "--header-height",
-    `${height}px`
+    `${header.offsetHeight}px`
+  );
+
+  document.documentElement.style.setProperty(
+    "--footer-height",
+    `${footer.offsetHeight}px`
   );
 }
 
-window.addEventListener("load", setHeaderHeight);
-window.addEventListener("resize", setHeaderHeight);
+window.addEventListener("load", setLayoutHeights);
+window.addEventListener("resize", setLayoutHeights);
 
 /* ===============================
    LIVE CLOCK
@@ -222,42 +247,44 @@ setInterval(loadDashboard, 60000);
 
 <script>
 /* ===============================
-   AUTO SCROLL WITH PAUSES
+   TV-SAFE AUTO SCROLL WITH PAUSES
    =============================== */
-let direction = 1;
-let speed = 0.4;
+
+let direction = 1;        // 1 = down, -1 = up
+let speed = 1;            // pixels per tick (TVs need larger steps)
 let paused = false;
 
-const TOP_PAUSE = 5000;
-const BOTTOM_PAUSE = 3000;
+const TOP_PAUSE = 5000;    // 5 seconds
+const BOTTOM_PAUSE = 3000; // 3 seconds
+const TICK = 20;           // ms (50fps approx)
 
 function pauseScroll(ms) {
   paused = true;
   setTimeout(() => paused = false, ms);
 }
 
-function autoScroll() {
-  if (!paused) {
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
+setInterval(() => {
+  if (paused) return;
 
-    const next = window.scrollY + direction * speed;
+  const maxScroll =
+    document.documentElement.scrollHeight - window.innerHeight;
 
-    if (next >= maxScroll) {
-      direction = -1;
-      pauseScroll(BOTTOM_PAUSE);
-    } else if (next <= 0) {
-      direction = 1;
-      pauseScroll(TOP_PAUSE);
-    } else {
-      window.scrollTo(0, next);
-    }
+  const next = window.scrollY + direction * speed;
+
+  if (next >= maxScroll) {
+    direction = -1;
+    pauseScroll(BOTTOM_PAUSE);
+  } 
+  else if (next <= 0) {
+    direction = 1;
+    pauseScroll(TOP_PAUSE);
+  } 
+  else {
+    window.scrollTo(0, next);
   }
-  requestAnimationFrame(autoScroll);
-}
-
-requestAnimationFrame(autoScroll);
+}, TICK);
 </script>
+
 
 </body>
 </html>
