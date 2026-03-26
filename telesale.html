@@ -193,7 +193,7 @@ async function loadData() {
     const filtered = data
       .filter(d => {
       const score = Number(d.dailySalesScore);
-     return score >= 1 && score <= 61;
+     return score >= 1 && score <= 50;
     })
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
@@ -206,7 +206,7 @@ async function loadData() {
 
     filtered.forEach((item, index) => {
       const sales = Number(item.dailySalesScore);
-      const conv  = Number(item.dailyCustomerScore);
+      const conv  = Number(item.totalDaysCustomers);
 
       const cls =
         sales >= 60 ? "high" :
