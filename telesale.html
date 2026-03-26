@@ -142,20 +142,34 @@ function startAutoScroll() {
   const c = document.getElementById("scrollContainer");
   clearInterval(scrollInterval);
 
+  let direction = 1;
   let scrollTop = 0;
 
   if (c.scrollHeight <= c.clientHeight) return;
 
   scrollInterval = setInterval(() => {
-    scrollTop += 2;
+    scrollTop += direction * 2;
     c.scrollTop = scrollTop;
 
-    if (scrollTop >= c.scrollHeight - c.clientHeight) {
-      clearInterval(scrollInterval);
+    const reachedBottom = scrollTop >= c.scrollHeight - c.clientHeight;
+    const reachedTop = scrollTop <= 0;
 
-      setTimeout(() => {
-        switchPage();
-      }, PAGE_SWITCH_DELAY);
+    if (pagesData.length <= 1) {
+      // 🔁 ONLY ONE PAGE → bounce up & down forever
+      if (reachedBottom) {
+        direction = -1;
+      } else if (reachedTop) {
+        direction = 1;
+      }
+    } else {
+      // 🔄 MULTIPLE PAGES → scroll down then switch
+      if (reachedBottom) {
+        clearInterval(scrollInterval);
+
+        setTimeout(() => {
+          switchPage();
+        }, PAGE_SWITCH_DELAY);
+      }
     }
 
   }, 30);
