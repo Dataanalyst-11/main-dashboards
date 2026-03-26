@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -134,19 +135,13 @@
 <script src="config.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-function getLocationParam() {
-  const params = new URLSearchParams(window.location.search);
-  const location = params.get("location");
-  return location ? `?locationCode=${location}` : "";
-}
 
 const API_URL =
-  window.API_CONFIG.API_URL + "telesales-reports" + getLocationParam();
+  window.API_CONFIG.API_URL + "sales-person-performance";
 
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
- /* Refresh after 5 Minutes*/
-const REFRESH_INTERVAL = 300000;
+ /* Refresh after 10 Minutes*/
+const REFRESH_INTERVAL = 600000;
 
 /* ================= AUTO SCROLL ================= */
 let scrollInterval, direction = 1, scrollTop = 0;
@@ -194,11 +189,12 @@ async function loadData() {
       throw new Error("No data array found");
     }
 
-    /* 🔹 Filter sales >= 1% */
+    /* 🔹 Filter sales >= 1% or <=61%*/
     const filtered = data
-      .filter(d => Number(d.dailySalesScore) >= 1)
-      .sort((a, b) => b.dailySalesScore - a.dailySalesScore);
-
+      .filter(d => {
+      const score = Number(d.dailySalesScore);
+     return score >= 1 && score <= 61;
+    })
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
@@ -221,7 +217,7 @@ async function loadData() {
         <tr>
           <td class="rank">${index + 1}</td>
           <td>${item.salesPersonName}</td>
-          <td>${item.locationCode}</td>
+          <td>${item.branchName}</td>
           <td class="${cls}">${sales.toFixed(1)}%</td>
           <td>${conv.toFixed(1)}%</td>
         </tr>
