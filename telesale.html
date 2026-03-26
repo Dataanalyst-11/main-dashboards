@@ -25,7 +25,6 @@
     font-size: 28px;
     background: #ba9305;
     color: #020617;
-    flex-shrink: 0;
   }
 
   .container {
@@ -53,17 +52,14 @@
   thead th {
     position: sticky;
     top: 0;
-    z-index: 10;
     background: #1e293b;
     color: #93c5fd;
     text-transform: uppercase;
     font-size: 15px;
-    letter-spacing: 1px;
   }
 
   th, td {
     padding: 14px;
-    text-align: left;
     border-bottom: 1px solid #334155;
   }
 
@@ -75,10 +71,9 @@
     background: #1e293b;
   }
 
-  /* Updated color logic for <= 50% */
-  .high { color: #2563eb; }   /* ≥40% */
-  .medium { color: #facc15; } /* ≥20% */
-  .low { color: #ef4444; }    /* <20% */
+  .high { color: #2563eb; }
+  .medium { color: #facc15; }
+  .low { color: #ef4444; }
 
   .rank {
     color: #38bdf8;
@@ -92,7 +87,6 @@
     font-size: 14px;
     background: #f8fafc;
     color: #020617;
-    flex-shrink: 0;
   }
 </style>
 </head>
@@ -100,7 +94,7 @@
 <body>
 
 <header>
- Tellesales Performance Less Than 50%
+ Telesales Performance Less Than 50%
 </header>
 
 <div class="container">
@@ -135,8 +129,8 @@ const BASE_API =
 
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-const REFRESH_INTERVAL = 600000; // 10 min
-const PAGE_SWITCH_DELAY = 3000;  // pause at bottom before switching
+const REFRESH_INTERVAL = 600000;
+const PAGE_SWITCH_DELAY = 3000;
 
 let pagesData = [];
 let currentPageIndex = 0;
@@ -148,16 +142,14 @@ function startAutoScroll() {
   const c = document.getElementById("scrollContainer");
   clearInterval(scrollInterval);
 
-  let direction = 1;
   let scrollTop = 0;
 
   if (c.scrollHeight <= c.clientHeight) return;
 
   scrollInterval = setInterval(() => {
-    scrollTop += direction * 2;
+    scrollTop += 2;
     c.scrollTop = scrollTop;
 
-    // When reaching bottom → pause → switch page
     if (scrollTop >= c.scrollHeight - c.clientHeight) {
       clearInterval(scrollInterval);
 
@@ -166,10 +158,10 @@ function startAutoScroll() {
       }, PAGE_SWITCH_DELAY);
     }
 
-  }, 40);
+  }, 30);
 }
 
-/* ================= FETCH PAGE ================= */
+/* ================= FETCH ================= */
 async function fetchPage(pageNum) {
   const response = await fetch(`${BASE_API}?pageNum=${pageNum}`, {
     headers: {
@@ -183,21 +175,51 @@ async function fetchPage(pageNum) {
   return await response.json();
 }
 
-/* ================= LOAD ALL PAGES ================= */
+/* ================= LOAD ALL ================= */
 async function loadAllPages() {
   try {
     pagesData = [];
 
-    // Get first page (to read pageCount)
     const firstResponse = await fetchPage(0);
     const pageCount = firstResponse.pageCount || 1;
 
-    pagesData.push(firstResponse.data || []);
+    const processData = (data) => {
+      return (data || [])
+        .map(d => {
+          let score = d.dailySalesScore;
 
-    // Fetch remaining pages dynamically
+          if (typeof score === "string") {
+            score = score.replace("%", "");
+          }
+
+          score = Number(score);
+
+          return { ...d, score };
+        })
+        .filter(d => !isNaN(d.score) && d.score > 0 && d.score <= 50)
+        .sort((a, b) => b.score - a.score);
+    };
+
+    const firstFiltered = processData(firstResponse.data);
+    if (firstFiltered.length > 0) {
+      pagesData.push(firstFiltered);
+    }
+
     for (let i = 1; i < pageCount; i++) {
       const res = await fetchPage(i);
-      pagesData.push(res.data || []);
+      const filtered = processData(res.data);
+
+      if (filtered.length > 0) {
+        pagesData.push(filtered);
+      }
+    }
+
+    const tbody = document.getElementById("tableBody");
+
+    if (pagesData.length === 0) {
+      tbody.innerHTML =
+        `<tr><td colspan="5">No sales Data Available</td></tr>`;
+      return;
     }
 
     currentPageIndex = 0;
@@ -217,23 +239,10 @@ async function loadAllPages() {
 function renderTable(data) {
   const tbody = document.getElementById("tableBody");
 
-  const filtered = data
-    .filter(d => {
-      const score = Number(d.dailySalesScore);
-      return score >= 1 && score <= 50;
-    })
-    .sort((a, b) => Number(b.dailySalesScore) - Number(a.dailySalesScore));
-
   tbody.innerHTML = "";
 
-  if (filtered.length === 0) {
-    tbody.innerHTML =
-      `<tr><td colspan="5">No sales Data Available</td></tr>`;
-    return;
-  }
-
-  filtered.forEach((item, index) => {
-    const sales = Number(item.dailySalesScore);
+  data.forEach((item, index) => {
+    const sales = item.score;
     const conv  = Number(item.totalDaysCustomers);
 
     const cls =
@@ -252,14 +261,15 @@ function renderTable(data) {
     `;
   });
 
-  // Reset scroll to top before starting
   document.getElementById("scrollContainer").scrollTop = 0;
-
   startAutoScroll();
 }
 
 /* ================= SWITCH PAGE ================= */
 function switchPage() {
+  // ✅ Disable switching if only 1 page
+  if (pagesData.length <= 1) return;
+
   currentPageIndex =
     (currentPageIndex + 1) % pagesData.length;
 
