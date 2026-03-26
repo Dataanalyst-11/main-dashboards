@@ -260,8 +260,8 @@ function renderTable(data) {
     const conv  = Number(item.totalDaysCustomers);
 
     const cls =
-      sales >= 40 ? "high" :
-      sales >= 20 ? "medium" :
+      sales >= 80 ? "high" :
+      sales >= 50 ? "medium" :
       "low";
 
     tbody.innerHTML += `
