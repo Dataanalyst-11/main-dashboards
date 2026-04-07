@@ -226,9 +226,9 @@ function processData(){
     branchMap[branch].qty+=qty;
   });
 
-  totalQtyEl.innerText=totalQty;
-  totalOrders.innerText=orders.size;
-  avgOrder.innerText=(totalQty/orders.size).toFixed(2);
+  document.getElementById("totalQty").innerText = totalQty;
+  document.getElementById("totalOrders").innerText = orders.size;
+  document.getElementById("avgOrder").innerText = (totalQty / orders.size).toFixed(2);
 
   // ROUTES
   let routeArr = Object.entries(routeMap).sort((a,b)=>b[1].qty-a[1].qty);
@@ -283,20 +283,22 @@ function drawCharts(routeArr, productMap){
   let dataR = topRoutes.map(r=>r[1].qty);
 
   if(routeChart) routeChart.destroy();
-  routeChart = new Chart(routeChartCanvas, {
-    type:'bar',
-    data:{labels:labelsR,datasets:[{data:dataR}]}
-  });
+  const routeCtx = document.getElementById("routeChart").getContext("2d");
+ routeChart = new Chart(routeCtx, {
+  type: 'bar',
+  data: { labels: labelsR, datasets: [{ data: dataR }] }
+});
 
   let prodArr = Object.entries(productMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,5);
   let labelsP = prodArr.map(p=>p[0]);
   let dataP = prodArr.map(p=>p[1].qty);
 
   if(productChart) productChart.destroy();
-  productChart = new Chart(productChartCanvas, {
-    type:'bar',
-    data:{labels:labelsP,datasets:[{data:dataP}]}
-  });
+  const productCtx = document.getElementById("productChart").getContext("2d");
+  productChart = new Chart(productCtx, {
+   type: 'bar',
+   data: { labels: labelsP, datasets: [{ data: dataP }] }
+});
 }
 
 loadData();
