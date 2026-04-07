@@ -2,242 +2,303 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sales Performance Dashboard</title>
+<title>Sales Intelligence Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-  }
+body { margin:0; font-family:Arial; background:#f4f6f9; }
+header { background:#1e3a8a; color:white; padding:15px; text-align:center; }
 
-  header {
-    background: #1e3a8a;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-  }
+.nav { display:flex; background:#111827; }
+.nav button { flex:1; padding:12px; color:white; background:none; border:none; cursor:pointer; }
+.nav button:hover { background:#374151; }
+.active { background:#2563eb !important; }
 
-  .container {
-    padding: 15px;
-  }
+.page { display:none; padding:15px; }
 
-  .kpi-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-  }
+.kpi-container {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
 
-  .kpi {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
+.kpi { background:white; padding:15px; border-radius:10px; }
 
-  .kpi h3 {
-    margin: 0;
-    font-size: 14px;
-    color: #555;
-  }
+.section { background:white; margin-top:20px; padding:15px; border-radius:10px; }
 
-  .kpi p {
-    font-size: 20px;
-    margin: 5px 0 0;
-    font-weight: bold;
-  }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:8px; font-size:13px; }
+th { background:#1e3a8a; color:white; }
 
-  .section {
-    margin-top: 20px;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-  }
+.filters {
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+select {
+  padding:6px;
+}
 
-  th, td {
-    padding: 8px;
-    text-align: left;
-    font-size: 13px;
-  }
-
-  th {
-    background: #1e3a8a;
-    color: white;
-  }
-
-  tr:nth-child(even) {
-    background: #f2f2f2;
-  }
-
-  .high { background-color: #d1fae5; }
-  .medium { background-color: #fef3c7; }
-  .low { background-color: #fee2e2; }
-
+.fast { background:#d1fae5; }
+.slow { background:#fee2e2; }
 </style>
 </head>
 
 <body>
 
-<header>Sales Performance Dashboard</header>
+<header>Sales Intelligence Dashboard (Quantity-Based)</header>
 
-<div class="container">
+<div class="nav">
+  <button onclick="showPage('exec')" class="active">Executive</button>
+  <button onclick="showPage('route')">Route</button>
+  <button onclick="showPage('customer')">Customer</button>
+  <button onclick="showPage('product')">Product</button>
+</div>
 
-  <!-- KPI SECTION -->
+<!-- FILTERS -->
+<div class="filters">
+  <select id="routeFilter"></select>
+  <select id="branchFilter"></select>
+  <select id="productFilter"></select>
+</div>
+
+<!-- EXEC -->
+<div id="exec" class="page" style="display:block">
   <div class="kpi-container">
-    <div class="kpi">
-      <h3>Total Revenue</h3>
-      <p id="totalRevenue">0</p>
-    </div>
-    <div class="kpi">
-      <h3>Total Orders</h3>
-      <p id="totalOrders">0</p>
-    </div>
-    <div class="kpi">
-      <h3>Avg Order Value</h3>
-      <p id="avgOrder">0</p>
-    </div>
-    <div class="kpi">
-      <h3>Top Route</h3>
-      <p id="topRoute">-</p>
-    </div>
+    <div class="kpi"><h4>Total Quantity</h4><p id="totalQty"></p></div>
+    <div class="kpi"><h4>Total Orders</h4><p id="totalOrders"></p></div>
+    <div class="kpi"><h4>Avg Qty/Order</h4><p id="avgOrder"></p></div>
+    <div class="kpi"><h4>Top Route</h4><p id="topRoute"></p></div>
   </div>
 
-  <!-- ROUTE TABLE -->
+  <div class="section">
+    <h3>Top 5 Routes</h3>
+    <canvas id="routeChart"></canvas>
+  </div>
+
+  <div class="section">
+    <h3>Top 5 Products</h3>
+    <canvas id="productChart"></canvas>
+  </div>
+</div>
+
+<!-- ROUTE -->
+<div id="route" class="page">
   <div class="section">
     <h3>Route Performance</h3>
     <table id="routeTable">
       <thead>
         <tr>
           <th>Route</th>
-          <th>Total Revenue</th>
+          <th>Quantity</th>
           <th>Orders</th>
-          <th>Avg Value</th>
+          <th>Avg Qty</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
+</div>
 
-  <!-- CUSTOMER TABLE -->
+<!-- CUSTOMER -->
+<div id="customer" class="page">
   <div class="section">
-    <h3>Top Customers</h3>
+    <h3>Customer Insights</h3>
     <table id="customerTable">
       <thead>
         <tr>
-          <th>Customer</th>
-          <th>Total Revenue</th>
+          <th>Customer No</th>
+          <th>Name</th>
+          <th>Branch</th>
+          <th>Quantity</th>
+          <th>Avg Qty</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PRODUCT -->
+<div id="product" class="page">
+  <div class="section">
+    <h3>Product Performance</h3>
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Speed</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
+  <div class="section">
+    <h3>Branch Performance</h3>
+    <table id="branchTable">
+      <thead>
+        <tr>
+          <th>Branch</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
 
-// 🔹 Replace this with your Apps Script URL later
 const DATA_URL = "https://script.google.com/macros/s/AKfycbyS2BvNyoYG5YDT3r1a-TIzASc2McdOlDTKgtfAtDzTVNUFOne3bbp8EYc_y_D-_mlXPA/exec";
 
-// Temporary sample structure
-async function loadData() {
-  // Replace fetch with real endpoint later
-  const response = await fetch(DATA_URL + "?t=" + new Date().getTime());
-  const data = await response.json();
+let rawData = [];
 
-  processData(data);
+function showPage(pageId){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById(pageId).style.display="block";
 }
 
-function processData(data) {
+async function loadData(){
+  const res = await fetch(DATA_URL + "?t=" + new Date().getTime());
+  rawData = await res.json();
+  initFilters();
+  processData();
+}
 
-  let totalRevenue = 0;
-  let orders = new Set();
-  let routeMap = {};
-  let customerMap = {};
+function initFilters(){
+  let routes = [...new Set(rawData.map(r=>r["Route"]))];
+  let branches = [...new Set(rawData.map(r=>r["Branch Code"]))];
+  let products = [...new Set(rawData.map(r=>r["Description"]))];
 
-  data.forEach(row => {
-    let revenue = Number(row["Amount Including VAT"]) || 0;
-    let route = row["Route"] || "Unknown";
-    let customer = row["Customer Name"] || "Unknown";
-    let doc = row["Document No."];
+  fillSelect("routeFilter", routes);
+  fillSelect("branchFilter", branches);
+  fillSelect("productFilter", products);
 
-    totalRevenue += revenue;
+  document.querySelectorAll("select").forEach(s=>s.onchange=processData);
+}
+
+function fillSelect(id, list){
+  let el = document.getElementById(id);
+  el.innerHTML = `<option value="">All ${id}</option>`;
+  list.forEach(v=>{
+    el.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+function processData(){
+
+  let data = rawData.filter(r=>{
+    return (!routeFilter.value || r["Route"]==routeFilter.value) &&
+           (!branchFilter.value || r["Branch Code"]==branchFilter.value) &&
+           (!productFilter.value || r["Description"]==productFilter.value);
+  });
+
+  let totalQty=0, orders=new Set();
+  let routeMap={}, customerMap={}, productMap={}, branchMap={};
+
+  data.forEach(r=>{
+    let qty=+r["Quantity"]||0;
+    let route=r["Route"];
+    let cust=r["Sell-to Customer No."];
+    let name=r["Customer Name"];
+    let branch=r["Branch Code"];
+    let product=r["Description"];
+    let doc=r["Document No."];
+
+    totalQty+=qty;
     orders.add(doc);
 
-    // Route aggregation
-    if (!routeMap[route]) {
-      routeMap[route] = { revenue: 0, orders: new Set() };
-    }
-    routeMap[route].revenue += revenue;
-    routeMap[route].orders.add(doc);
+    if(!routeMap[route]) routeMap[route]={qty:0,orders:new Set()};
+    routeMap[route].qty+=qty; routeMap[route].orders.add(doc);
 
-    // Customer aggregation
-    if (!customerMap[customer]) {
-      customerMap[customer] = 0;
-    }
-    customerMap[customer] += revenue;
+    if(!customerMap[cust]) customerMap[cust]={qty:0,orders:new Set(),name,branch};
+    customerMap[cust].qty+=qty; customerMap[cust].orders.add(doc);
+
+    if(!productMap[product]) productMap[product]={qty:0};
+    productMap[product].qty+=qty;
+
+    if(!branchMap[branch]) branchMap[branch]={qty:0};
+    branchMap[branch].qty+=qty;
   });
 
-  document.getElementById("totalRevenue").innerText = totalRevenue.toFixed(2);
-  document.getElementById("totalOrders").innerText = orders.size;
-  document.getElementById("avgOrder").innerText = (totalRevenue / orders.size).toFixed(2);
+  totalQtyEl.innerText=totalQty;
+  totalOrders.innerText=orders.size;
+  avgOrder.innerText=(totalQty/orders.size).toFixed(2);
 
-  // Route Table
-  let routeBody = document.querySelector("#routeTable tbody");
-  let topRoute = "";
-  let maxRevenue = 0;
+  // ROUTES
+  let routeArr = Object.entries(routeMap).sort((a,b)=>b[1].qty-a[1].qty);
+  topRoute.innerText = routeArr[0]?.[0] || "-";
 
-  Object.keys(routeMap).forEach(route => {
-    let rev = routeMap[route].revenue;
-    let ord = routeMap[route].orders.size;
-    let avg = rev / ord;
+  routeTable.querySelector("tbody").innerHTML = routeArr.map(([r,v])=>
+    `<tr><td>${r}</td><td>${v.qty}</td><td>${v.orders.size}</td><td>${(v.qty/v.orders.size).toFixed(2)}</td></tr>`
+  ).join("");
 
-    if (rev > maxRevenue) {
-      maxRevenue = rev;
-      topRoute = route;
-    }
+  // CUSTOMERS
+  customerTable.querySelector("tbody").innerHTML =
+    Object.entries(customerMap)
+    .sort((a,b)=>b[1].qty-a[1].qty)
+    .slice(0,20)
+    .map(([c,v])=>
+      `<tr>
+        <td>${c}</td>
+        <td>${v.name}</td>
+        <td>${v.branch}</td>
+        <td>${v.qty}</td>
+        <td>${(v.qty/v.orders.size).toFixed(2)}</td>
+      </tr>`).join("");
 
-    let row = document.createElement("tr");
+  // PRODUCTS + SPEED
+  let avgQty = totalQty / Object.keys(productMap).length;
 
-    if (avg > 10000) row.classList.add("high");
-    else if (avg > 5000) row.classList.add("medium");
-    else row.classList.add("low");
+  productTable.querySelector("tbody").innerHTML =
+    Object.entries(productMap)
+    .sort((a,b)=>b[1].qty-a[1].qty)
+    .slice(0,20)
+    .map(([p,v])=>{
+      let speed = v.qty > avgQty ? "Fast" : "Slow";
+      let cls = v.qty > avgQty ? "fast" : "slow";
+      return `<tr class="${cls}"><td>${p}</td><td>${v.qty}</td><td>${speed}</td></tr>`;
+    }).join("");
 
-    row.innerHTML = `
-      <td>${route}</td>
-      <td>${rev.toFixed(2)}</td>
-      <td>${ord}</td>
-      <td>${avg.toFixed(2)}</td>
-    `;
+  // BRANCH
+  branchTable.querySelector("tbody").innerHTML =
+    Object.entries(branchMap)
+    .sort((a,b)=>b[1].qty-a[1].qty)
+    .map(([b,v])=>`<tr><td>${b}</td><td>${v.qty}</td></tr>`).join("");
 
-    routeBody.appendChild(row);
-  });
-
-  document.getElementById("topRoute").innerText = topRoute;
-
-  // Customer Table (Top 10)
-  let customerBody = document.querySelector("#customerTable tbody");
-
-  Object.entries(customerMap)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0,10)
-    .forEach(([cust, rev]) => {
-      let row = document.createElement("tr");
-      row.innerHTML = `<td>${cust}</td><td>${rev.toFixed(2)}</td>`;
-      customerBody.appendChild(row);
-    });
-
+  drawCharts(routeArr, productMap);
 }
 
-// Call function
+let routeChart, productChart;
+
+function drawCharts(routeArr, productMap){
+
+  let topRoutes = routeArr.slice(0,5);
+  let labelsR = topRoutes.map(r=>r[0]);
+  let dataR = topRoutes.map(r=>r[1].qty);
+
+  if(routeChart) routeChart.destroy();
+  routeChart = new Chart(routeChartCanvas, {
+    type:'bar',
+    data:{labels:labelsR,datasets:[{data:dataR}]}
+  });
+
+  let prodArr = Object.entries(productMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,5);
+  let labelsP = prodArr.map(p=>p[0]);
+  let dataP = prodArr.map(p=>p[1].qty);
+
+  if(productChart) productChart.destroy();
+  productChart = new Chart(productChartCanvas, {
+    type:'bar',
+    data:{labels:labelsP,datasets:[{data:dataP}]}
+  });
+}
+
 loadData();
 
 </script>
