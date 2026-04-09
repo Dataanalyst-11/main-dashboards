@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sales Intelligence Dashboard</title>
+<title>Executive Command Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body { margin:0; font-family:Arial; background:#f4f6f9; }
-header { background:#1e3a8a; color:white; padding:15px; text-align:center; }
+header { background:#111827; color:white; padding:15px; text-align:center; }
 
-.nav { display:flex; background:#111827; }
-.nav button { flex:1; padding:12px; color:white; background:none; border:none; cursor:pointer; }
+.nav { display:flex; background:#1f2937; }
+.nav button { flex:1; padding:12px; color:white; border:none; background:none; cursor:pointer; }
 .nav button:hover { background:#374151; }
 .active { background:#2563eb !important; }
 
@@ -24,97 +24,144 @@ header { background:#1e3a8a; color:white; padding:15px; text-align:center; }
   gap:15px;
 }
 
-.kpi { background:white; padding:15px; border-radius:10px; }
+.kpi, .section {
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+}
 
-.section { background:white; margin-top:20px; padding:15px; border-radius:10px; }
+.filters {
+  display:flex;
+  gap:15px;
+  padding:10px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+}
+
+.filter-group {
+  display:flex;
+  flex-direction:column;
+  font-size:12px;
+}
+
+.filter-group label {
+  margin-bottom:3px;
+  font-weight:bold;
+}
 
 table { width:100%; border-collapse:collapse; }
 th, td { padding:8px; font-size:13px; }
 th { background:#1e3a8a; color:white; }
 
-.filters {
-  display:flex;
-  gap:10px;
-  margin-bottom:15px;
-}
-
-select {
-  padding:6px;
-}
-
 .fast { background:#d1fae5; }
 .slow { background:#fee2e2; }
+.highlight { background:#dbeafe; cursor:pointer; }
+
+button.action {
+  padding:8px 12px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<header>Sales Intelligence Dashboard (Quantity-Based)</header>
+<header>Executive Command Dashboard</header>
 
 <div class="nav">
   <button onclick="showPage('exec')" class="active">Executive</button>
-  <button onclick="showPage('route')">Route</button>
-  <button onclick="showPage('customer')">Customer</button>
-  <button onclick="showPage('product')">Product</button>
+  <button onclick="showPage('route')">Routes</button>
+  <button onclick="showPage('customer')">Customers</button>
+  <button onclick="showPage('product')">Products</button>
 </div>
 
 <!-- FILTERS -->
 <div class="filters">
-  <select id="routeFilter"></select>
-  <select id="branchFilter"></select>
-  <select id="productFilter"></select>
+
+  <div class="filter-group">
+    <label>Route Filter</label>
+    <select id="routeFilter"></select>
+  </div>
+
+  <div class="filter-group">
+    <label>Branch Filter</label>
+    <select id="branchFilter"></select>
+  </div>
+
+  <div class="filter-group">
+    <label>Product Filter</label>
+    <select id="productFilter"></select>
+  </div>
+
+  <div class="filter-group">
+    <label>Start Date</label>
+    <input type="date" id="startDate">
+  </div>
+
+  <div class="filter-group">
+    <label>End Date</label>
+    <input type="date" id="endDate">
+  </div>
+
+  <button class="action" onclick="loadData()">Refresh Data</button>
+
 </div>
 
 <!-- EXEC -->
 <div id="exec" class="page" style="display:block">
   <div class="kpi-container">
-    <div class="kpi"><h4>Total Quantity</h4><p id="totalQty"></p></div>
+    <div class="kpi"><h4>Total Qty</h4><p id="totalQty"></p></div>
     <div class="kpi"><h4>Total Orders</h4><p id="totalOrders"></p></div>
-    <div class="kpi"><h4>Avg Qty/Order</h4><p id="avgOrder"></p></div>
+    <div class="kpi"><h4>Avg Qty</h4><p id="avgOrder"></p></div>
     <div class="kpi"><h4>Top Route</h4><p id="topRoute"></p></div>
   </div>
 
   <div class="section">
-    <h3>Top 5 Routes</h3>
+    <h3>Daily Quantity Trend</h3>
+    <canvas id="trendChart"></canvas>
+  </div>
+
+  <div class="section">
+    <h3>Top 10 Routes by Quantity</h3>
     <canvas id="routeChart"></canvas>
   </div>
 
   <div class="section">
-    <h3>Top 5 Products</h3>
+    <h3>Top 5 Products by Quantity</h3>
     <canvas id="productChart"></canvas>
   </div>
 </div>
 
-<!-- ROUTE -->
+<!-- ROUTES -->
 <div id="route" class="page">
   <div class="section">
     <h3>Route Performance</h3>
     <table id="routeTable">
       <thead>
-        <tr>
-          <th>Route</th>
-          <th>Quantity</th>
-          <th>Orders</th>
-          <th>Avg Qty</th>
-        </tr>
+        <tr><th>Route</th><th>Qty</th><th>Orders</th><th>Avg</th></tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 </div>
 
-<!-- CUSTOMER -->
+<!-- CUSTOMERS -->
 <div id="customer" class="page">
   <div class="section">
-    <h3>Customer Insights</h3>
+
+    <button id="backBtn" class="action" style="margin-bottom:10px; display:none;" onclick="backToRoutes()">← Back to Routes</button>
+
+    <h3>Customer Breakdown</h3>
+
     <table id="customerTable">
       <thead>
         <tr>
-          <th>Customer No</th>
-          <th>Name</th>
-          <th>Branch</th>
-          <th>Quantity</th>
-          <th>Avg Qty</th>
+          <th>No</th><th>Name</th><th>Branch</th>
+          <th>Qty</th><th>Orders</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -122,33 +169,21 @@ select {
   </div>
 </div>
 
-<!-- PRODUCT -->
+<!-- PRODUCTS -->
 <div id="product" class="page">
   <div class="section">
-    <h3>Product Performance</h3>
+
+    <button id="backToCustomersBtn" class="action" style="margin-bottom:10px; display:none;" onclick="backToCustomers()">← Back to Customers</button>
+
+    <h3 id="productHeader">Product Performance</h3>
+
     <table id="productTable">
       <thead>
-        <tr>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Speed</th>
-        </tr>
+        <tr><th>Product</th><th>Qty</th><th>Contribution %</th></tr>
       </thead>
       <tbody></tbody>
     </table>
-  </div>
 
-  <div class="section">
-    <h3>Branch Performance</h3>
-    <table id="branchTable">
-      <thead>
-        <tr>
-          <th>Branch</th>
-          <th>Quantity</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
   </div>
 </div>
 
@@ -156,59 +191,68 @@ select {
 
 const DATA_URL = "https://script.google.com/macros/s/AKfycbyS2BvNyoYG5YDT3r1a-TIzASc2McdOlDTKgtfAtDzTVNUFOne3bbp8EYc_y_D-_mlXPA/exec";
 
-let rawData = [];
+let rawData = [], filteredData = [];
+let routeChart, productChart, trendChart;
 
-function showPage(pageId){
-  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-  document.getElementById(pageId).style.display="block";
+function showPage(p){
+  document.querySelectorAll(".page").forEach(x=>x.style.display="none");
+  document.getElementById(p).style.display="block";
 }
 
 async function loadData(){
-  const res = await fetch(DATA_URL + "?t=" + new Date().getTime());
+  const res = await fetch(DATA_URL + "?t=" + Date.now());
   rawData = await res.json();
   initFilters();
   processData();
 }
 
 function initFilters(){
-  let routes = [...new Set(rawData.map(r=>r["Route"]))];
-  let branches = [...new Set(rawData.map(r=>r["Branch Code"]))];
-  let products = [...new Set(rawData.map(r=>r["Description"]))];
+  fill("routeFilter",[...new Set(rawData.map(r=>r["Route"]))]);
+  fill("branchFilter",[...new Set(rawData.map(r=>r["Branch Code"]))]);
+  fill("productFilter",[...new Set(rawData.map(r=>r["Description"]))]);
 
-  fillSelect("routeFilter", routes);
-  fillSelect("branchFilter", branches);
-  fillSelect("productFilter", products);
-
-  document.querySelectorAll("select").forEach(s=>s.onchange=processData);
+  document.querySelectorAll("select,input").forEach(x=>x.onchange=processData);
 }
 
-function fillSelect(id, list){
-  let el = document.getElementById(id);
-  el.innerHTML = `<option value="">All ${id}</option>`;
-  list.forEach(v=>{
-    el.innerHTML += `<option value="${v}">${v}</option>`;
-  });
+function fill(id,list){
+  let el=document.getElementById(id);
+  el.innerHTML=`<option value="">All</option>`;
+  list.forEach(v=>el.innerHTML+=`<option>${v}</option>`);
 }
 
 function processData(){
 
-  let data = rawData.filter(r=>{
+  filteredData = rawData.filter(r=>{
+    let rawDate = new Date(r["Posting Date"]);
+    let date = rawDate;
+
+    let start = startDate.value ? new Date(startDate.value) : null;
+    let end = endDate.value ? new Date(endDate.value) : null;
+
     return (!routeFilter.value || r["Route"]==routeFilter.value) &&
            (!branchFilter.value || r["Branch Code"]==branchFilter.value) &&
-           (!productFilter.value || r["Description"]==productFilter.value);
+           (!productFilter.value || r["Description"]==productFilter.value) &&
+           (!start || date>=start) &&
+           (!end || date<=end);
   });
 
   let totalQty=0, orders=new Set();
-  let routeMap={}, customerMap={}, productMap={}, branchMap={};
+  let routeMap={}, customerMap={}, productMap={}, trendMap={};
 
-  data.forEach(r=>{
+  filteredData.forEach(r=>{
     let qty=+r["Quantity"]||0;
     let route=r["Route"];
     let cust=r["Sell-to Customer No."];
-    let name=r["Customer Name"];
+    let name=r["Customer"];
     let branch=r["Branch Code"];
     let product=r["Description"];
     let doc=r["Document No."];
+
+    let rawDate = new Date(r["Posting Date"]);
+    let date =
+      String(rawDate.getMonth() + 1).padStart(2, '0') + "/" +
+      String(rawDate.getDate()).padStart(2, '0') + "/" +
+      rawDate.getFullYear();
 
     totalQty+=qty;
     orders.add(doc);
@@ -222,83 +266,168 @@ function processData(){
     if(!productMap[product]) productMap[product]={qty:0};
     productMap[product].qty+=qty;
 
-    if(!branchMap[branch]) branchMap[branch]={qty:0};
-    branchMap[branch].qty+=qty;
+    if(!trendMap[date]) trendMap[date]=0;
+    trendMap[date]+=qty;
   });
 
-  document.getElementById("totalQty").innerText = totalQty;
-  document.getElementById("totalOrders").innerText = orders.size;
-  document.getElementById("avgOrder").innerText = (totalQty / orders.size).toFixed(2);
+  document.getElementById("totalQty").innerText=totalQty;
+  document.getElementById("totalOrders").innerText=orders.size;
+  document.getElementById("avgOrder").innerText=(totalQty/orders.size||0).toFixed(2);
 
-  // ROUTES
-  let routeArr = Object.entries(routeMap).sort((a,b)=>b[1].qty-a[1].qty);
-  topRoute.innerText = routeArr[0]?.[0] || "-";
+  let routeArr=Object.entries(routeMap).sort((a,b)=>b[1].qty-a[1].qty);
+  document.getElementById("topRoute").innerText=routeArr[0]?.[0]||"-";
 
-  routeTable.querySelector("tbody").innerHTML = routeArr.map(([r,v])=>
-    `<tr><td>${r}</td><td>${v.qty}</td><td>${v.orders.size}</td><td>${(v.qty/v.orders.size).toFixed(2)}</td></tr>`
-  ).join("");
-
-  // CUSTOMERS
-  customerTable.querySelector("tbody").innerHTML =
-    Object.entries(customerMap)
-    .sort((a,b)=>b[1].qty-a[1].qty)
-    .slice(0,20)
-    .map(([c,v])=>
-      `<tr>
-        <td>${c}</td>
-        <td>${v.name}</td>
-        <td>${v.branch}</td>
+  routeTable.querySelector("tbody").innerHTML =
+    routeArr.map(([r,v])=>
+      `<tr class="highlight" onclick="drillRoute('${r}')">
+        <td>${r}</td>
         <td>${v.qty}</td>
+        <td>${v.orders.size}</td>
         <td>${(v.qty/v.orders.size).toFixed(2)}</td>
       </tr>`).join("");
 
-  // PRODUCTS + SPEED
-  let avgQty = totalQty / Object.keys(productMap).length;
+  renderCustomers(customerMap);
+
+  drawCharts(routeArr, productMap, trendMap);
+}
+
+function drillRoute(route){
+  let filtered = filteredData.filter(r=>r["Route"]==route);
+  let map={};
+
+  filtered.forEach(r=>{
+    let cust=r["Sell-to Customer No."];
+    if(!map[cust]) map[cust]={qty:0,orders:new Set(),name:r["Customer"],branch:r["Branch Code"]};
+    map[cust].qty+=+r["Quantity"];
+    map[cust].orders.add(r["Document No."]);
+  });
+
+  document.getElementById("backBtn").style.display = "inline-block";
+  showPage("customer");
+  renderCustomers(map);
+}
+
+function drillCustomer(customerId){
+
+  let filtered = filteredData.filter(r=>r["Sell-to Customer No."]==customerId);
+  let productMap = {};
+  let totalQty = 0;
+  let customerName = filtered[0]?.["Customer"] || customerId;
+
+  filtered.forEach(r=>{
+    let product = r["Description"];
+    let qty = +r["Quantity"] || 0;
+
+    totalQty += qty;
+
+    if(!productMap[product]) productMap[product]={qty:0};
+    productMap[product].qty += qty;
+  });
+
+  document.getElementById("backToCustomersBtn").style.display = "inline-block";
+  document.getElementById("productHeader").innerText = "Products for: " + customerName;
+
+  showPage("product");
 
   productTable.querySelector("tbody").innerHTML =
     Object.entries(productMap)
     .sort((a,b)=>b[1].qty-a[1].qty)
-    .slice(0,20)
     .map(([p,v])=>{
-      let speed = v.qty > avgQty ? "Fast" : "Slow";
-      let cls = v.qty > avgQty ? "fast" : "slow";
-      return `<tr class="${cls}"><td>${p}</td><td>${v.qty}</td><td>${speed}</td></tr>`;
+      let contribution = totalQty ? ((v.qty / totalQty) * 100).toFixed(1) : 0;
+      return `<tr>
+                <td>${p}</td>
+                <td>${v.qty}</td>
+                <td>${contribution}%</td>
+              </tr>`;
     }).join("");
-
-  // BRANCH
-  branchTable.querySelector("tbody").innerHTML =
-    Object.entries(branchMap)
-    .sort((a,b)=>b[1].qty-a[1].qty)
-    .map(([b,v])=>`<tr><td>${b}</td><td>${v.qty}</td></tr>`).join("");
-
-  drawCharts(routeArr, productMap);
 }
 
-let routeChart, productChart;
+function backToCustomers(){
+  document.getElementById("backToCustomersBtn").style.display = "none";
+  document.getElementById("productHeader").innerText = "Product Performance";
+  showPage("customer");
+}
 
-function drawCharts(routeArr, productMap){
+function backToRoutes(){
+  document.getElementById("backBtn").style.display = "none";
 
-  let topRoutes = routeArr.slice(0,5);
-  let labelsR = topRoutes.map(r=>r[0]);
-  let dataR = topRoutes.map(r=>r[1].qty);
+  showPage("route");
+
+  // Rebuild route table from current filtered data
+  let routeMap = {};
+
+  filteredData.forEach(r=>{
+    let route = r["Route"];
+    let qty = +r["Quantity"] || 0;
+
+    if(!routeMap[route]) routeMap[route]={qty:0,orders:new Set()};
+    routeMap[route].qty += qty;
+    routeMap[route].orders.add(r["Document No."]);
+  });
+
+  let routeArr = Object.entries(routeMap).sort((a,b)=>b[1].qty-a[1].qty);
+
+  routeTable.querySelector("tbody").innerHTML =
+    routeArr.map(([r,v])=>
+      `<tr class="highlight" onclick="drillRoute('${r}')">
+        <td>${r}</td>
+        <td>${v.qty}</td>
+        <td>${v.orders.size}</td>
+        <td>${(v.qty/v.orders.size).toFixed(2)}</td>
+      </tr>`).join("");
+}
+
+function renderCustomers(map){
+  customerTable.querySelector("tbody").innerHTML =
+    Object.entries(map)
+    .sort((a,b)=>b[1].qty-a[1].qty)
+    .map(([c,v])=>
+      `<tr class="highlight" onclick="drillCustomer('${c}')">
+        <td>${c}</td>
+        <td>${v.name}</td>
+        <td>${v.branch}</td>
+        <td>${v.qty}</td>
+        <td>${v.orders.size}</td>
+      </tr>`).join("");
+}
+
+function drawCharts(routeArr, productMap, trendMap){
 
   if(routeChart) routeChart.destroy();
-  const routeCtx = document.getElementById("routeChart").getContext("2d");
- routeChart = new Chart(routeCtx, {
-  type: 'bar',
-  data: { labels: labelsR, datasets: [{ data: dataR }] }
-});
-
-  let prodArr = Object.entries(productMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,5);
-  let labelsP = prodArr.map(p=>p[0]);
-  let dataP = prodArr.map(p=>p[1].qty);
-
   if(productChart) productChart.destroy();
-  const productCtx = document.getElementById("productChart").getContext("2d");
-  productChart = new Chart(productCtx, {
-   type: 'bar',
-   data: { labels: labelsP, datasets: [{ data: dataP }] }
-});
+  if(trendChart) trendChart.destroy();
+
+  routeChart = new Chart(document.getElementById("routeChart"),{
+    type:'bar',
+    data:{
+      labels:routeArr.slice(0,10).map(r=>r[0]),
+      datasets:[{data:routeArr.slice(0,10).map(r=>r[1].qty)}]
+    }
+  });
+
+  let prodArr=Object.entries(productMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,5);
+
+  productChart = new Chart(document.getElementById("productChart"),{
+    type:'bar',
+    data:{
+      labels:prodArr.map(p=>p[0]),
+      datasets:[{data:prodArr.map(p=>p[1].qty)}]
+    }
+  });
+
+  let dates = Object.keys(trendMap).sort((a,b)=>{
+    let [ma,da,ya] = a.split('/');
+    let [mb,db,yb] = b.split('/');
+    return new Date(ya, ma-1, da) - new Date(yb, mb-1, db);
+  });
+
+  trendChart = new Chart(document.getElementById("trendChart"),{
+    type:'line',
+    data:{
+      labels:dates,
+      datasets:[{data:dates.map(d=>trendMap[d])}]
+    }
+  });
 }
 
 loadData();
