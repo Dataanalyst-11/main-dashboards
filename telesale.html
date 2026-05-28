@@ -44,24 +44,58 @@
   }
 
   table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 24px;
-  }
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 24px;
+}
 
-  thead th {
-    position: sticky;
-    top: 0;
-    background: #1e293b;
-    color: #93c5fd;
-    text-transform: uppercase;
-    font-size: 15px;
-  }
+thead th {
+  position: sticky;
+  top: 0;
+  background: #1e293b;
+  color: #93c5fd;
+  text-transform: uppercase;
+  font-size: 15px;
+  z-index: 2;
+}
 
-  th, td {
-    padding: 14px;
-    border-bottom: 1px solid #334155;
-  }
+th,
+td {
+  padding: 14px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Column widths */
+th:nth-child(1),
+td:nth-child(1) {
+  width: 70px;
+  text-align: center;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 35%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 25%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 20%;
+  text-align: center;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 20%;
+  text-align: center;
+}
 
   tbody tr:nth-child(even) {
     background: #020617;
@@ -135,34 +169,59 @@ const REFRESH_INTERVAL = 600000;
 let scrollInterval;
 
 function startAutoScroll() {
+
   const c = document.getElementById("scrollContainer");
 
   clearInterval(scrollInterval);
 
   let direction = 1;
   let scrollTop = 0;
+  let isPaused = false;
 
   if (c.scrollHeight <= c.clientHeight) return;
 
   scrollInterval = setInterval(() => {
+
+    if (isPaused) return;
+
     scrollTop += direction * 2;
+
     c.scrollTop = scrollTop;
 
     const reachedBottom =
       scrollTop >= c.scrollHeight - c.clientHeight;
 
-    const reachedTop = scrollTop <= 0;
+    const reachedTop =
+      scrollTop <= 0;
 
-    // Bounce forever
-    if (reachedBottom) {
-      direction = -1;
-    } else if (reachedTop) {
-      direction = 1;
+    // Pause at bottom
+    if (reachedBottom && direction === 1) {
+
+      scrollTop = c.scrollHeight - c.clientHeight;
+
+      isPaused = true;
+
+      setTimeout(() => {
+        direction = -1;
+        isPaused = false;
+      }, 6000);
+    }
+
+    // Pause at top
+    if (reachedTop && direction === -1) {
+
+      scrollTop = 0;
+
+      isPaused = true;
+
+      setTimeout(() => {
+        direction = 1;
+        isPaused = false;
+      }, 6000);
     }
 
   }, 30);
 }
-
 /* ================= FETCH ================= */
 async function fetchPage(pageNum) {
   const response = await fetch(`${BASE_API}?pageNum=${pageNum}`, {
