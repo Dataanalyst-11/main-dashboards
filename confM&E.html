@@ -357,8 +357,8 @@ const API_TOKEN = window.API_CONFIG.API_TOKEN;
 function calculatePercentilePerformance(attendants) {
     if (!attendants.length) return;
 
-    const allOrdersPerHour = attendants.map(a => (a.numberOfOrders || 0) / 8);
-    const allItemsPerHour  = attendants.map(a => (a.numberOfLineItems || 0) / 8);
+    const allOrdersPerHour = attendants.map(a => (a.numberOfOrders || 0) / 10);
+    const allItemsPerHour  = attendants.map(a => (a.numberOfLineItems || 0) / 10);
     const allAvgOrderValue = attendants.map(a =>
         a.numberOfOrders ? (a.orderAmount || 0) / a.numberOfOrders : 0
     );
@@ -368,8 +368,8 @@ function calculatePercentilePerformance(attendants) {
     }
 
     attendants.forEach(a => {
-        const ordersPerHour = (a.numberOfOrders || 0) / 8;
-        const itemsPerHour  = (a.numberOfLineItems || 0) / 8;
+        const ordersPerHour = (a.numberOfOrders || 0) / 10;
+        const itemsPerHour  = (a.numberOfLineItems || 0) / 10;
         const avgOrderValue = a.numberOfOrders
             ? (a.orderAmount || 0) / a.numberOfOrders
             : 0;
