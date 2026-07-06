@@ -300,7 +300,7 @@
                 <th>Branch</th>
                 <th>Total Orders</th>
                 <th>Line Items</th>
-                <th>Avg Items / Order</th>
+                <th>Line Items / Hour</th>
                 <th>Orders / Hour</th>
                 <th>Avg Order Value</th>
                 <th style="width:140px">Efficiency</th>
@@ -321,10 +321,6 @@
 
 <script>
 let allAttendants = [];
-let scrollTimer = null;
-let scrollDirection = 1;
-let scrollPos = 0;
-let isPaused = false;
 
 /* ===== CLOCK ===== */
 function updateClock() {
@@ -345,17 +341,14 @@ const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
 /* =========================================================
    PERCENTILE SCORING — 3 FACTORS
-   Orders/Hour (40%) + Avg Items (30%) + Avg Order Value (30%)
+   Orders/Hour (40%) + Line Items/Hour (30%) + Avg Order Value (30%)
    ========================================================= */
 function calculatePercentilePerformance(attendants) {
     if (!attendants.length) return;
 
-    // Build reference arrays from the current set
-    const allOrdersPerHour = attendants.map(a => (a.numberOfOrders || 0) / 10);
-    const allAvgItems      = attendants.map(a =>
-        a.numberOfOrders ? (a.numberOfLineItems || 0) / a.numberOfOrders : 0
-    );
-    const allAvgOrderValue = attendants.map(a =>
+    const allOrdersPerHour  = attendants.map(a => (a.numberOfOrders || 0) / 10);
+    const allItemsPerHour   = attendants.map(a => (a.numberOfLineItems || 0) / 10);
+    const allAvgOrderValue  = attendants.map(a =>
         a.numberOfOrders ? (a.orderAmount || 0) / a.numberOfOrders : 0
     );
 
@@ -365,20 +358,18 @@ function calculatePercentilePerformance(attendants) {
 
     attendants.forEach(a => {
         const ordersPerHour = (a.numberOfOrders || 0) / 10;
-        const avgItems      = a.numberOfOrders
-            ? (a.numberOfLineItems || 0) / a.numberOfOrders
-            : 0;
+        const itemsPerHour  = (a.numberOfLineItems || 0) / 10;
         const avgValue      = a.numberOfOrders
             ? (a.orderAmount || 0) / a.numberOfOrders
             : 0;
 
         a.performance = {
             ordersPerHour,
-            avgItemsPerOrder: avgItems,
+            lineItemsPerHour: itemsPerHour,
             avgOrderValue: avgValue,
             score:
                 percentileRank(allOrdersPerHour, ordersPerHour) * 0.4 +
-                percentileRank(allAvgItems, avgItems) * 0.3 +
+                percentileRank(allItemsPerHour, itemsPerHour) * 0.3 +
                 percentileRank(allAvgOrderValue, avgValue) * 0.3
         };
     });
@@ -401,6 +392,7 @@ function rankClass(rank) {
 /* ===== BRANCH FILTER ===== */
 function populateBranchFilter() {
     const select = document.getElementById("branchFilter");
+    const currentValue = select.value;
     const branches = [...new Set(allAttendants.map(a => a.orgBranchName))].filter(Boolean).sort();
 
     while (select.options.length > 1) select.remove(1);
@@ -411,6 +403,10 @@ function populateBranchFilter() {
         opt.textContent = branch;
         select.appendChild(opt);
     });
+
+    if (currentValue === "ALL" || branches.includes(currentValue)) {
+        select.value = currentValue;
+    }
 }
 
 /* ===== STATS ===== */
@@ -458,7 +454,7 @@ function renderTable(data) {
             <td><span class="branch-tag" title="${a.orgBranchName || ''}">${a.orgBranchName || "—"}</span></td>
             <td>${(a.numberOfOrders || 0).toLocaleString()}</td>
             <td>${(a.numberOfLineItems || 0).toLocaleString()}</td>
-            <td>${a.performance.avgItemsPerOrder.toFixed(2)}</td>
+            <td>${a.performance.lineItemsPerHour.toFixed(2)}</td>
             <td>${a.performance.ordersPerHour.toFixed(2)}</td>
             <td>${a.performance.avgOrderValue.toFixed(0)}</td>
             <td>
@@ -485,60 +481,13 @@ function applyFilter() {
         renderTable(filtered);
         updateStats(filtered);
     }
-
-    scrollPos = 0;
-    scrollDirection = 1;
-    document.getElementById("scrollContainer").scrollTop = 0;
 }
 
 document.getElementById("branchFilter").addEventListener("change", applyFilter);
 
-/* ===== AUTO SCROLL ===== */
-function startAutoScroll() {
-    const container = document.getElementById("scrollContainer");
-    clearInterval(scrollTimer);
-    isPaused = false;
-
-    const speed = 1;
-    const tickRate = 25;
-    const pauseDuration = 2500;
-
-    function tick() {
-        if (isPaused) return;
-
-        const maxScroll = container.scrollHeight - container.clientHeight;
-        if (maxScroll <= 0) return;
-
-        scrollPos += speed * scrollDirection;
-        container.scrollTop = scrollPos;
-
-        if (scrollPos >= maxScroll) {
-            scrollPos = maxScroll;
-            isPaused = true;
-            setTimeout(() => {
-                scrollDirection = -1;
-                isPaused = false;
-            }, pauseDuration);
-        }
-
-        if (scrollPos <= 0) {
-            scrollPos = 0;
-            isPaused = true;
-            setTimeout(() => {
-                scrollDirection = 1;
-                isPaused = false;
-            }, pauseDuration);
-        }
-    }
-
-    scrollTimer = setInterval(tick, tickRate);
-}
-
 /* ===== LOAD ===== */
 async function loadPerformanceData() {
     const tbody = document.getElementById("performanceBody");
-    const container = document.getElementById("scrollContainer");
-    scrollPos = container.scrollTop;
 
     try {
         const response = await fetch(API_URL, {
@@ -562,10 +511,6 @@ async function loadPerformanceData() {
 
         document.getElementById("lastUpdated").textContent =
             new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        startAutoScroll();
-        const maxScroll = container.scrollHeight - container.clientHeight;
-        container.scrollTop = Math.min(scrollPos, maxScroll);
 
     } catch (err) {
         console.error(err);
