@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Store Attendant Performance — All Branches</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #0f1923;
+        color: #e0e6ed;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-bottom: 3px solid #e67e22;
+        flex-shrink: 0;
+    }
+
+    .header h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 0.5px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    #clock {
+        font-size: 14px;
+        color: #8fa4b8;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-bar label {
+        font-size: 13px;
+        color: #8fa4b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-bar select {
+        background: #1a2a3a;
+        color: #e0e6ed;
+        border: 1px solid #e67e22;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+        min-width: 220px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .filter-bar select:focus {
+        border-color: #f39c12;
+        box-shadow: 0 0 0 2px rgba(230,126,34,0.3);
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 0;
+        background: #162230;
+        border-bottom: 1px solid #1e3347;
+        flex-shrink: 0;
+        overflow-x: auto;
+    }
+
+    .stat-card {
+        flex: 1;
+        min-width: 140px;
+        padding: 12px 18px;
+        text-align: center;
+        border-right: 1px solid #1e3347;
+    }
+
+    .stat-card:last-child { border-right: none; }
+
+    .stat-card .stat-value {
+        font-size: 22px;
+        font-weight: 800;
+        color: #e67e22;
+    }
+
+    .stat-card .stat-label {
+        font-size: 11px;
+        color: #6b8299;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+    }
+
+    .table-container {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: auto;
+    }
+
+    .table-container::-webkit-scrollbar { width: 6px; }
+    .table-container::-webkit-scrollbar-track { background: #0f1923; }
+    .table-container::-webkit-scrollbar-thumb { background: #2c3e50; border-radius: 3px; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 11px 14px;
+        text-align: center;
+        border-bottom: 1px solid #1a2a3a;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    th {
+        background: #162230;
+        color: #8fa4b8;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 2px solid #e67e22;
+    }
+
+    tr { transition: background 0.15s; }
+    tbody tr:hover { background: rgba(230,126,34,0.08); }
+
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #f1c40f, #e67e22); color: #1a1a1a; }
+    .rank-2 { background: linear-gradient(135deg, #bdc3c7, #95a5a6); color: #1a1a1a; }
+    .rank-3 { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
+    .rank-other { background: #1e3347; color: #6b8299; }
+
+    .score-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .score-bar-wrap {
+        width: 70px;
+        height: 6px;
+        background: #1e3347;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .score-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+    }
+
+    .score-high .score-bar { background: #27ae60; }
+    .score-medium .score-bar { background: #f1c40f; }
+    .score-low .score-bar { background: #e74c3c; }
+
+    .score-text { font-weight: 700; min-width: 48px; text-align: right; }
+    .score-high .score-text { color: #27ae60; }
+    .score-medium .score-text { color: #f1c40f; }
+    .score-low .score-text { color: #e74c3c; }
+
+    .branch-tag {
+        display: inline-block;
+        background: #1e3347;
+        color: #8fa4b8;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .attendant-name {
+        text-align: left;
+        font-weight: 600;
+        color: #e0e6ed;
+    }
+
+    .footer {
+        background: #162230;
+        border-top: 2px solid #1e3347;
+        padding: 8px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: #4a6580;
+        flex-shrink: 0;
+    }
+
+    .loading-msg, .empty-msg, .error-msg {
+        text-align: center;
+        padding: 60px 20px;
+        font-size: 15px;
+    }
+    .loading-msg { color: #e67e22; }
+    .empty-msg  { color: #6b8299; }
+    .error-msg  { color: #e74c3c; }
+
+    @media (max-width: 900px) {
+        .header { padding: 12px 16px; }
+        .header h1 { font-size: 16px; }
+        .filter-bar select { min-width: 160px; }
+        .stat-card .stat-value { font-size: 18px; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>📦 Store Attendant Performance — All Branches</h1>
+    <div class="header-right">
+        <div id="clock"></div>
+        <div class="filter-bar">
+            <label for="branchFilter">Branch</label>
+            <select id="branchFilter">
+                <option value="ALL">All Branches</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+    <div class="stat-card">
+        <div class="stat-value" id="statTotal">--</div>
+        <div class="stat-label">Attendants</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="statOrders">--</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="statItems">--</div>
+        <div class="stat-label">Total Items</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="statAvgScore">--</div>
+        <div class="stat-label">Avg Score</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="statTopScore">--</div>
+        <div class="stat-label">Top Score</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="statBranches">--</div>
+        <div class="stat-label">Branches</div>
+    </div>
+</div>
+
+<div class="table-container" id="scrollContainer">
+    <table>
+        <thead>
+            <tr>
+                <th style="width:60px">Rank</th>
+                <th>Store Attendant</th>
+                <th>Branch</th>
+                <th>Total Orders</th>
+                <th>Line Items</th>
+                <th>Avg Items / Order</th>
+                <th>Orders / Hour</th>
+                <th>Avg Order Value</th>
+                <th style="width:140px">Efficiency</th>
+            </tr>
+        </thead>
+        <tbody id="performanceBody">
+            <tr><td colspan="9" class="loading-msg">Loading data...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="footer">
+    <div>Last updated: <span id="lastUpdated">--</span></div>
+    <div>Designed and Managed by MIS.DPT</div>
+</div>
+
+<script src="config.js"></script>
+
+<script>
+let allAttendants = [];
+let scrollTimer = null;
+let scrollDirection = 1;
+let scrollPos = 0;
+let isPaused = false;
+
+/* ===== CLOCK ===== */
+function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").textContent =
+        now.toLocaleDateString(undefined, {
+            weekday: "short", year: "numeric", month: "short", day: "numeric"
+        }) + " – " +
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ===== API ===== */
+const today = new Date().toISOString().split("T")[0];
+const API_URL = `${window.API_CONFIG.API_URL}store-picker-reports?startDate=${today}`;
+const API_TOKEN = window.API_CONFIG.API_TOKEN;
+
+/* =========================================================
+   PERCENTILE SCORING — 3 FACTORS
+   Orders/Hour (40%) + Avg Items (30%) + Avg Order Value (30%)
+   ========================================================= */
+function calculatePercentilePerformance(attendants) {
+    if (!attendants.length) return;
+
+    // Build reference arrays from the current set
+    const allOrdersPerHour = attendants.map(a => (a.numberOfOrders || 0) / 10);
+    const allAvgItems      = attendants.map(a =>
+        a.numberOfOrders ? (a.numberOfLineItems || 0) / a.numberOfOrders : 0
+    );
+    const allAvgOrderValue = attendants.map(a =>
+        a.numberOfOrders ? (a.orderAmount || 0) / a.numberOfOrders : 0
+    );
+
+    function percentileRank(arr, val) {
+        return (arr.filter(v => v <= val).length / arr.length) * 100;
+    }
+
+    attendants.forEach(a => {
+        const ordersPerHour = (a.numberOfOrders || 0) / 10;
+        const avgItems      = a.numberOfOrders
+            ? (a.numberOfLineItems || 0) / a.numberOfOrders
+            : 0;
+        const avgValue      = a.numberOfOrders
+            ? (a.orderAmount || 0) / a.numberOfOrders
+            : 0;
+
+        a.performance = {
+            ordersPerHour,
+            avgItemsPerOrder: avgItems,
+            avgOrderValue: avgValue,
+            score:
+                percentileRank(allOrdersPerHour, ordersPerHour) * 0.4 +
+                percentileRank(allAvgItems, avgItems) * 0.3 +
+                percentileRank(allAvgOrderValue, avgValue) * 0.3
+        };
+    });
+}
+
+/* ===== HELPERS ===== */
+function scoreClass(score) {
+    if (score >= 70) return "score-high";
+    if (score >= 50) return "score-medium";
+    return "score-low";
+}
+
+function rankClass(rank) {
+    if (rank === 1) return "rank-1";
+    if (rank === 2) return "rank-2";
+    if (rank === 3) return "rank-3";
+    return "rank-other";
+}
+
+/* ===== BRANCH FILTER ===== */
+function populateBranchFilter() {
+    const select = document.getElementById("branchFilter");
+    const branches = [...new Set(allAttendants.map(a => a.orgBranchName))].filter(Boolean).sort();
+
+    while (select.options.length > 1) select.remove(1);
+
+    branches.forEach(branch => {
+        const opt = document.createElement("option");
+        opt.value = branch;
+        opt.textContent = branch;
+        select.appendChild(opt);
+    });
+}
+
+/* ===== STATS ===== */
+function updateStats(data) {
+    const count = data.length;
+    const totalOrders = data.reduce((s, a) => s + (a.numberOfOrders || 0), 0);
+    const totalItems  = data.reduce((s, a) => s + (a.numberOfLineItems || 0), 0);
+    const avgScore    = count > 0
+        ? data.reduce((s, a) => s + a.performance.score, 0) / count
+        : 0;
+    const topScore    = count > 0
+        ? Math.max(...data.map(a => a.performance.score))
+        : 0;
+    const branches    = new Set(data.map(a => a.orgBranchName)).size;
+
+    document.getElementById("statTotal").textContent    = count;
+    document.getElementById("statOrders").textContent   = totalOrders.toLocaleString();
+    document.getElementById("statItems").textContent    = totalItems.toLocaleString();
+    document.getElementById("statAvgScore").textContent = avgScore.toFixed(1) + "%";
+    document.getElementById("statTopScore").textContent = topScore.toFixed(1) + "%";
+    document.getElementById("statBranches").textContent = branches;
+}
+
+/* ===== RENDER ===== */
+function renderTable(data) {
+    const tbody = document.getElementById("performanceBody");
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No data found for this selection.</td></tr>';
+        return;
+    }
+
+    calculatePercentilePerformance(data);
+    data.sort((a, b) => b.performance.score - a.performance.score);
+
+    tbody.innerHTML = data.map((a, i) => {
+        const rank = i + 1;
+        const sc = scoreClass(a.performance.score);
+        const rc = rankClass(rank);
+
+        return `
+        <tr>
+            <td><span class="rank-badge ${rc}">${rank}</span></td>
+            <td class="attendant-name">${a.storePickerName || "—"}</td>
+            <td><span class="branch-tag" title="${a.orgBranchName || ''}">${a.orgBranchName || "—"}</span></td>
+            <td>${(a.numberOfOrders || 0).toLocaleString()}</td>
+            <td>${(a.numberOfLineItems || 0).toLocaleString()}</td>
+            <td>${a.performance.avgItemsPerOrder.toFixed(2)}</td>
+            <td>${a.performance.ordersPerHour.toFixed(2)}</td>
+            <td>${a.performance.avgOrderValue.toFixed(0)}</td>
+            <td>
+                <div class="score-cell ${sc}">
+                    <div class="score-bar-wrap">
+                        <div class="score-bar" style="width:${a.performance.score}%"></div>
+                    </div>
+                    <span class="score-text">${a.performance.score.toFixed(1)}%</span>
+                </div>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+/* ===== FILTER ===== */
+function applyFilter() {
+    const selected = document.getElementById("branchFilter").value;
+
+    if (selected === "ALL") {
+        renderTable([...allAttendants]);
+        updateStats(allAttendants);
+    } else {
+        const filtered = allAttendants.filter(a => a.orgBranchName === selected);
+        renderTable(filtered);
+        updateStats(filtered);
+    }
+
+    scrollPos = 0;
+    scrollDirection = 1;
+    document.getElementById("scrollContainer").scrollTop = 0;
+}
+
+document.getElementById("branchFilter").addEventListener("change", applyFilter);
+
+/* ===== AUTO SCROLL ===== */
+function startAutoScroll() {
+    const container = document.getElementById("scrollContainer");
+    clearInterval(scrollTimer);
+    isPaused = false;
+
+    const speed = 1;
+    const tickRate = 25;
+    const pauseDuration = 2500;
+
+    function tick() {
+        if (isPaused) return;
+
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        if (maxScroll <= 0) return;
+
+        scrollPos += speed * scrollDirection;
+        container.scrollTop = scrollPos;
+
+        if (scrollPos >= maxScroll) {
+            scrollPos = maxScroll;
+            isPaused = true;
+            setTimeout(() => {
+                scrollDirection = -1;
+                isPaused = false;
+            }, pauseDuration);
+        }
+
+        if (scrollPos <= 0) {
+            scrollPos = 0;
+            isPaused = true;
+            setTimeout(() => {
+                scrollDirection = 1;
+                isPaused = false;
+            }, pauseDuration);
+        }
+    }
+
+    scrollTimer = setInterval(tick, tickRate);
+}
+
+/* ===== LOAD ===== */
+async function loadPerformanceData() {
+    const tbody = document.getElementById("performanceBody");
+    const container = document.getElementById("scrollContainer");
+    scrollPos = container.scrollTop;
+
+    try {
+        const response = await fetch(API_URL, {
+            headers: { Authorization: API_TOKEN }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const json = await response.json();
+        const raw = Array.isArray(json) ? json : json.data || [];
+
+        if (!raw.length) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No data available.</td></tr>';
+            return;
+        }
+
+        allAttendants = raw.map(a => ({ ...a, performance: null }));
+
+        populateBranchFilter();
+        applyFilter();
+
+        document.getElementById("lastUpdated").textContent =
+            new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        startAutoScroll();
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        container.scrollTop = Math.min(scrollPos, maxScroll);
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="9" class="error-msg">Error loading data: ${err.message}</td></tr>`;
+    }
+}
+
+/* ===== START ===== */
+loadPerformanceData();
+setInterval(loadPerformanceData, 60000);
+</script>
+
+</body>
+</html>
