@@ -2,526 +2,182 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Store Attendant Performance — All Branches</title>
+<title>Store Attendant Performance Dashboard</title>
 <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #0f1923;
-        color: #e0e6ed;
-        height: 100vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .header {
-        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
-        padding: 16px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        border-bottom: 3px solid #e67e22;
-        flex-shrink: 0;
-    }
-
-    .header h1 {
-        font-size: 20px;
-        font-weight: 700;
-        color: #fff;
-        letter-spacing: 0.5px;
-    }
-
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    #clock {
-        font-size: 14px;
-        color: #8fa4b8;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-
-    .filter-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .filter-bar label {
-        font-size: 13px;
-        color: #8fa4b8;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .filter-bar select {
-        background: #1a2a3a;
-        color: #e0e6ed;
-        border: 1px solid #e67e22;
-        border-radius: 6px;
-        padding: 8px 14px;
-        font-size: 14px;
-        font-family: inherit;
-        cursor: pointer;
-        min-width: 220px;
-        outline: none;
-        transition: border-color 0.2s;
-    }
-
-    .filter-bar select:focus {
-        border-color: #f39c12;
-        box-shadow: 0 0 0 2px rgba(230,126,34,0.3);
-    }
-
-    .stats-bar {
-        display: flex;
-        gap: 0;
-        background: #162230;
-        border-bottom: 1px solid #1e3347;
-        flex-shrink: 0;
-        overflow-x: auto;
-    }
-
-    .stat-card {
-        flex: 1;
-        min-width: 140px;
-        padding: 12px 18px;
-        text-align: center;
-        border-right: 1px solid #1e3347;
-    }
-
-    .stat-card:last-child { border-right: none; }
-
-    .stat-card .stat-value {
-        font-size: 22px;
-        font-weight: 800;
-        color: #e67e22;
-    }
-
-    .stat-card .stat-label {
-        font-size: 11px;
-        color: #6b8299;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 2px;
-    }
-
-    .table-container {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: auto;
-    }
-
-    .table-container::-webkit-scrollbar { width: 6px; }
-    .table-container::-webkit-scrollbar-track { background: #0f1923; }
-    .table-container::-webkit-scrollbar-thumb { background: #2c3e50; border-radius: 3px; }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 11px 14px;
-        text-align: center;
-        border-bottom: 1px solid #1a2a3a;
-        font-size: 13px;
-        white-space: nowrap;
-    }
-
-    th {
-        background: #162230;
-        color: #8fa4b8;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 700;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        border-bottom: 2px solid #e67e22;
-    }
-
-    tr { transition: background 0.15s; }
-    tbody tr:hover { background: rgba(230,126,34,0.08); }
-
-    .rank-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        font-weight: 800;
-        font-size: 13px;
-    }
-
-    .rank-1 { background: linear-gradient(135deg, #f1c40f, #e67e22); color: #1a1a1a; }
-    .rank-2 { background: linear-gradient(135deg, #bdc3c7, #95a5a6); color: #1a1a1a; }
-    .rank-3 { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
-    .rank-other { background: #1e3347; color: #6b8299; }
-
-    .score-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .score-bar-wrap {
-        width: 70px;
-        height: 6px;
-        background: #1e3347;
-        border-radius: 3px;
-        overflow: hidden;
-    }
-
-    .score-bar {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 0.4s ease;
-    }
-
-    .score-high .score-bar { background: #27ae60; }
-    .score-medium .score-bar { background: #f1c40f; }
-    .score-low .score-bar { background: #e74c3c; }
-
-    .score-text { font-weight: 700; min-width: 48px; text-align: right; }
-    .score-high .score-text { color: #27ae60; }
-    .score-medium .score-text { color: #f1c40f; }
-    .score-low .score-text { color: #e74c3c; }
-
-    .branch-tag {
-        display: inline-block;
-        background: #1e3347;
-        color: #8fa4b8;
-        padding: 3px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        max-width: 180px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .attendant-name {
-        text-align: left;
-        font-weight: 600;
-        color: #e0e6ed;
-    }
-
-    .footer {
-        background: #162230;
-        border-top: 2px solid #1e3347;
-        padding: 8px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        color: #4a6580;
-        flex-shrink: 0;
-    }
-
-    .loading-msg, .empty-msg, .error-msg {
-        text-align: center;
-        padding: 60px 20px;
-        font-size: 15px;
-    }
-    .loading-msg { color: #e67e22; }
-    .empty-msg  { color: #6b8299; }
-    .error-msg  { color: #e74c3c; }
-
-    @media (max-width: 900px) {
-        .header { padding: 12px 16px; }
-        .header h1 { font-size: 16px; }
-        .filter-bar select { min-width: 160px; }
-        .stat-card .stat-value { font-size: 18px; }
-    }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0e6ed;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.hd{background:linear-gradient(135deg,#1a2a3a,#2c3e50);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #e67e22;flex-shrink:0}
+.hd h1{font-size:18px;font-weight:700;color:#fff}
+#clock{font-size:13px;color:#8fa4b8;font-weight:600}
+.fr{background:#13202d;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1e3347;flex-shrink:0}
+.fr label{font-size:11px;color:#6b8299;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.fr input[type=date],.fr select{background:#1a2a3a;color:#e0e6ed;border:1px solid #2c4a63;border-radius:5px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none}
+.fr input[type=date]{min-width:130px}
+.fr select{min-width:160px;cursor:pointer;margin-left:auto}
+.fr input:focus,.fr select:focus{border-color:#e67e22;box-shadow:0 0 0 2px rgba(230,126,34,.25)}
+.fdiv{width:1px;height:24px;background:#1e3347;flex-shrink:0}
+.qb{background:#1e3347;color:#6b8299;border:1px solid #2c4a63;border-radius:4px;padding:5px 12px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;text-transform:uppercase}
+.qb:hover{background:#243d54;color:#b0c4d8}
+.qb.on{background:#e67e22;color:#fff;border-color:#e67e22}
+.ri{background:#0f1923;padding:5px 20px;font-size:10px;color:#4a6580;border-bottom:1px solid #1a2a3a;flex-shrink:0;display:flex;gap:10px;flex-wrap:wrap}
+.ri .bl{color:#e67e22;font-weight:700}.ri .gr{color:#27ae60;font-weight:600}.ri .pu{color:#9b59b6;font-weight:700;font-family:monospace}
+.sb{display:flex;background:#162230;border-bottom:1px solid #1e3347;flex-shrink:0}
+.sc{flex:1;min-width:100px;padding:10px 8px;text-align:center;border-right:1px solid #1e3347}
+.sc:last-child{border-right:none}
+.sc .v{font-size:17px;font-weight:800;color:#e67e22}
+.sc .l{font-size:9px;color:#6b8299;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+.tc::-webkit-scrollbar{width:5px}
+.tc::-webkit-scrollbar-track{background:#0f1923}
+.tc::-webkit-scrollbar-thumb{background:#2c3e50;border-radius:3px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;text-align:center;border-bottom:1px solid #1a2a3a;font-size:12px;white-space:nowrap}
+th{background:#162230;color:#8fa4b8;font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;position:sticky;top:0;z-index:10;border-bottom:2px solid #e67e22}
+tr.rh{background:rgba(39,174,96,.12);border-left:4px solid #27ae60}
+tr.rm{background:rgba(241,196,15,.1);border-left:4px solid #f1c40f}
+tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
+.rb{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-weight:800;font-size:11px}
+.r1{background:linear-gradient(135deg,#f1c40f,#e67e22);color:#1a1a1a}
+.r2{background:linear-gradient(135deg,#bdc3c7,#95a5a6);color:#1a1a1a}
+.r3{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff}
+.rx{background:#1e3347;color:#6b8299}
+.an{text-align:left;font-weight:600;color:#e0e6ed}
+.bt{display:inline-block;background:#1e3347;color:#8fa4b8;padding:2px 8px;border-radius:3px;font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.db{display:inline-flex;align-items:center;justify-content:center;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;min-width:32px}
+.db.f{background:rgba(39,174,96,.15);color:#27ae60}
+.db.p{background:rgba(241,196,15,.15);color:#f1c40f}
+.scl{display:flex;align-items:center;justify-content:center;gap:6px}
+.sbw{width:60px;height:5px;background:#1e3347;border-radius:3px;overflow:hidden}
+.sb2{height:100%;border-radius:3px}
+.sh .sb2{background:#27ae60}.sm .sb2{background:#f1c40f}.sl .sb2{background:#e74c3c}
+.st{font-weight:700;min-width:44px;text-align:right}
+.sh .st{color:#27ae60}.sm .st{color:#f1c40f}.sl .st{color:#e74c3c}
+.ft{background:#162230;border-top:2px solid #1e3347;padding:6px 20px;display:flex;justify-content:space-between;font-size:11px;color:#4a6580;flex-shrink:0}
+.lm,.em{padding:50px 20px;text-align:center;font-size:14px}
+.lm{color:#e67e22}.em{color:#e74c3c}
 </style>
 </head>
-
 <body>
-
-<div class="header">
-    <h1>📦 Store Attendant Performance — All Branches</h1>
-    <div class="header-right">
-        <div id="clock"></div>
-        <div class="filter-bar">
-            <label for="branchFilter">Branch</label>
-            <select id="branchFilter">
-                <option value="ALL">All Branches</option>
-            </select>
-        </div>
-    </div>
+<div class="hd"><h1>📦 Store Attendant Performance — All Branches</h1><div id="clock"></div></div>
+<div class="fr">
+<div><label>From</label><input type="date" id="sd"></div>
+<div><label>To</label><input type="date" id="ed"></div>
+<div class="fdiv"></div>
+<div id="qbs" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+<div class="fdiv"></div>
+<div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
 </div>
-
-<div class="stats-bar" id="statsBar">
-    <div class="stat-card">
-        <div class="stat-value" id="statTotal">--</div>
-        <div class="stat-label">Attendants</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="statOrders">--</div>
-        <div class="stat-label">Total Orders</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="statItems">--</div>
-        <div class="stat-label">Total Items</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="statAvgScore">--</div>
-        <div class="stat-label">Avg Score</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="statTopScore">--</div>
-        <div class="stat-label">Top Score</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value" id="statBranches">--</div>
-        <div class="stat-label">Branches</div>
-    </div>
+<div class="ri" id="ri">Loading...</div>
+<div class="sb">
+<div class="sc"><div class="v" id="s1">--</div><div class="l">Attendants</div></div>
+<div class="sc"><div class="v" id="s2">--</div><div class="l">Period Days</div></div>
+<div class="sc"><div class="v" id="s3">--</div><div class="l">Total Orders</div></div>
+<div class="sc"><div class="v" id="s4">--</div><div class="l">Total Items</div></div>
+<div class="sc"><div class="v" id="s5">--</div><div class="l">Avg Score</div></div>
+<div class="sc"><div class="v" id="s6">--</div><div class="l">Top Score</div></div>
+<div class="sc"><div class="v" id="s7">--</div><div class="l">Branches</div></div>
 </div>
-
-<div class="table-container" id="scrollContainer">
-    <table>
-        <thead>
-            <tr>
-                <th style="width:60px">Rank</th>
-                <th>Store Attendant</th>
-                <th>Branch</th>
-                <th>Total Orders</th>
-                <th>Line Items</th>
-                <th>Line Items / Hour</th>
-                <th>Orders / Hour</th>
-                <th>Avg Order Value</th>
-                <th style="width:140px">Efficiency</th>
-            </tr>
-        </thead>
-        <tbody id="performanceBody">
-            <tr><td colspan="9" class="loading-msg">Loading data...</td></tr>
-        </tbody>
-    </table>
+<div class="tc" id="tc">
+<table><thead><tr>
+<th style="width:46px">Rank</th><th>Store Attendant</th><th>Branch</th><th>Entries</th><th>Hrs Worked</th><th>Total Orders</th><th>Line Items</th><th>Items/Hr</th><th>Orders/Hr</th><th>Avg Order Val</th><th style="width:120px">Efficiency</th>
+</tr></thead><tbody id="tb"><tr><td colspan="11" class="lm">Loading data...</td></tr></tbody></table>
 </div>
-
-<div class="footer">
-    <div>Last updated: <span id="lastUpdated">--</span></div>
-    <div>Designed and Managed by MIS.DPT</div>
-</div>
+<div class="ft"><div>Last updated: <span id="lu">--</span></div><div>Designed and Managed by MIS.DPT</div></div>
 
 <script src="config.js"></script>
-
 <script>
-let allAttendants = [];
+const DF='createdAt',PS=5000;
+let raw=[],filt=[],all=[],pd=7,ld=false,fetching=false,silent=false;
+const BK='spbf',SK='spsd',EK='sped',QK='spqr';
+const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD']];
 
-/* ===== CLOCK ===== */
-function updateClock() {
-    const now = new Date();
-    document.getElementById("clock").textContent =
-        now.toLocaleDateString(undefined, {
-            weekday: "short", year: "numeric", month: "short", day: "numeric"
-        }) + " – " +
-        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-setInterval(updateClock, 1000);
-updateClock();
+const qbc=document.getElementById('qbs');
+ranges.forEach(r=>{const b=document.createElement('button');b.className='qb';b.textContent=r[1];b.dataset.r=r[0];b.onclick=()=>{setQR(r[0]);applyF()};qbc.appendChild(b)});
 
-/* ===== API ===== */
-const today = new Date().toISOString().split("T")[0];
-const API_URL = `${window.API_CONFIG.API_URL}store-picker-reports?startDate=${today}`;
-const API_TOKEN = window.API_CONFIG.API_TOKEN;
+function updClk(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' — '+n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+setInterval(updClk,1000);updClk();
 
-/* =========================================================
-   PERCENTILE SCORING — 3 FACTORS
-   Orders/Hour (40%) + Line Items/Hour (30%) + Avg Order Value (30%)
-   ========================================================= */
-function calculatePercentilePerformance(attendants) {
-    if (!attendants.length) return;
+function fdu(d){return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')}
+function fdn(s){if(!s)return'';return new Date(s+'T00:00:00Z').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}
+function gdr(k){const n=new Date(),s=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate())),e=new Date(s);switch(k){case'today':break;case'yesterday':s.setUTCDate(s.getUTCDate()-1);e=new Date(s);break;case'7d':s.setUTCDate(s.getUTCDate()-6);break;case'30d':s.setUTCDate(s.getUTCDate()-29);break;case'90d':s.setUTCDate(s.getUTCDate()-89);break;case'mtd':s=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),1));break}return{s:fdu(s),e:fdu(e)}}
+function gpd(a,b){return Math.round(Math.abs(new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5)+1}
 
-    const allOrdersPerHour  = attendants.map(a => (a.numberOfOrders || 0) / 10);
-    const allItemsPerHour   = attendants.map(a => (a.numberOfLineItems || 0) / 10);
-    const allAvgOrderValue  = attendants.map(a =>
-        a.numberOfOrders ? (a.orderAmount || 0) / a.numberOfOrders : 0
-    );
+function exd(r){const v=r[DF];if(v==null)return null;const s=String(v).trim();if(!s)return null;if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.substring(0,10);if(/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(s)){const p=s.split(/[\/\-\.]/),a=+p[0],b=+p[1],c=+p[2];if(a>12&&b>=1&&b<=12)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');if(a>=1&&a<=31&&b>=1&&b<=12)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');if(b>=1&&b<=31&&a>=1&&a<=12)return c+'-'+String(a).padStart(2,'0')+'-'+String(b).padStart(2,'0')}if(/^\d{13}$/.test(s)){const d=new Date(+s);if(!isNaN(d)&&d.getFullYear()>=2000)return fdu(d)}if(/^\d{10}$/.test(s)){const d=new Date(+s*1e3);if(!isNaN(d)&&d.getFullYear()>=2000)return fdu(d)}return null}
 
-    function percentileRank(arr, val) {
-        return (arr.filter(v => v <= val).length / arr.length) * 100;
-    }
+function burl(p){let b=window.API_CONFIG.API_URL;if(!b.endsWith('/'))b+='/';return b+'store-picker-reports'+(p?'?'+p:'')}
 
-    attendants.forEach(a => {
-        const ordersPerHour = (a.numberOfOrders || 0) / 10;
-        const itemsPerHour  = (a.numberOfLineItems || 0) / 10;
-        const avgValue      = a.numberOfOrders
-            ? (a.orderAmount || 0) / a.numberOfOrders
-            : 0;
+/* Uses actual API fields: storePickerName, orgBranchName,
+   numberOfOrders, numberOfLineItems, orderAmount, isDeleted */
+function agg(raw){const m={};raw.forEach(r=>{
+  if(r.isDeleted)return;
+  const n=(r.storePickerName||'').trim(),br=(r.orgBranchName||'').trim();
+  if(!n)return;const k=n+'|||'+br;
+  if(!m[k])m[k]={storePickerName:n,orgBranchName:br,numberOfOrders:0,numberOfLineItems:0,orderAmount:0,ec:0};
+  m[k].numberOfOrders+=(r.numberOfOrders||0);
+  m[k].numberOfLineItems+=(r.numberOfLineItems||0);
+  m[k].orderAmount+=(r.orderAmount||0);
+  m[k].ec+=1});
+  return Object.values(m).map(a=>{const d=Math.max(1,a.ec);delete a.ec;return{...a,daysWorked:d,hoursWorked:d*10}})}
 
-        a.performance = {
-            ordersPerHour,
-            lineItemsPerHour: itemsPerHour,
-            avgOrderValue: avgValue,
-            score:
-                percentileRank(allOrdersPerHour, ordersPerHour) * 0.4 +
-                percentileRank(allItemsPerHour, itemsPerHour) * 0.3 +
-                percentileRank(allAvgOrderValue, avgValue) * 0.3
-        };
-    });
-}
+function calcPct(l){if(!l.length)return;const o=l.map(a=>a.numberOfOrders/a.hoursWorked),i=l.map(a=>a.numberOfLineItems/a.hoursWorked),v=l.map(a=>a.numberOfOrders?a.orderAmount/a.numberOfOrders:0);const pc=(arr,val)=>(arr.filter(x=>x<=val).length/arr.length)*100;l.forEach(a=>{const op=a.numberOfOrders/a.hoursWorked,ip=a.numberOfLineItems/a.hoursWorked,av=a.numberOfOrders?a.orderAmount/a.numberOfOrders:0;a.pf={ordersPerHour:op,itemsPerHour:ip,avgOrderValue:av,score:pc(o,op)*.4+pc(i,ip)*.3+pc(v,av)*.3}})}
 
-/* ===== HELPERS ===== */
-function scoreClass(score) {
-    if (score >= 70) return "score-high";
-    if (score >= 50) return "score-medium";
-    return "score-low";
-}
+function scc(s){return s>=80?'sh':s>=50?'sm':'sl'}
+function rwc(s){return s>=80?'rh':s>=50?'rm':'rl'}
+function rkc(r){return r===1?'r1':r===2?'r2':r===3?'r3':'rx'}
 
-function rankClass(rank) {
-    if (rank === 1) return "rank-1";
-    if (rank === 2) return "rank-2";
-    if (rank === 3) return "rank-3";
-    return "rank-other";
-}
+function popBr(){const sel=document.getElementById('bf'),cv=sel.value;const br=[...new Set(all.map(a=>a.orgBranchName))].filter(Boolean).sort();const ex=[];for(let i=1;i<sel.options.length;i++)ex.push(sel.options[i].value);if(br.length===ex.length&&br.every((b,i)=>b===ex[i])){if(![...sel.options].some(o=>o.value===cv))sel.value='ALL';return}while(sel.options.length>1)sel.remove(1);br.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o)});if([...sel.options].some(o=>o.value===cv))sel.value=cv;else{const sv=localStorage.getItem(BK);if(sv&&[...sel.options].some(o=>o.value===sv))sel.value=sv}}
 
-/* ===== BRANCH FILTER ===== */
-function populateBranchFilter() {
-    const select = document.getElementById("branchFilter");
-    const currentValue = select.value;
-    const branches = [...new Set(allAttendants.map(a => a.orgBranchName))].filter(Boolean).sort();
+function updSt(d){const n=d.length;document.getElementById('s1').textContent=n;document.getElementById('s2').textContent=pd+'d';document.getElementById('s3').textContent=d.reduce((s,a)=>s+a.numberOfOrders,0).toLocaleString();document.getElementById('s4').textContent=d.reduce((s,a)=>s+a.numberOfLineItems,0).toLocaleString();const av=n?d.reduce((s,a)=>s+a.pf.score,0)/n:0;document.getElementById('s5').textContent=av.toFixed(1)+'%';document.getElementById('s6').textContent=n?Math.max(...d.map(a=>a.pf.score)).toFixed(1)+'%':'0%';document.getElementById('s7').textContent=new Set(d.map(a=>a.orgBranchName)).size}
 
-    while (select.options.length > 1) select.remove(1);
+function updRi(s,e,tc,fc){const d=gpd(s,e);document.getElementById('ri').innerHTML='<span class="gr">✅ Filtered by <span class="pu">'+DF+'</span> (raw UTC)</span> · <span class="bl">Period:</span> '+fdn(s)+' — '+fdn(e)+' <span style="color:#4a6580">('+d+(d===1?' day':' days')+')</span> · <span class="gr">'+fc.toLocaleString()+' of '+tc.toLocaleString()+' records</span>'}
 
-    branches.forEach(branch => {
-        const opt = document.createElement("option");
-        opt.value = branch;
-        opt.textContent = branch;
-        select.appendChild(opt);
-    });
+function buildRows(d){if(!d.length)return'<tr><td colspan="11" class="em">No data found.</td></tr>';calcPct(d);d.sort((a,b)=>b.pf.score-a.pf.score);return d.map((a,i)=>{const r=i+1,sc=scc(a.pf.score),rc=rkc(r),rw=rwc(a.pf.score),dc=a.daysWorked>=pd?'f':'p';return'<tr class="'+rw+'"><td><span class="rb '+rc+'">'+r+'</span></td><td class="an">'+(a.storePickerName||'—')+'</td><td><span class="bt" title="'+(a.orgBranchName||'')+'">'+(a.orgBranchName||'—')+'</span></td><td><span class="db '+dc+'">'+a.daysWorked+'/'+pd+'</span></td><td>'+a.hoursWorked+'</td><td>'+a.numberOfOrders.toLocaleString()+'</td><td>'+a.numberOfLineItems.toLocaleString()+'</td><td>'+a.pf.itemsPerHour.toFixed(2)+'</td><td>'+a.pf.ordersPerHour.toFixed(2)+'</td><td>'+a.pf.avgOrderValue.toFixed(0)+'</td><td><div class="scl '+sc+'"><div class="sbw"><div class="sb2" style="width:'+a.pf.score+'%"></div></div><span class="st">'+a.pf.score.toFixed(1)+'%</span></div></td></tr>'}).join('')}
 
-    if (currentValue === "ALL" || branches.includes(currentValue)) {
-        select.value = currentValue;
-    }
-}
+function proc(s,e){pd=gpd(s,e);all=agg(filt).map(a=>({...a,pf:null}));updRi(s,e,raw.length,filt.length);popBr();applyBr()}
 
-/* ===== STATS ===== */
-function updateStats(data) {
-    const count = data.length;
-    const totalOrders = data.reduce((s, a) => s + (a.numberOfOrders || 0), 0);
-    const totalItems  = data.reduce((s, a) => s + (a.numberOfLineItems || 0), 0);
-    const avgScore    = count > 0
-        ? data.reduce((s, a) => s + a.performance.score, 0) / count
-        : 0;
-    const topScore    = count > 0
-        ? Math.max(...data.map(a => a.performance.score))
-        : 0;
-    const branches    = new Set(data.map(a => a.orgBranchName)).size;
+function applyBr(){const v=document.getElementById('bf').value;const d=v==='ALL'?[...all]:all.filter(a=>a.orgBranchName===v);const tb=document.getElementById('tb'),tc=document.getElementById('tc');if(!silent){tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=0}else{const sv=tc.scrollTop;tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=sv}}
 
-    document.getElementById("statTotal").textContent    = count;
-    document.getElementById("statOrders").textContent   = totalOrders.toLocaleString();
-    document.getElementById("statItems").textContent    = totalItems.toLocaleString();
-    document.getElementById("statAvgScore").textContent = avgScore.toFixed(1) + "%";
-    document.getElementById("statTopScore").textContent = topScore.toFixed(1) + "%";
-    document.getElementById("statBranches").textContent = branches;
-}
+function applyF(){const s=document.getElementById('sd').value,e=document.getElementById('ed').value;if(!s||!e||!ld)return;filt=raw.filter(r=>{const d=exd(r);return d&&d>=s&&d<=e});proc(s,e)}
 
-/* ===== RENDER ===== */
-function renderTable(data) {
-    const tbody = document.getElementById("performanceBody");
+async function fetchPages(lab,bp){let pages=[],pn=0,hn=true,gc=0;while(hn&&gc<200){const p=(bp?bp+'&':'')+'pageNum='+pn+'&pageSize='+PS;const u=burl(p);const resp=await fetch(u,{headers:{'Authorization':window.API_CONFIG.API_TOKEN,'Content-Type':'application/json'}});if(!resp.ok)throw new Error('HTTP '+resp.status);const j=await resp.json();const pg=Array.isArray(j)?j:(j.data||[]);pages=pages.concat(pg);hn=j.hasNext===true;pn++;gc++;if(!pg.length)break}return pages}
 
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No data found for this selection.</td></tr>';
-        return;
-    }
+async function go(sl){if(fetching)return;fetching=true;const tb=document.getElementById('tb'),tc=document.getElementById('tc'),sv=tc.scrollTop;
+var pSd=document.getElementById('sd').value,pEd=document.getElementById('ed').value,pBf=document.getElementById('bf').value,pQb=document.querySelector('.qb.on');
+if(!sl)tb.innerHTML='<tr><td colspan="11" class="lm">Loading data...</td></tr>';
+let data=[],err=null;
+try{try{data=await fetchPages('A',null)}catch(e){err=e}if(!data.length)try{data=await fetchPages('B','startDate=1970-01-01&endDate=2099-12-31')}catch(e){err=e}if(!data.length)try{data=await fetchPages('C','startDate=2020-01-01&endDate=2099-12-31')}catch(e){err=e}}catch(e){err=e}
+if(!data.length){if(!sl)tb.innerHTML='<tr><td colspan="11" class="em">Failed to fetch data<br><small style="color:#e67e22">'+burl(null)+'</small><br><small style="color:#8fa4b8">Error: '+(err?err.message:'Unknown')+'</small></td></tr>';fetching=false;return}
+raw=data;ld=true;
+document.getElementById('lu').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+if(sl){
+silent=true;
+document.getElementById('sd').value=pSd;
+document.getElementById('ed').value=pEd;
+applyF();
+var sel=document.getElementById('bf');
+if([...sel.options].some(o=>o.value===pBf))sel.value=pBf;
+if(pQb){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));pQb.classList.add('on')}
+applyBr();
+tc.scrollTop=sv;
+silent=false
+}else{silent=false;applyF()}
+fetching=false}
 
-    calculatePercentilePerformance(data);
-    data.sort((a, b) => b.performance.score - a.performance.score);
+function setQR(k){const d=gdr(k);document.getElementById('sd').value=d.s;document.getElementById('ed').value=d.e;document.querySelectorAll('.qb').forEach(b=>b.classList.toggle('on',b.dataset.r===k));localStorage.setItem(QK,k)}
 
-    tbody.innerHTML = data.map((a, i) => {
-        const rank = i + 1;
-        const sc = scoreClass(a.performance.score);
-        const rc = rankClass(rank);
+document.querySelectorAll('.qb').forEach(b=>b.addEventListener('click',function(){setQR(this.dataset.r);applyF()}));
+document.getElementById('sd').addEventListener('change',function(){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));localStorage.setItem(SK,this.value);localStorage.removeItem(QK);applyF()});
+document.getElementById('ed').addEventListener('change',function(){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));localStorage.setItem(EK,this.value);localStorage.removeItem(QK);applyF()});
+document.getElementById('bf').addEventListener('change',function(){localStorage.setItem(BK,this.value);applyBr()});
 
-        return `
-        <tr>
-            <td><span class="rank-badge ${rc}">${rank}</span></td>
-            <td class="attendant-name">${a.storePickerName || "—"}</td>
-            <td><span class="branch-tag" title="${a.orgBranchName || ''}">${a.orgBranchName || "—"}</span></td>
-            <td>${(a.numberOfOrders || 0).toLocaleString()}</td>
-            <td>${(a.numberOfLineItems || 0).toLocaleString()}</td>
-            <td>${a.performance.lineItemsPerHour.toFixed(2)}</td>
-            <td>${a.performance.ordersPerHour.toFixed(2)}</td>
-            <td>${a.performance.avgOrderValue.toFixed(0)}</td>
-            <td>
-                <div class="score-cell ${sc}">
-                    <div class="score-bar-wrap">
-                        <div class="score-bar" style="width:${a.performance.score}%"></div>
-                    </div>
-                    <span class="score-text">${a.performance.score.toFixed(1)}%</span>
-                </div>
-            </td>
-        </tr>`;
-    }).join("");
-}
-
-/* ===== FILTER ===== */
-function applyFilter() {
-    const selected = document.getElementById("branchFilter").value;
-
-    if (selected === "ALL") {
-        renderTable([...allAttendants]);
-        updateStats(allAttendants);
-    } else {
-        const filtered = allAttendants.filter(a => a.orgBranchName === selected);
-        renderTable(filtered);
-        updateStats(filtered);
-    }
-}
-
-document.getElementById("branchFilter").addEventListener("change", applyFilter);
-
-/* ===== LOAD ===== */
-async function loadPerformanceData() {
-    const tbody = document.getElementById("performanceBody");
-
-    try {
-        const response = await fetch(API_URL, {
-            headers: { Authorization: API_TOKEN }
-        });
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const json = await response.json();
-        const raw = Array.isArray(json) ? json : json.data || [];
-
-        if (!raw.length) {
-            tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No data available.</td></tr>';
-            return;
-        }
-
-        allAttendants = raw.map(a => ({ ...a, performance: null }));
-
-        populateBranchFilter();
-        applyFilter();
-
-        document.getElementById("lastUpdated").textContent =
-            new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="9" class="error-msg">Error loading data: ${err.message}</td></tr>`;
-    }
-}
-
-/* ===== START ===== */
-loadPerformanceData();
-setInterval(loadPerformanceData, 60000);
+(function init(){
+const sq=localStorage.getItem(QK),ss=localStorage.getItem(SK),se=localStorage.getItem(EK);
+if(sq&&!ss&&!se)setQR(sq);
+else if(ss&&se){document.getElementById('sd').value=ss;document.getElementById('ed').value=se;document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'))}
+else setQR('today');
+go(false);
+setInterval(()=>go(true),15000)
+})();
 </script>
-
 </body>
 </html>
