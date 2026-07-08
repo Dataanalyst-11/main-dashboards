@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Confirmer Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0e6ed;height:100vh;overflow:hidden;display:flex;flex-direction:column}
@@ -13,12 +14,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .fr label{font-size:11px;color:#6b8299;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .fr input[type=date],.fr select{background:#1a2a3a;color:#e0e6ed;border:1px solid #2c4a63;border-radius:5px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none}
 .fr input[type=date]{min-width:130px}
-.fr select{min-width:160px;cursor:pointer;margin-left:auto}
+.fr select{min-width:160px;cursor:pointer}
 .fr input:focus,.fr select:focus{border-color:#3498db;box-shadow:0 0 0 2px rgba(52,152,219,.25)}
 .fdiv{width:1px;height:24px;background:#1e3347;flex-shrink:0}
-.qb{background:#1e3347;color:#6b8299;border:1px solid #2c4a63;border-radius:4px;padding:5px 12px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;text-transform:uppercase}
+.qb{background:#1e3347;color:#6b8299;border:1px solid #2c4a63;border-radius:4px;padding:5px 12px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all .15s}
 .qb:hover{background:#243d54;color:#b0c4d8}
 .qb.on{background:#3498db;color:#fff;border-color:#3498db}
+.xb{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;border-radius:5px;padding:7px 18px;font-size:11px;font-family:inherit;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(39,174,96,.3);flex-shrink:0}
+.xb:hover{background:linear-gradient(135deg,#2ecc71,#58d68d);box-shadow:0 4px 14px rgba(39,174,96,.45);transform:translateY(-1px)}
+.xb:active{transform:translateY(0);box-shadow:0 1px 4px rgba(39,174,96,.3)}
+.xb .xi{font-size:14px;line-height:1}
+.xb.disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .ri{background:#0f1923;padding:5px 20px;font-size:10px;color:#4a6580;border-bottom:1px solid #1a2a3a;flex-shrink:0;display:flex;gap:10px;flex-wrap:wrap}
 .ri .bl{color:#3498db;font-weight:700}.ri .gr{color:#27ae60;font-weight:600}.ri .pu{color:#9b59b6;font-weight:700;font-family:monospace}
 .sb{display:flex;background:#162230;border-bottom:1px solid #1e3347;flex-shrink:0}
@@ -55,6 +61,9 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 .ft{background:#162230;border-top:2px solid #1e3347;padding:6px 20px;display:flex;justify-content:space-between;font-size:11px;color:#4a6580;flex-shrink:0}
 .lm,.em{padding:50px 20px;text-align:center;font-size:14px}
 .lm{color:#3498db}.em{color:#e74c3c}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);box-shadow:0 6px 20px rgba(39,174,96,.4);pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:linear-gradient(135deg,#e74c3c,#c0392b);box-shadow:0 6px 20px rgba(231,76,60,.4)}
 </style>
 </head>
 <body>
@@ -66,6 +75,8 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 <div id="qbs" style="display:flex;gap:5px;flex-wrap:wrap"></div>
 <div class="fdiv"></div>
 <div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
+<div class="fdiv"></div>
+<button class="xb" id="xbtn" onclick="exportExcel()"><span class="xi">📥</span> Export Excel</button>
 </div>
 <div class="ri" id="ri">Loading...</div>
 <div class="sb">
@@ -84,6 +95,8 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 </div>
 <div class="ft"><div>Last updated: <span id="lu">--</span></div><div>Designed and Managed by MIS.DPT</div></div>
 
+<div class="toast" id="toast"></div>
+
 <script src="config.js"></script>
 <script>
 const DF='createdAt',PS=5000;
@@ -91,6 +104,17 @@ let raw=[],filt=[],all=[],pd=7,ld=false,fetching=false,silent=false;
 const BK='cbf',SK='csd',EK='ced',QK='cqr';
 const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD']];
 
+/* Toast notification */
+function showToast(msg, isErr) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isErr ? ' err' : '');
+    requestAnimationFrame(() => t.classList.add('show'));
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* Build quick-range buttons */
 const qbc=document.getElementById('qbs');
 ranges.forEach(r=>{const b=document.createElement('button');b.className='qb';b.textContent=r[1];b.dataset.r=r[0];b.onclick=()=>{setQR(r[0]);applyF()};qbc.appendChild(b)});
 
@@ -124,6 +148,16 @@ function buildRows(d){if(!d.length)return'<tr><td colspan="11" class="em">No dat
 
 function proc(s,e){pd=gpd(s,e);all=agg(filt).map(a=>({...a,pf:null}));updRi(s,e,raw.length,filt.length);popBr();applyBr()}
 
+/* Returns the currently displayed (filtered + branch) dataset with computed scores */
+function getDisplayData(){
+    const bv = document.getElementById('bf').value;
+    let d = bv === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === bv);
+    if(!d.length) return [];
+    calcPct(d);
+    d.sort((a,b) => b.pf.score - a.pf.score);
+    return d;
+}
+
 function applyBr(){const v=document.getElementById('bf').value;const d=v==='ALL'?[...all]:all.filter(a=>a.orgBranchName===v);const tb=document.getElementById('tb'),tc=document.getElementById('tc');if(!silent){tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=0}else{const sv=tc.scrollTop;tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=sv}}
 
 function applyF(){const s=document.getElementById('sd').value,e=document.getElementById('ed').value;if(!s||!e||!ld)return;filt=raw.filter(r=>{const d=exd(r);return d&&d>=s&&d<=e});proc(s,e)}
@@ -131,7 +165,6 @@ function applyF(){const s=document.getElementById('sd').value,e=document.getElem
 async function fetchPages(lab,bp){let all=[],pn=0,hn=true,gc=0;while(hn&&gc<200){const p=(bp?bp+'&':'')+'pageNum='+pn+'&pageSize='+PS;const u=burl(p);const resp=await fetch(u,{headers:{'Authorization':window.API_CONFIG.API_TOKEN,'Content-Type':'application/json'}});if(!resp.ok)throw new Error('HTTP '+resp.status);const j=await resp.json();const pd=Array.isArray(j)?j:(j.data||[]);all=all.concat(pd);hn=j.hasNext===true;pn++;gc++;if(!pd.length)break}return all}
 
 async function go(sl){if(fetching)return;fetching=true;const tb=document.getElementById('tb'),tc=document.getElementById('tc'),sv=tc.scrollTop;
-/* Save all 3 filter states before anything changes */
 var pSd=document.getElementById('sd').value,pEd=document.getElementById('ed').value,pBf=document.getElementById('bf').value,pQb=document.querySelector('.qb.on');
 if(!sl)tb.innerHTML='<tr><td colspan="11" class="lm">Loading data...</td></tr>';
 let data=[],err=null;
@@ -139,22 +172,104 @@ try{try{data=await fetchPages('A',null)}catch(e){err=e}if(!data.length)try{data=
 if(!data.length){if(!sl)tb.innerHTML='<tr><td colspan="11" class="em">Failed to fetch data<br><small style="color:#e67e22">'+burl(null)+'</small><br><small style="color:#8fa4b8">Error: '+(err?err.message:'Unknown')+'</small></td></tr>';fetching=false;return}
 raw=data;ld=true;
 document.getElementById('lu').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-if(sl){
-/* Silent: restore all filters exactly, then render */
-silent=true;
-document.getElementById('sd').value=pSd;
-document.getElementById('ed').value=pEd;
-applyF();
-var sel=document.getElementById('bf');
-if([...sel.options].some(o=>o.value===pBf))sel.value=pBf;
-if(pQb){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));pQb.classList.add('on')}
-applyBr();
-tc.scrollTop=sv;
-silent=false
-}else{silent=false;applyF()}
-fetching=false}
+if(sl){silent=true;document.getElementById('sd').value=pSd;document.getElementById('ed').value=pEd;applyF();var sel=document.getElementById('bf');if([...sel.options].some(o=>o.value===pBf))sel.value=pBf;if(pQb){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));pQb.classList.add('on')}applyBr();tc.scrollTop=sv;silent=false}else{silent=false;applyF()}fetching=false}
 
 function setQR(k){const d=gdr(k);document.getElementById('sd').value=d.s;document.getElementById('ed').value=d.e;document.querySelectorAll('.qb').forEach(b=>b.classList.toggle('on',b.dataset.r===k));localStorage.setItem(QK,k)}
+
+/* ========== EXPORT TO EXCEL ========== */
+function exportExcel(){
+    const btn = document.getElementById('xbtn');
+    const data = getDisplayData();
+    if(!data.length){
+        showToast('No data to export — adjust your filters first.', true);
+        return;
+    }
+
+    /* Build the summary row info */
+    const sVal = document.getElementById('sd').value;
+    const eVal = document.getElementById('ed').value;
+    const brVal = document.getElementById('bf').value;
+    const totalOrders = data.reduce((s,a) => s + a.numberOfOrders, 0);
+    const totalItems = data.reduce((s,a) => s + a.numberOfLineItems, 0);
+    const avgScore = data.reduce((s,a) => s + a.pf.score, 0) / data.length;
+
+    /* Prepare export rows */
+    const rows = data.map((a, i) => ({
+        'Rank': i + 1,
+        'Confirmation Attendant': a.itemsConfirmedByName,
+        'Branch': a.orgBranchName,
+        'Days Worked': a.daysWorked,
+        'Period Days': pd,
+        'Hours Worked': a.hoursWorked,
+        'Total Orders': a.numberOfOrders,
+        'Line Items': a.numberOfLineItems,
+        'Items / Hr': parseFloat(a.pf.itemsPerHour.toFixed(2)),
+        'Orders / Hr': parseFloat(a.pf.ordersPerHour.toFixed(2)),
+        'Avg Order Value': parseFloat(a.pf.avgOrderValue.toFixed(0)),
+        'Efficiency Score (%)': parseFloat(a.pf.score.toFixed(1)),
+        'Performance': a.pf.score >= 80 ? 'High' : a.pf.score >= 50 ? 'Medium' : 'Low'
+    }));
+
+    /* Create workbook with two sheets */
+    const wb = XLSX.utils.book_new();
+
+    /* Sheet 1: Detailed Data */
+    const ws1 = XLSX.utils.json_to_sheet(rows);
+
+    /* Set column widths */
+    ws1['!cols'] = [
+        {wch:6},  /* Rank */
+        {wch:28}, /* Name */
+        {wch:22}, /* Branch */
+        {wch:12}, /* Days Worked */
+        {wch:12}, /* Period Days */
+        {wch:12}, /* Hours Worked */
+        {wch:13}, /* Total Orders */
+        {wch:12}, /* Line Items */
+        {wch:11}, /* Items/Hr */
+        {wch:12}, /* Orders/Hr */
+        {wch:15}, /* Avg Order Val */
+        {wch:18}, /* Efficiency */
+        {wch:12}  /* Performance */
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws1, 'Confirmer Performance');
+
+    /* Sheet 2: Summary */
+    const summaryRows = [
+        {'Metric': 'Report Generated', 'Value': new Date().toLocaleString()},
+        {'Metric': 'Period Start', 'Value': fdn(sVal)},
+        {'Metric': 'Period End', 'Value': fdn(eVal)},
+        {'Metric': 'Period Days', 'Value': pd},
+        {'Metric': 'Branch Filter', 'Value': brVal === 'ALL' ? 'All Branches' : brVal},
+        {'Metric': '', 'Value': ''},
+        {'Metric': 'Total Confirmers', 'Value': data.length},
+        {'Metric': 'Total Orders', 'Value': totalOrders},
+        {'Metric': 'Total Line Items', 'Value': totalItems},
+        {'Metric': 'Average Efficiency', 'Value': avgScore.toFixed(1) + '%'},
+        {'Metric': 'Top Efficiency', 'Value': Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%'},
+        {'Metric': 'Top Performer', 'Value': data[0].itemsConfirmedByName + ' (' + data[0].orgBranchName + ')'},
+        {'Metric': '', 'Value': ''},
+        {'Metric': 'High Performers (≥80%)', 'Value': data.filter(a => a.pf.score >= 80).length},
+        {'Metric': 'Medium Performers (50-79%)', 'Value': data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length},
+        {'Metric': 'Low Performers (<50%)', 'Value': data.filter(a => a.pf.score < 50).length},
+    ];
+    const ws2 = XLSX.utils.json_to_sheet(summaryRows);
+    ws2['!cols'] = [{wch: 32}, {wch: 50}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
+
+    /* Generate filename with period and branch */
+    const brSlug = brVal === 'ALL' ? 'AllBranches' : brVal.replace(/[^a-zA-Z0-9]/g, '_');
+    const fname = 'Confirmer_Performance_' + sVal + '_to_' + eVal + '_' + brSlug + '.xlsx';
+
+    /* Download */
+    try {
+        XLSX.writeFile(wb, fname);
+        showToast('Exported ' + data.length + ' records to Excel ✓', false);
+    } catch(e) {
+        showToast('Export failed: ' + e.message, true);
+    }
+}
 
 document.querySelectorAll('.qb').forEach(b=>b.addEventListener('click',function(){setQR(this.dataset.r);applyF()}));
 document.getElementById('sd').addEventListener('change',function(){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));localStorage.setItem(SK,this.value);localStorage.removeItem(QK);applyF()});
