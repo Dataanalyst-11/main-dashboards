@@ -282,7 +282,7 @@ if(sq&&!ss&&!se)setQR(sq);
 else if(ss&&se){document.getElementById('sd').value=ss;document.getElementById('ed').value=se;document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'))}
 else setQR('today');
 go(false);
-setInterval(()=>go(true),15000)
+setInterval(()=>go(true),3600000)
 })();
 </script>
 </body>
