@@ -292,7 +292,7 @@ function startAutoScroll() {
 }
 /* ================= FETCH ================= */
 async function fetchPage(pageNum) {
-  const response = await fetch(`${BASE_API}?pageNum=${pageNum}`, {
+  const response = await fetch(`${BASE_API}&pageNum=${pageNum}`, {
     headers: {
       "Authorization": API_TOKEN,
       "Content-Type": "application/json"
