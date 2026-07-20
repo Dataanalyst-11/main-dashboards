@@ -122,14 +122,42 @@ td:nth-child(5) {
     background: #f8fafc;
     color: #020617;
   }
+
+#branchStats {
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 22px;
+    font-weight: bold;
+    gap: 12px;
+}
+
+#branchStats .perf-label {
+    color: #93c5fd;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#branchStats .perf-value {
+    font-size: 32px;
+}
+
+.perf-high { color: #22c55e; }
+.perf-medium { color: #facc15; }
+.perf-low { color: #ef4444; }
+
 </style>
 </head>
 
 <body>
 
-<header>
- Live Telesales Performance 
-</header>
+<header>Live Telesales Performance</header>
+
+<div id="branchStats"></div>
 
 <div class="container">
   <div class="table-container" id="scrollContainer">
@@ -164,16 +192,12 @@ td:nth-child(5) {
 
     let scrollInterval;
     
-    //const today = new Date();
-    //const formatted = today.toISOString().split("T")[0];
-
     let today = new Date();
     let yyyy = today.getFullYear();
     let mm = String(today.getMonth() + 1).padStart(2, '0');
     let dd = String(today.getDate()).padStart(2, '0');
-    let formattedEnd = `${yyyy}-${mm}-${dd}`;  // today
+    let formattedEnd = `${yyyy}-${mm}-${dd}`;
 
-    // Example: pull data for the past 7 days
     let pastDate = new Date();
     pastDate.setDate(today.getDate() - 7);
     let pastY = pastDate.getFullYear();
@@ -183,10 +207,8 @@ td:nth-child(5) {
 
     const urlParams = new URLSearchParams(window.location.search);
 
-// Read branch from URL
 const branchId = urlParams.get("branch") || "";
 
-// Branch names
 const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -215,7 +237,34 @@ const branchNames = {
     "orgbranch-685002247d3c6f75c8c1dc25": "Embu"
 };
 
-// Display branch name
+const branchTargets = {
+    "Head Office": 9555462,
+    "Naivasha": 840599,
+    "Kitengela": 1648410,
+    "Githu Pharma": 2293279,
+    "Kawangware Wholesale": 2557170,
+    "Karatina": 1539617,
+    "Meru": 2789834,
+    "Busia": 1104974,
+    "Mombasa Wholesale": 3187525,
+    "Kisii": 3633705,
+    "Philton": 1789168,
+    "Kitui Wholesale": 1395065,
+    "Malindi": 1597460,
+    "Kericho": 1608257,
+    "Nakuru": 2000000,
+    "Kisumu": 1382655,
+    "Eldoret": 2838928,
+    "Thika": 1104378,
+    "Voi": 804269,
+    "Kendia": 997747,
+    "Kakamega": 1544541,
+    "Bungoma": 1102352,
+    "Makindu": 1247065,
+    "Rongai Wholesale": 710690,    
+    "Embu": 1228095
+};
+
 const displayName = branchId
     ? (branchNames[branchId] || branchId)
     : "All Branches";
@@ -223,7 +272,6 @@ const displayName = branchId
 document.querySelector("header").textContent =
     `Live Telesales Performance — ${displayName}`;
 
-// Build API URL
 let BASE_API =
 `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&endDate=${formattedEnd}`;
 
@@ -231,15 +279,12 @@ if (branchId) {
     BASE_API += `&orgBranchId=${branchId}`;
 }
 
-
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
 /* ================= AUTO SCROLL ================= */
 
 function startAutoScroll() {
-
   const c = document.getElementById("scrollContainer");
-
   clearInterval(scrollInterval);
 
   let direction = 1;
@@ -249,39 +294,26 @@ function startAutoScroll() {
   if (c.scrollHeight <= c.clientHeight) return;
 
   scrollInterval = setInterval(() => {
-
     if (isPaused) return;
 
     scrollTop += direction * 2;
-
     c.scrollTop = scrollTop;
 
-    const reachedBottom =
-      scrollTop >= c.scrollHeight - c.clientHeight;
+    const reachedBottom = scrollTop >= c.scrollHeight - c.clientHeight;
+    const reachedTop = scrollTop <= 0;
 
-    const reachedTop =
-      scrollTop <= 0;
-
-    // Pause at bottom
     if (reachedBottom && direction === 1) {
-
       scrollTop = c.scrollHeight - c.clientHeight;
-
       isPaused = true;
-
       setTimeout(() => {
         direction = -1;
         isPaused = false;
       }, 6000);
     }
 
-    // Pause at top
     if (reachedTop && direction === -1) {
-
       scrollTop = 0;
-
       isPaused = true;
-
       setTimeout(() => {
         direction = 1;
         isPaused = false;
@@ -290,6 +322,7 @@ function startAutoScroll() {
 
   }, 30);
 }
+
 /* ================= FETCH ================= */
 async function fetchPage(pageNum) {
   const response = await fetch(`${BASE_API}&pageNum=${pageNum}`, {
@@ -309,50 +342,57 @@ async function fetchPage(pageNum) {
 /* ================= LOAD ALL DATA ================= */
 async function loadAllPages() {
   try {
-
     let allData = [];
 
-    // First page
     const firstResponse = await fetchPage(0);
-
     const pageCount = firstResponse.pageCount || 1;
-
-    // Add first page data
     allData.push(...(firstResponse.data || []));
 
-    // Fetch remaining pages
     const promises = [];
-
     for (let i = 1; i < pageCount; i++) {
       promises.push(fetchPage(i));
     }
 
     const responses = await Promise.all(promises);
-
     responses.forEach(res => {
       allData.push(...(res.data || []));
     });
 
+    // Calculate Branch Performance only
+    const totalNetSales = allData.reduce(
+        (sum, r) => sum + Number(r.netDailySales || 0),
+        0
+    );
+
+    const branchName = allData.length
+        ? allData[0].branchName
+        : displayName;
+
+    const target = branchTargets[branchName] || 0;
+    const performance = target > 0 ? (totalNetSales / target) * 100 : 0;
+
+    // Color class based on performance level
+    const perfClass =
+        performance >= 80 ? "perf-high" :
+        performance >= 50 ? "perf-medium" :
+        "perf-low";
+
+    document.getElementById("branchStats").innerHTML = `
+        <span class="perf-label">Branch Performance</span>
+        <span class="perf-value ${perfClass}">${performance.toFixed(1)}%</span>
+    `;
+
     /* ================= PROCESS ================= */
     const processed = allData
       .map(d => {
-
         let score = d.dailySalesScore;
-
         if (typeof score === "string") {
           score = score.replace("%", "");
         }
-
         score = Number(score);
-
-        return {
-          ...d,
-          score
-        };
+        return { ...d, score };
       })
-
-  .filter(d => !isNaN(d.score) && d.score > 0)
-      // Highest → Lowest
+      .filter(d => !isNaN(d.score) && d.score > 0)
       .sort((a, b) => b.score - a.score);
 
     renderTable(processed);
@@ -361,19 +401,14 @@ async function loadAllPages() {
       new Date().toLocaleTimeString();
 
   } catch (err) {
-
     console.error(err);
-
     document.getElementById("tableBody").innerHTML =
       `<tr><td colspan="5">Failed to load data</td></tr>`;
   }
 }
 
-
-  
 /* ================= RENDER ================= */
 function renderTable(data) {
-
   const tbody = document.getElementById("tableBody");
 
   if (!data.length) {
@@ -385,11 +420,8 @@ function renderTable(data) {
   tbody.innerHTML = "";
 
   data.forEach((item, index) => {
-
     const sales = item.score;
-
     const orders = Number(item.totalDaysCustomers || 0);
-
     const cls =
       sales >= 80 ? "high" :
       sales >= 50 ? "medium" :
@@ -409,14 +441,12 @@ function renderTable(data) {
   });
 
   document.getElementById("scrollContainer").scrollTop = 0;
-
   startAutoScroll();
 }
 
 /* ================= INIT ================= */
 loadAllPages();
-
-setInterval(loadAllPages, 30000);// 30 secs
+setInterval(loadAllPages, 60000);
 </script>
 
 </body>
