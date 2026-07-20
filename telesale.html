@@ -351,16 +351,7 @@ async function loadAllPages() {
         };
       })
 
-   // Filter valid rows
-      .filter(d => {
-     if (isNaN(d.score) || d.score <= 0) return false;
-
-    // No branch specified -> show everything
-     if (selectedBranches.length === 0) return true;
-
-    // Match using branch ID if available
-    return selectedBranches.includes(d.orgBranchId);
-    })
+  .filter(d => !isNaN(d.score) && d.score > 0)
       // Highest → Lowest
       .sort((a, b) => b.score - a.score);
 
@@ -378,6 +369,8 @@ async function loadAllPages() {
   }
 }
 
+
+  
 /* ================= RENDER ================= */
 function renderTable(data) {
 
@@ -423,7 +416,7 @@ function renderTable(data) {
 /* ================= INIT ================= */
 loadAllPages();
 
-setInterval(loadAllPages, REFRESH_INTERVAL);
+setInterval(loadAllPages, 30000);// 30 secs
 </script>
 
 </body>
