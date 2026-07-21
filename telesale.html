@@ -68,7 +68,6 @@ td {
   vertical-align: middle;
 }
 
-/* Column widths */
 th:nth-child(1),
 td:nth-child(1) {
   width: 70px;
@@ -186,12 +185,9 @@ td:nth-child(5) {
 <script src="config.js"></script>
 
  <script>
-    let savedScrollTop = 0;
-    let savedDirection = 1;
-    let currentDirection = 1;
+    let scrollInterval = null;
+    let pauseTimeout = null;
 
-    let scrollInterval;
-    
     let today = new Date();
     let yyyy = today.getFullYear();
     let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -238,31 +234,31 @@ const branchNames = {
 };
 
 const branchTargets = {
-    "Head Office": 9555462,
-    "Naivasha": 840599,
-    "Kitengela": 1648410,
-    "Githu Pharma": 2293279,
-    "Kawangware Wholesale": 2557170,
-    "Karatina": 1539617,
-    "Meru": 2789834,
-    "Busia": 1104974,
-    "Mombasa Wholesale": 3187525,
-    "Kisii": 3633705,
-    "Philton": 1789168,
-    "Kitui Wholesale": 1395065,
-    "Malindi": 1597460,
-    "Kericho": 1608257,
-    "Nakuru": 2000000,
-    "Kisumu": 1382655,
-    "Eldoret": 2838928,
-    "Thika": 1104378,
-    "Voi": 804269,
-    "Kendia": 997747,
-    "Kakamega": 1544541,
-    "Bungoma": 1102352,
-    "Makindu": 1247065,
-    "Rongai Wholesale": 710690,    
-    "Embu": 1228095
+    "orgbranch-683976e3994a072a600cbd7a": 9555462,
+    "orgbranch-684558f576bd774c32f00d8e": 840599,
+    "orgbranch-68455bea76bd774c32f031cc": 1648410,
+    "orgbranch-68458a4b76bd774c32f10527": 2293279,
+    "orgbranch-684593b176bd774c32f150c6": 2557170,
+    "orgbranch-685001107d3c6f75c8c1d42e": 1539617,
+    "orgbranch-685001217d3c6f75c8c1d491": 2789834,
+    "orgbranch-6850012f7d3c6f75c8c1d4f4": 1104974,
+    "orgbranch-685001387d3c6f75c8c1d557": 3187525,
+    "orgbranch-685001457d3c6f75c8c1d5ba": 3633705,
+    "orgbranch-685001557d3c6f75c8c1d61d": 1789168,
+    "orgbranch-6850015d7d3c6f75c8c1d680": 1395065,
+    "orgbranch-685001667d3c6f75c8c1d6e3": 1597460,
+    "orgbranch-685001967d3c6f75c8c1d746": 1608257,
+    "orgbranch-6850019e7d3c6f75c8c1d7a9": 2000000,
+    "orgbranch-685001a77d3c6f75c8c1d80c": 1382655,
+    "orgbranch-685001b17d3c6f75c8c1d86f": 2838928,
+    "orgbranch-685001c17d3c6f75c8c1d8d2": 1104378,
+    "orgbranch-685001ce7d3c6f75c8c1d935": 804269,
+    "orgbranch-685001e27d3c6f75c8c1d998": 997747,
+    "orgbranch-685001f37d3c6f75c8c1d9fb": 1544541,
+    "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,
+    "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
+    "orgbranch-685002137d3c6f75c8c1db4f": 710690,    
+    "orgbranch-685002247d3c6f75c8c1dc25": 1228095
 };
 
 const displayName = branchId
@@ -282,44 +278,43 @@ if (branchId) {
 const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
 /* ================= AUTO SCROLL ================= */
-
 function startAutoScroll() {
   const c = document.getElementById("scrollContainer");
-  clearInterval(scrollInterval);
 
-  let direction = 1;
-  let scrollTop = 0;
-  let isPaused = false;
+  // Clear any existing scroll or pause timers
+  if (scrollInterval) clearInterval(scrollInterval);
+  if (pauseTimeout) clearTimeout(pauseTimeout);
 
+  // If content fits, no scrolling needed
   if (c.scrollHeight <= c.clientHeight) return;
+
+  let direction = 1;   // 1 = down, -1 = up
+  let isPaused = false;
 
   scrollInterval = setInterval(() => {
     if (isPaused) return;
 
-    scrollTop += direction * 2;
-    c.scrollTop = scrollTop;
+    c.scrollTop += direction * 2;
 
-    const reachedBottom = scrollTop >= c.scrollHeight - c.clientHeight;
-    const reachedTop = scrollTop <= 0;
-
-    if (reachedBottom && direction === 1) {
-      scrollTop = c.scrollHeight - c.clientHeight;
+    // Hit the bottom
+    if (c.scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
+      c.scrollTop = c.scrollHeight - c.clientHeight;
       isPaused = true;
-      setTimeout(() => {
+      pauseTimeout = setTimeout(() => {
         direction = -1;
         isPaused = false;
-      }, 6000);
+      }, 5000);
     }
 
-    if (reachedTop && direction === -1) {
-      scrollTop = 0;
+    // Hit the top
+    if (c.scrollTop <= 0 && direction === -1) {
+      c.scrollTop = 0;
       isPaused = true;
-      setTimeout(() => {
+      pauseTimeout = setTimeout(() => {
         direction = 1;
         isPaused = false;
-      }, 6000);
+      }, 5000);
     }
-
   }, 30);
 }
 
@@ -365,13 +360,12 @@ async function loadAllPages() {
     );
 
     const branchName = allData.length
-        ? allData[0].branchName
+        ? allData[0].branchId
         : displayName;
 
-    const target = branchTargets[branchName] || 0;
+    const target = branchTargets[branchId] || 0;
     const performance = target > 0 ? (totalNetSales / target) * 100 : 0;
 
-    // Color class based on performance level
     const perfClass =
         performance >= 80 ? "perf-high" :
         performance >= 50 ? "perf-medium" :
@@ -446,7 +440,7 @@ function renderTable(data) {
 
 /* ================= INIT ================= */
 loadAllPages();
-setInterval(loadAllPages, 60000);
+setInterval(loadAllPages, 30000);
 </script>
 
 </body>
