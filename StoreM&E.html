@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Store Attendant Performance Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Switched to ExcelJS and FileSaver for full styling support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0e6ed;height:100vh;overflow:hidden;display:flex;flex-direction:column}
@@ -358,7 +360,7 @@ async function go(sl) {
     if (fetching) return;
     fetching = true;
     const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
-    var pSd = document.getElementById('sd').value, pEd = document.getElementById('ed').value, pBf = document.getElementById('bf').value, pQb = document.querySelector('.qb.on');
+    
     if (!sl) tb.innerHTML = '<tr><td colspan="11" class="lm">Loading data (last ' + FETCH_DAYS + ' days)...</td></tr>';
 
     /* Always fetch only the last 90 days from the backend */
@@ -383,17 +385,19 @@ async function go(sl) {
     document.getElementById('lu').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     if (sl) {
-        /* Silent backend refresh — only re-fetch data, preserve ALL UI state exactly */
+        /*
+         * Silent backend refresh.
+         * Do NOT read or write any UI control values.
+         * applyF() reads the CURRENT sd/ed values (whatever the user has right now),
+         * re-filters raw data, re-aggregates, and calls proc() → applyBr()
+         * which reads the CURRENT branch selection and re-renders the table.
+         * Quick-range buttons, date inputs, and branch dropdown are never touched.
+         * Scroll position is preserved via the silent flag.
+         */
         silent = true;
-        document.getElementById('sd').value = pSd;
-        document.getElementById('ed').value = pEd;
         applyF();
-        var sel = document.getElementById('bf');
-        if ([...sel.options].some(o => o.value === pBf)) sel.value = pBf;
-        if (pQb) { document.querySelectorAll('.qb').forEach(b => b.classList.remove('on')); pQb.classList.add('on'); }
-        applyBr();
-        tc.scrollTop = sv;
         silent = false;
+        tc.scrollTop = sv;
     } else {
         /* Initial load — apply filters, then restore branch from localStorage */
         silent = false;
@@ -418,14 +422,19 @@ function setQR(k) {
     localStorage.setItem(QK, k);
 }
 
-/* ========== EXPORT TO EXCEL ========== */
-function exportExcel() {
+/* ========== EXPORT TO EXCEL WITH FULL STYLING ========== */
+async function exportExcel() {
     const btn = document.getElementById('xbtn');
     const data = getDisplayData();
     if (!data.length) {
         showToast('No data to export — adjust your filters first.', true);
         return;
     }
+
+    // Add loading state
+    btn.classList.add('disabled');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<span class="xi">⏳</span> Exporting...';
 
     const sVal = document.getElementById('sd').value;
     const eVal = document.getElementById('ed').value;
@@ -434,61 +443,208 @@ function exportExcel() {
     const totalItems = data.reduce((s, a) => s + a.numberOfLineItems, 0);
     const avgScore = data.reduce((s, a) => s + a.pf.score, 0) / data.length;
 
-    const rows = data.map((a, i) => ({
-        'Rank': i + 1,
-        'Store Attendant': a.storePickerName,
-        'Branch': a.orgBranchName,
-        'Days Worked': a.daysWorked,
-        'Period Days': pd,
-        'Hours Worked': a.hoursWorked,
-        'Total Orders': a.numberOfOrders,
-        'Line Items': a.numberOfLineItems,
-        'Items / Hr': parseFloat(a.pf.itemsPerHour.toFixed(2)),
-        'Orders / Hr': parseFloat(a.pf.ordersPerHour.toFixed(2)),
-        'Avg Order Value': parseFloat(a.pf.avgOrderValue.toFixed(0)),
-        'Efficiency Score (%)': parseFloat(a.pf.score.toFixed(1)),
-        'Performance': a.pf.score >= 80 ? 'High' : a.pf.score >= 50 ? 'Medium' : 'Low'
-    }));
+    const wb = new ExcelJS.Workbook();
+    
+    // === Sheet 1: Performance Data ===
+    const ws1 = wb.addWorksheet('Store Attendant Performance', {
+        properties: { defaultRowHeight: 22 },
+        views: [{ showGridLines: false }] // Hide gridlines for a cleaner UI look
+    });
 
-    const wb = XLSX.utils.book_new();
-    const ws1 = XLSX.utils.json_to_sheet(rows);
-    ws1['!cols'] = [
-        {wch:6},{wch:28},{wch:22},{wch:12},{wch:12},{wch:12},
-        {wch:13},{wch:12},{wch:11},{wch:12},{wch:15},{wch:18},{wch:12}
+    // Define Columns
+    ws1.columns = [
+        { header: 'Rank', key: 'rank', width: 8 },
+        { header: 'Store Attendant', key: 'name', width: 30 },
+        { header: 'Branch', key: 'branch', width: 25 },
+        { header: 'Days Worked', key: 'days', width: 14 },
+        { header: 'Hrs Worked', key: 'hrs', width: 14 },
+        { header: 'Total Orders', key: 'orders', width: 14 },
+        { header: 'Line Items', key: 'items', width: 14 },
+        { header: 'Items/Hr', key: 'iph', width: 12 },
+        { header: 'Orders/Hr', key: 'oph', width: 12 },
+        { header: 'Avg Order Val', key: 'aov', width: 16 },
+        { header: 'Efficiency Score', key: 'score', width: 18 },
+        { header: 'Performance', key: 'perf', width: 15 }
     ];
-    XLSX.utils.book_append_sheet(wb, ws1, 'Store Attendant Performance');
 
-    const summaryRows = [
-        {'Metric': 'Report Generated', 'Value': new Date().toLocaleString()},
-        {'Metric': 'Period Start', 'Value': fdn(sVal)},
-        {'Metric': 'Period End', 'Value': fdn(eVal)},
-        {'Metric': 'Period Days', 'Value': pd},
-        {'Metric': 'Branch Filter', 'Value': brVal === 'ALL' ? 'All Branches' : brVal},
-        {'Metric': 'Backend Fetch Window', 'Value': 'Last ' + FETCH_DAYS + ' days'},
-        {'Metric': '', 'Value': ''},
-        {'Metric': 'Total Attendants', 'Value': data.length},
-        {'Metric': 'Total Orders', 'Value': totalOrders},
-        {'Metric': 'Total Line Items', 'Value': totalItems},
-        {'Metric': 'Average Efficiency', 'Value': avgScore.toFixed(1) + '%'},
-        {'Metric': 'Top Efficiency', 'Value': Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%'},
-        {'Metric': 'Top Performer', 'Value': data[0].storePickerName + ' (' + data[0].orgBranchName + ')'},
-        {'Metric': '', 'Value': ''},
-        {'Metric': 'High Performers (\u226580%)', 'Value': data.filter(a => a.pf.score >= 80).length},
-        {'Metric': 'Medium Performers (50-79%)', 'Value': data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length},
-        {'Metric': 'Low Performers (<50%)', 'Value': data.filter(a => a.pf.score < 50).length},
+    // Style Header Row
+    const headerRow = ws1.getRow(1);
+    headerRow.height = 26;
+    headerRow.eachCell((cell) => {
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF162230' } // Dark blue header
+        };
+        cell.font = {
+            color: { argb: 'FFE67E22' }, // Orange text
+            bold: true,
+            size: 11
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+            bottom: { style: 'thin', color: { argb: 'FFE67E22' } } // Orange bottom border
+        };
+    });
+
+    // Add Data Rows
+    data.forEach((a, i) => {
+        const r = i + 1;
+        const score = a.pf.score;
+        const perf = score >= 80 ? 'High' : score >= 50 ? 'Medium' : 'Low';
+        
+        // Determine row background based on performance (mimicking HTML)
+        let rowBg = 'FF0F1923'; // Default dark
+        if (score >= 80) rowBg = 'FF13241A'; // Dark green
+        else if (score >= 50) rowBg = 'FF242118'; // Dark yellow
+        else rowBg = 'FF241511'; // Dark red
+
+        // Determine score font color
+        let scoreColor = 'FFE0E6ED';
+        if (score >= 80) scoreColor = 'FF27AE60'; // Green
+        else if (score >= 50) scoreColor = 'FFF1C40F'; // Yellow
+        else scoreColor = 'FFE74C3C'; // Red
+
+        const row = ws1.addRow({
+            rank: r,
+            name: a.storePickerName,
+            branch: a.orgBranchName,
+            days: a.daysWorked,
+            hrs: a.hoursWorked,
+            orders: a.numberOfOrders,
+            items: a.numberOfLineItems,
+            iph: parseFloat(a.pf.itemsPerHour.toFixed(2)),
+            oph: parseFloat(a.pf.ordersPerHour.toFixed(2)),
+            aov: parseFloat(a.pf.avgOrderValue.toFixed(0)),
+            score: parseFloat(score.toFixed(1)),
+            perf: perf
+        });
+
+        row.height = 22;
+        
+        // Style Individual Cells in the Row
+        row.eachCell((cell, colNumber) => {
+            // Base styling for all cells
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: rowBg }
+            };
+            cell.font = {
+                color: { argb: 'FFE0E6ED' }, // Light grey text
+                size: 11
+            };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.border = {
+                bottom: { style: 'thin', color: { argb: 'FF1A2A3A' } }
+            };
+
+            // Special styling for Rank (Badges)
+            if (colNumber === 1) {
+                if (r === 1) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1C40F' } };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
+                } else if (r === 2) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF95A5A6' } };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
+                } else if (r === 3) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE67E22' } };
+                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11 };
+                }
+            }
+            
+            // Align Name and Branch left
+            if (colNumber === 2 || colNumber === 3) {
+                cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            }
+
+            // Number formatting
+            if (colNumber === 6 || colNumber === 7 || colNumber === 10) {
+                cell.numFmt = '#,##0';
+            }
+            if (colNumber === 8 || colNumber === 9) {
+                cell.numFmt = '0.00';
+            }
+            
+            // Score text color
+            if (colNumber === 11) {
+                cell.font = { color: { argb: scoreColor }, bold: true, size: 11 };
+                cell.numFmt = '0.0"%"'; // Append % sign
+            }
+        });
+    });
+
+    // === Sheet 2: Summary ===
+    const ws2 = wb.addWorksheet('Summary', {
+        properties: { defaultRowHeight: 20 },
+        views: [{ showGridLines: false }]
+    });
+    
+    ws2.columns = [
+        { header: 'Metric', key: 'metric', width: 35 },
+        { header: 'Value', key: 'value', width: 50 }
     ];
-    const ws2 = XLSX.utils.json_to_sheet(summaryRows);
-    ws2['!cols'] = [{wch: 32}, {wch: 50}];
-    XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
 
+    // Style Summary Header
+    const headerRow2 = ws2.getRow(1);
+    headerRow2.height = 26;
+    headerRow2.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
+        cell.font = { color: { argb: 'FFE67E22' }, bold: true, size: 11 };
+        cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE67E22' } } };
+    });
+
+    const summaryData = [
+        { metric: 'Report Generated', value: new Date().toLocaleString() },
+        { metric: 'Period Start', value: fdn(sVal) },
+        { metric: 'Period End', value: fdn(eVal) },
+        { metric: 'Period Days', value: pd },
+        { metric: 'Branch Filter', value: brVal === 'ALL' ? 'All Branches' : brVal },
+        { metric: 'Backend Fetch Window', value: 'Last ' + FETCH_DAYS + ' days' },
+        { metric: '', value: '' },
+        { metric: 'Total Attendants', value: data.length },
+        { metric: 'Total Orders', value: totalOrders.toLocaleString() },
+        { metric: 'Total Line Items', value: totalItems.toLocaleString() },
+        { metric: 'Average Efficiency', value: avgScore.toFixed(1) + '%' },
+        { metric: 'Top Efficiency', value: Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%' },
+        { metric: 'Top Performer', value: data[0].storePickerName + ' (' + data[0].orgBranchName + ')' },
+        { metric: '', value: '' },
+        { metric: 'High Performers (>=80%)', value: data.filter(a => a.pf.score >= 80).length },
+        { metric: 'Medium Performers (50-79%)', value: data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length },
+        { metric: 'Low Performers (<50%)', value: data.filter(a => a.pf.score < 50).length },
+    ];
+
+    // Add Summary Data Rows
+    summaryData.forEach(item => {
+        const row = ws2.addRow(item);
+        row.height = 20;
+        row.eachCell((cell, colNumber) => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F1923' } };
+            cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
+            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            cell.border = { bottom: { style: 'thin', color: { argb: 'FF1A2A3A' } } };
+            
+            if (colNumber === 2) {
+                cell.font = { color: { argb: 'FF8FA4B8' }, size: 11, bold: true };
+            }
+        });
+    });
+
+    // Generate and Save File
     const brSlug = brVal === 'ALL' ? 'AllBranches' : brVal.replace(/[^a-zA-Z0-9]/g, '_');
     const fname = 'StoreAttendant_Performance_' + sVal + '_to_' + eVal + '_' + brSlug + '.xlsx';
 
     try {
-        XLSX.writeFile(wb, fname);
-        showToast('Exported ' + data.length + ' records to Excel \u2713', false);
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, fname);
+        showToast('Exported ' + data.length + ' records to Excel ✓', false);
     } catch (e) {
         showToast('Export failed: ' + e.message, true);
+    } finally {
+        btn.classList.remove('disabled');
+        btn.innerHTML = originalHtml;
     }
 }
 
@@ -513,27 +669,16 @@ document.getElementById('bf').addEventListener('change', function() {
 
 /* ========== INITIALIZATION ========== */
 (function init() {
-    const sq = localStorage.getItem(QK);
-    const ss = localStorage.getItem(SK);
-    const se = localStorage.getItem(EK);
-
-    if (sq && !ss && !se) {
-        /* Saved quick range — restore it */
-        setQR(sq);
-    } else if (ss && se) {
-        /* Saved manual dates — restore them */
-        document.getElementById('sd').value = ss;
-        document.getElementById('ed').value = se;
-        document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'));
-    } else {
-        /* First time visit — default to Today */
-        setQR('today');
-    }
+    /* Always default to Today upon opening, clearing any previously saved date ranges */
+    localStorage.removeItem(SK);
+    localStorage.removeItem(EK);
+    localStorage.removeItem(QK);
+    setQR('today');
 
     /* Initial data fetch */
     go(false);
 
-    /* Auto-refresh from backend every 15 seconds (silent — preserves all filters) */
+    /* Auto-refresh from backend every 1 hour (silent — preserves all filters) */
     setInterval(() => go(true), 3600000);
 })();
 </script>
