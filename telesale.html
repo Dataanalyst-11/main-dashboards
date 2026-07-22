@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Performance Less Than 50%</title>
+<title>Branch and Telesale Performance </title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -231,6 +231,7 @@ const branchNames = {
     "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
     "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
     "orgbranch-685002247d3c6f75c8c1dc25": "Embu"
+    
 };
 
 const branchTargets = {
@@ -259,6 +260,7 @@ const branchTargets = {
     "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
     "orgbranch-685002137d3c6f75c8c1db4f": 710690,    
     "orgbranch-685002247d3c6f75c8c1dc25": 1228095
+    
 };
 
 const displayName = branchId
@@ -350,7 +352,7 @@ async function loadAllPages() {
 
     const responses = await Promise.all(promises);
     responses.forEach(res => {
-      allData.push(...(res.data || []));
+      allData.push(...(res.data || [])); 
     });
 
     // Calculate Branch Performance only
@@ -363,8 +365,22 @@ async function loadAllPages() {
         ? allData[0].branchId
         : displayName;
 
-    const target = branchTargets[branchId] || 0;
-    const performance = target > 0 ? (totalNetSales / target) * 100 : 0;
+    /*const target = branchTargets[branchId] || 0;
+    const performance = target > 0 ? (totalNetSales / target) * 100 : 0;*/
+
+    let target = 0;
+
+   if (branchId) {
+    target = branchTargets[branchId] || 0;
+   } else {
+    for (const id in branchTargets) {
+        target += branchTargets[id];
+    }
+}
+
+  const performance = target > 0
+    ? (totalNetSales / target) * 100
+    : 0;
 
     const perfClass =
         performance >= 80 ? "perf-high" :
