@@ -2,186 +2,527 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Branch and Telesale Performance </title>
+<title>Telesales Performance Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background: #0f172a;
     color: #e5e7eb;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 
   header {
-    padding: 16px;
-    text-align: center;
-    font-size: 28px;
-    background: #ba9305;
-    color: #020617;
-  }
-
-  /* New Filter Bar Styles */
-  #filterContainer {
-    background: #1e293b;
-    padding: 12px 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 3px solid #ba9305;
+    padding: 18px 32px;
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    gap: 12px;
-    border-bottom: 2px solid #334155;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
-  #filterContainer label {
-    color: #93c5fd;
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-logo {
+    width: 44px;
+    height: 44px;
+    background: #ba9305;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 20px;
+    color: #020617;
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.3px;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .branch-selector {
+    position: relative;
+    min-width: 260px;
+  }
+
+  .branch-selector select {
+    width: 100%;
+    padding: 12px 42px 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #334155;
+    background: #1e293b;
+    color: #f1f5f9;
     font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
   }
 
-  #branchFilter {
-    padding: 8px 12px;
-    background: #0f172a;
-    color: #e5e7eb;
-    border: 1px solid #475569;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
+  .branch-selector select:hover { border-color: #ba9305; }
+  .branch-selector select:focus {
+    border-color: #ba9305;
+    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
+  }
+
+  .branch-selector::after {
+    content: "▾";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ba9305;
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 24px 32px 0;
+  }
+
+  .stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .stat-card:hover {
+    border-color: #475569;
+    transform: translateY(-2px);
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .stat-card:nth-child(1)::before { background: #22c55e; }
+  .stat-card:nth-child(2)::before { background: #38bdf8; }
+  .stat-card:nth-child(3)::before { background: #ef4444; }
+
+  .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+
+  .perf-high { color: #22c55e !important; }
+  .perf-medium { color: #facc15 !important; }
+  .perf-low { color: #ef4444 !important; }
+
+  .branch-perf-section {
+    padding: 20px 32px 0;
+  }
+
+  .branch-perf-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .branch-perf-info {
+    flex: 0 0 auto;
+    min-width: 240px;
+  }
+
+  .branch-perf-info .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .branch-perf-info .value {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .branch-perf-info .detail {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 8px;
+    line-height: 1.7;
+  }
+
+  .branch-perf-info .detail .deficit {
+    font-weight: 700;
+    color: #ef4444;
+  }
+
+  .branch-perf-info .detail .surplus {
+    font-weight: 700;
+    color: #22c55e;
+  }
+
+  .perf-bar-wrap {
+    flex: 1;
     min-width: 200px;
   }
 
-  #branchFilter:focus {
-    outline: none;
-    border-color: #ba9305;
-  }
-
-  .container {
-    flex: 1;
-    padding: 0 20px;
+  .perf-bar-track {
+    width: 100%;
+    height: 14px;
+    background: #0f172a;
+    border-radius: 99px;
     overflow: hidden;
   }
 
-  .table-container {
+  .perf-bar-fill {
     height: 100%;
-    overflow-y: auto;
-    scrollbar-width: none;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s;
+    min-width: 0;
   }
 
-  .table-container::-webkit-scrollbar {
-    display: none;
+  .perf-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #475569;
+    font-weight: 600;
   }
+
+  .perf-bar-labels span.active-marker { color: #f8fafc; }
+
+  .table-section {
+    flex: 1;
+    padding: 20px 32px 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .table-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .table-count {
+    font-size: 13px;
+    color: #64748b;
+    background: #0f172a;
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+
+  .search-box {
+    padding: 9px 16px 9px 38px;
+    border-radius: 10px;
+    border: 2px solid #334155;
+    background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
+    color: #f1f5f9;
+    font-size: 14px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-box::placeholder { color: #475569; }
+  .search-box:focus {
+    border-color: #ba9305;
+    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12);
+  }
+
+  .table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    border-radius: 14px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+
+  .table-wrap::-webkit-scrollbar { width: 6px; }
+  .table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
   table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    font-size: 24px;
+    font-size: 14px;
   }
 
   thead th {
     position: sticky;
     top: 0;
     background: #1e293b;
-    color: #93c5fd;
+    color: #94a3b8;
     text-transform: uppercase;
-    font-size: 15px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 700;
     z-index: 2;
-  }
-
-  th,
-  td {
-    padding: 14px;
-    border-bottom: 1px solid #334155;
+    padding: 14px 18px;
+    border-bottom: 2px solid #334155;
     text-align: left;
+  }
+
+  th:nth-child(1), td:nth-child(1) { width: 60px; text-align: center; }
+  th:nth-child(2), td:nth-child(2) { width: 28%; }
+  th:nth-child(3), td:nth-child(3) { width: 22%; }
+  th:nth-child(4), td:nth-child(4) { width: 18%; text-align: center; }
+  th:nth-child(5), td:nth-child(5) { width: 18%; text-align: center; }
+  th:nth-child(6), td:nth-child(6) { width: 14%; text-align: center; }
+
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #1e293b;
     vertical-align: middle;
+    color: #cbd5e1;
   }
 
-  th:nth-child(1), td:nth-child(1) { width: 70px; text-align: center; }
-  th:nth-child(2), td:nth-child(2) { width: 35%; }
-  th:nth-child(3), td:nth-child(3) { width: 25%; }
-  th:nth-child(4), td:nth-child(4) { width: 20%; text-align: center; }
-  th:nth-child(5), td:nth-child(5) { width: 20%; text-align: center; }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
 
-  tbody tr:nth-child(even) {
-    background: #020617;
+  .rank { color: #64748b; font-weight: 700; font-size: 13px; }
+  .rank.top3 { color: #ba9305; font-size: 15px; }
+  .sales-name { font-weight: 700; color: #f1f5f9; }
+  .branch-cell { font-size: 13px; color: #94a3b8; }
+
+  .pct-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-weight: 800;
+    font-size: 13px;
+    min-width: 70px;
+    text-align: center;
   }
 
-  tbody tr:hover {
-    background: #1e293b;
+  .pct-high { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+  .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+  .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+
+  .orders-cell { font-weight: 700; color: #e2e8f0; }
+
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .high { color: #2563eb; }
-  .medium { color: #facc15; }
-  .low { color: #ef4444; }
-
-  .rank {
-    color: #38bdf8;
-    font-weight: bold;
-    width: 60px;
+  .status-dot::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
   }
+
+  .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+  .status-on-track { color: #22c55e; }
+  .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
+  .status-at-risk { color: #facc15; }
+  .status-below::before { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+  .status-below { color: #ef4444; }
+
+  .no-data-row td { text-align: center; padding: 60px 20px; color: #475569; font-size: 15px; }
+  .loading-row td { text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px; }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #334155;
+    border-top-color: #ba9305;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   footer {
     text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    background: #f8fafc;
-    color: #020617;
+    padding: 14px;
+    font-size: 12px;
+    background: #0f172a;
+    color: #475569;
+    border-top: 1px solid #1e293b;
   }
 
-  #branchStats {
+  footer span.highlight { color: #ba9305; font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
     background: #1e293b;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 12px 15px;
-    font-size: 22px;
-    font-weight: bold;
-    gap: 12px;
+    border: 1px solid #334155;
+    border-left: 4px solid #ef4444;
+    color: #f1f5f9;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 999;
+    transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  #branchStats .perf-label {
-    color: #93c5fd;
-    font-size: 16px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  .toast.show { transform: translateX(0); }
+
+  @media (max-width: 768px) {
+    header { padding: 14px 18px; }
+    .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
+    .branch-perf-section { padding: 16px 18px 0; }
+    .table-section { padding: 16px 18px 18px; }
+    .stat-value { font-size: 20px; }
+    .branch-perf-info .value { font-size: 32px; }
+    .branch-perf-info { min-width: 100%; }
+    .branch-selector { min-width: 100%; }
+    .search-box { width: 100%; }
+    th:nth-child(6), td:nth-child(6) { display: none; }
   }
-
-  #branchStats .perf-value {
-    font-size: 32px;
-  }
-
-  .perf-high { color: #22c55e; }
-  .perf-medium { color: #facc15; }
-  .perf-low { color: #ef4444; }
-
 </style>
 </head>
 
 <body>
 
-<header>Live Telesales Performance</header>
+<header>
+  <div class="header-left">
+    <div class="header-logo">TS</div>
+    <div>
+      <div class="header-title">Telesales Performance Dashboard</div>
+      <div class="header-subtitle">Management Overview — Real-time Sales Tracking</div>
+    </div>
+  </div>
+  <div class="branch-selector">
+    <select id="branchSelect">
+      <option value="">All Branches</option>
+    </select>
+  </div>
+</header>
 
-<!-- Branch Filter Dropdown -->
-<div id="filterContainer">
-  <label for="branchFilter">Filter by Branch:</label>
-  <select id="branchFilter">
-    <option value="">All Branches</option>
-    <!-- Options will be populated by JavaScript -->
-  </select>
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-label">Total Customer Orders</div>
+    <div class="stat-value" id="statOrders">—</div>
+    <div class="stat-sub" id="statOrdersSub">across all telesales</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Active Telesales</div>
+    <div class="stat-value" id="statActive">—</div>
+    <div class="stat-sub" id="statActiveSub">with recorded sales</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label" id="deficitLabel">Sales Deficit</div>
+    <div class="stat-value" id="statDeficit">—</div>
+    <div class="stat-sub" id="statDeficitSub">vs branch target</div>
+  </div>
 </div>
 
-<div id="branchStats"></div>
+<div class="branch-perf-section">
+  <div class="branch-perf-card">
+    <div class="branch-perf-info">
+      <div class="label">Branch Performance vs Target</div>
+      <div class="value" id="branchPerfValue">—</div>
+      <div class="detail" id="branchPerfDetail">loading...</div>
+    </div>
+    <div class="perf-bar-wrap">
+      <div class="perf-bar-track">
+        <div class="perf-bar-fill" id="branchPerfBar" style="width:0%;"></div>
+      </div>
+      <div class="perf-bar-labels">
+        <span>0%</span>
+        <span id="marker50" class="">50%</span>
+        <span>80%</span>
+        <span>100%</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="container">
-  <div class="table-container" id="scrollContainer">
+<div class="table-section">
+  <div class="table-header">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="table-title">Telesales Ranking</span>
+      <span class="table-count" id="tableCount">0 people</span>
+    </div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+  </div>
+  <div class="table-wrap" id="tableWrap">
     <table>
       <thead>
         <tr>
@@ -189,298 +530,351 @@
           <th>Telesale Name</th>
           <th>Branch</th>
           <th>Sales (%)</th>
-          <th>Customer Orders</th>
+          <th>Orders</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="5">Loading data…</td></tr>
+        <tr class="loading-row">
+          <td colspan="6">
+            <span class="loading-spinner"></span>
+            Loading sales data...
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <footer>
-  Last updated: <span id="lastUpdated"></span><br>
-  Designed and Managed by MIS.DPT
+  Last updated: <span class="highlight" id="lastUpdated">—</span> &nbsp;|&nbsp;
+  Auto-refreshes every 2 Mins &nbsp;|&nbsp;
+  Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
+
+<div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
 
 <script>
-    let scrollInterval = null;
-    let pauseTimeout = null;
+  function getDateRange() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const endDate = `${yyyy}-${mm}-${dd}`;
 
-    let today = new Date();
-    let yyyy = today.getFullYear();
-    let mm = String(today.getMonth() + 1).padStart(2, '0');
-    let dd = String(today.getDate()).padStart(2, '0');
-    let formattedEnd = `${yyyy}-${mm}-${dd}`;
+    const past = new Date();
+    past.setDate(today.getDate() - 7);
+    const pY = past.getFullYear();
+    const pM = String(past.getMonth() + 1).padStart(2, '0');
+    const pD = String(past.getDate()).padStart(2, '0');
+    const startDate = `${pY}-${pM}-${pD}`;
 
-    let pastDate = new Date();
-    pastDate.setDate(today.getDate() - 7);
-    let pastY = pastDate.getFullYear();
-    let pastM = String(pastDate.getMonth() + 1).padStart(2, '0');
-    let pastD = String(pastDate.getDate()).padStart(2, '0');
-    let formattedStart = `${pastY}-${pastM}-${pastD}`;
+    return { startDate, endDate };
+  }
 
-    // Initialize from URL parameter, default to empty string ("All Branches")
-    const urlParams = new URLSearchParams(window.location.search);
-    let currentBranchId = urlParams.get("branch") || "";
+  const branchNames = {
+    "orgbranch-683976e3994a072a600cbd7a": "Head Office",
+    "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
+    "orgbranch-68455bea76bd774c32f031cc": "Kitengela",
+    "orgbranch-68458a4b76bd774c32f10527": "Githu Pharma",
+    "orgbranch-684593b176bd774c32f150c6": "Kawangware Wholesale",
+    "orgbranch-685001107d3c6f75c8c1d42e": "Karatina",
+    "orgbranch-685001217d3c6f75c8c1d491": "Meru",
+    "orgbranch-6850012f7d3c6f75c8c1d4f4": "Busia",
+    "orgbranch-685001387d3c6f75c8c1d557": "Mombasa Wholesale",
+    "orgbranch-685001457d3c6f75c8c1d5ba": "Kisii",
+    "orgbranch-685001557d3c6f75c8c1d61d": "Philton",
+    "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
+    "orgbranch-685001667d3c6f75c8c1d6e3": "Malindi",
+    "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
+    "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
+    "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
+    "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
+    "orgbranch-685001c17d3c6f75c8c1d8d2": "Thika",
+    "orgbranch-685001ce7d3c6f75c8c1d935": "Voi",
+    "orgbranch-685001e27d3c6f75c8c1d998": "Kendia",
+    "orgbranch-685001f37d3c6f75c8c1d9fb": "Kakamega",
+    "orgbranch-685001ff7d3c6f75c8c1da5e": "Bungoma",
+    "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
+    "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
+    "orgbranch-685002247d3c6f75c8c1dc25": "Embu"
+  };
 
-    const branchNames = {
-        "orgbranch-683976e3994a072a600cbd7a": "Head Office",
-        "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
-        "orgbranch-68455bea76bd774c32f031cc": "Kitengela",
-        "orgbranch-68458a4b76bd774c32f10527": "Githu Pharma",
-        "orgbranch-684593b176bd774c32f150c6": "Kawangware Wholesale",
-        "orgbranch-685001107d3c6f75c8c1d42e": "Karatina",
-        "orgbranch-685001217d3c6f75c8c1d491": "Meru",
-        "orgbranch-6850012f7d3c6f75c8c1d4f4": "Busia",
-        "orgbranch-685001387d3c6f75c8c1d557": "Mombasa Wholesale",
-        "orgbranch-685001457d3c6f75c8c1d5ba": "Kisii",
-        "orgbranch-685001557d3c6f75c8c1d61d": "Philton",
-        "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
-        "orgbranch-685001667d3c6f75c8c1d6e3": "Malindi",
-        "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
-        "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
-        "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
-        "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
-        "orgbranch-685001c17d3c6f75c8c1d8d2": "Thika",
-        "orgbranch-685001ce7d3c6f75c8c1d935": "Voi",
-        "orgbranch-685001e27d3c6f75c8c1d998": "Kendia",
-        "orgbranch-685001f37d3c6f75c8c1d9fb": "Kakamega",
-        "orgbranch-685001ff7d3c6f75c8c1da5e": "Bungoma",
-        "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
-        "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
-        "orgbranch-685002247d3c6f75c8c1dc25": "Embu"
-    };
+  const branchTargets = {
+    "orgbranch-683976e3994a072a600cbd7a": 9555462,
+    "orgbranch-684558f576bd774c32f00d8e": 840599,
+    "orgbranch-68455bea76bd774c32f031cc": 1648410,
+    "orgbranch-68458a4b76bd774c32f10527": 2293279,
+    "orgbranch-684593b176bd774c32f150c6": 2557170,
+    "orgbranch-685001107d3c6f75c8c1d42e": 1539617,
+    "orgbranch-685001217d3c6f75c8c1d491": 2789834,
+    "orgbranch-6850012f7d3c6f75c8c1d4f4": 1104974,
+    "orgbranch-685001387d3c6f75c8c1d557": 3187525,
+    "orgbranch-685001457d3c6f75c8c1d5ba": 3633705,
+    "orgbranch-685001557d3c6f75c8c1d61d": 1789168,
+    "orgbranch-6850015d7d3c6f75c8c1d680": 1395065,
+    "orgbranch-685001667d3c6f75c8c1d6e3": 1597460,
+    "orgbranch-685001967d3c6f75c8c1d746": 1608257,
+    "orgbranch-6850019e7d3c6f75c8c1d7a9": 2000000,
+    "orgbranch-685001a77d3c6f75c8c1d80c": 1382655,
+    "orgbranch-685001b17d3c6f75c8c1d86f": 2838928,
+    "orgbranch-685001c17d3c6f75c8c1d8d2": 1104378,
+    "orgbranch-685001ce7d3c6f75c8c1d935": 804269,
+    "orgbranch-685001e27d3c6f75c8c1d998": 997747,
+    "orgbranch-685001f37d3c6f75c8c1d9fb": 1544541,
+    "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,
+    "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
+    "orgbranch-685002137d3c6f75c8c1db4f": 710690,
+    "orgbranch-685002247d3c6f75c8c1dc25": 1228095
+  };
 
-    const branchTargets = {
-        "orgbranch-683976e3994a072a600cbd7a": 9555462,
-        "orgbranch-684558f576bd774c32f00d8e": 840599,
-        "orgbranch-68455bea76bd774c32f031cc": 1648410,
-        "orgbranch-68458a4b76bd774c32f10527": 2293279,
-        "orgbranch-684593b176bd774c32f150c6": 2557170,
-        "orgbranch-685001107d3c6f75c8c1d42e": 1539617,
-        "orgbranch-685001217d3c6f75c8c1d491": 2789834,
-        "orgbranch-6850012f7d3c6f75c8c1d4f4": 1104974,
-        "orgbranch-685001387d3c6f75c8c1d557": 3187525,
-        "orgbranch-685001457d3c6f75c8c1d5ba": 3633705,
-        "orgbranch-685001557d3c6f75c8c1d61d": 1789168,
-        "orgbranch-6850015d7d3c6f75c8c1d680": 1395065,
-        "orgbranch-685001667d3c6f75c8c1d6e3": 1597460,
-        "orgbranch-685001967d3c6f75c8c1d746": 1608257,
-        "orgbranch-6850019e7d3c6f75c8c1d7a9": 2000000,
-        "orgbranch-685001a77d3c6f75c8c1d80c": 1382655,
-        "orgbranch-685001b17d3c6f75c8c1d86f": 2838928,
-        "orgbranch-685001c17d3c6f75c8c1d8d2": 1104378,
-        "orgbranch-685001ce7d3c6f75c8c1d935": 804269,
-        "orgbranch-685001e27d3c6f75c8c1d998": 997747,
-        "orgbranch-685001f37d3c6f75c8c1d9fb": 1544541,
-        "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,
-        "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
-        "orgbranch-685002137d3c6f75c8c1db4f": 710690,    
-        "orgbranch-685002247d3c6f75c8c1dc25": 1228095
-    };
+  const branchSelect = document.getElementById("branchSelect");
 
-    const API_TOKEN = window.API_CONFIG.API_TOKEN;
-
-    /* ================= POPULATE DROPDOWN & HANDLE FILTER ================= */
-    function populateBranchDropdown() {
-        const dropdown = document.getElementById("branchFilter");
-        dropdown.innerHTML = '<option value="">All Branches</option>'; // Reset options
-
-        for (const id in branchNames) {
-            const option = document.createElement("option");
-            option.value = id;
-            option.textContent = branchNames[id];
-            dropdown.appendChild(option);
-        }
-
-        // Set initial value if URL parameter was provided
-        dropdown.value = currentBranchId;
-    }
-
-    function updateHeader() {
-        const displayName = currentBranchId 
-            ? (branchNames[currentBranchId] || currentBranchId) 
-            : "All Branches";
-        document.querySelector("header").textContent = `Live Telesales Performance — ${displayName}`;
-    }
-
-    // Event listener for dropdown change
-    document.getElementById("branchFilter").addEventListener("change", function() {
-        currentBranchId = this.value;
-        updateHeader();
-        loadAllPages(); // Fetch new data immediately upon filter change
+  Object.entries(branchNames)
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      branchSelect.appendChild(opt);
     });
 
-    /* ================= AUTO SCROLL ================= */
-    function startAutoScroll() {
-      const c = document.getElementById("scrollContainer");
+  let allRawData = [];
+  let filteredData = [];
+  let displayedData = [];
 
-      if (scrollInterval) clearInterval(scrollInterval);
-      if (pauseTimeout) clearTimeout(pauseTimeout);
+  function formatCurrency(num) {
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+    return Math.round(num).toLocaleString();
+  }
 
-      if (c.scrollHeight <= c.clientHeight) return;
+  function formatFullCurrency(num) {
+    return "KES " + Math.round(num).toLocaleString();
+  }
 
-      let direction = 1;   // 1 = down, -1 = up
-      let isPaused = false;
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
+  }
 
-      scrollInterval = setInterval(() => {
-        if (isPaused) return;
+  const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-        c.scrollTop += direction * 2;
+  async function fetchPage(pageNum, branchId) {
+    const { startDate, endDate } = getDateRange();
+    let url = `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&startDate=${startDate}&endDate=${endDate}&pageNum=${pageNum}`;
+    if (branchId) url += `&orgBranchId=${branchId}`;
 
-        if (c.scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
-          c.scrollTop = c.scrollHeight - c.clientHeight;
-          isPaused = true;
-          pauseTimeout = setTimeout(() => {
-            direction = -1;
-            isPaused = false;
-          }, 5000);
-        }
-
-        if (c.scrollTop <= 0 && direction === -1) {
-          c.scrollTop = 0;
-          isPaused = true;
-          pauseTimeout = setTimeout(() => {
-            direction = 1;
-            isPaused = false;
-          }, 5000);
-        }
-      }, 30);
-    }
-
-    /* ================= FETCH ================= */
-    async function fetchPage(pageNum, baseUrl) {
-      const response = await fetch(`${baseUrl}&pageNum=${pageNum}`, {
-        headers: {
-          "Authorization": API_TOKEN,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
+    const res = await fetch(url, {
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
       }
+    });
 
-      return await response.json();
-    }
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }
 
-    /* ================= LOAD ALL DATA ================= */
-    async function loadAllPages() {
-      try {
-        // Construct API URL dynamically based on the CURRENTLY selected branch
-        let BASE_API = `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&endDate=${formattedEnd}`;
-        if (currentBranchId) {
-            BASE_API += `&orgBranchId=${currentBranchId}`;
-        }
+  async function loadAllData() {
+    const selectedBranch = branchSelect.value;
 
-        let allData = [];
+    try {
+      let allData = [];
+      const first = await fetchPage(0, selectedBranch);
+      const pageCount = first.pageCount || 1;
+      allData.push(...(first.data || []));
 
-        const firstResponse = await fetchPage(0, BASE_API);
-        const pageCount = firstResponse.pageCount || 1;
-        allData.push(...(firstResponse.data || []));
-
-        const promises = [];
-        for (let i = 1; i < pageCount; i++) {
-          promises.push(fetchPage(i, BASE_API));
-        }
-
-        const responses = await Promise.all(promises);
-        responses.forEach(res => {
-          allData.push(...(res.data || [])); 
-        });
-
-        // Calculate Branch Performance
-        const totalNetSales = allData.reduce(
-            (sum, r) => sum + Number(r.netDailySales || 0),
-            0
-        );
-
-        // Calculate Target based on dynamically selected branch
-        let target = 0;
-        if (currentBranchId) {
-            target = branchTargets[currentBranchId] || 0;
-        } else {
-            for (const id in branchTargets) {
-                target += branchTargets[id];
-            }
-        }
-
-        const performance = target > 0 ? (totalNetSales / target) * 100 : 0;
-
-        const perfClass =
-            performance >= 80 ? "perf-high" :
-            performance >= 50 ? "perf-medium" :
-            "perf-low";
-
-        document.getElementById("branchStats").innerHTML = `
-            <span class="perf-label">Branch Performance</span>
-            <span class="perf-value ${perfClass}">${performance.toFixed(1)}%</span>
-        `;
-
-        /* ================= PROCESS ================= */
-        const processed = allData
-          .map(d => {
-            let score = d.dailySalesScore;
-            if (typeof score === "string") {
-              score = score.replace("%", "");
-            }
-            score = Number(score);
-            return { ...d, score };
-          })
-          .filter(d => !isNaN(d.score) && d.score > 0)
-          .sort((a, b) => b.score - a.score);
-
-        renderTable(processed);
-
-        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById("tableBody").innerHTML =
-          `<tr><td colspan="5">Failed to load data</td></tr>`;
+      const promises = [];
+      for (let i = 1; i < pageCount; i++) {
+        promises.push(fetchPage(i, selectedBranch));
       }
+      const responses = await Promise.all(promises);
+      responses.forEach(r => allData.push(...(r.data || [])));
+
+      allRawData = allData;
+      processAndRender();
+
+      document.getElementById("lastUpdated").textContent =
+        new Date().toLocaleTimeString();
+
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to load data: " + err.message);
+      document.getElementById("tableBody").innerHTML =
+        `<tr class="no-data-row"><td colspan="6">Failed to load data. Please try again.</td></tr>`;
+    }
+  }
+
+  function processAndRender() {
+    const selectedBranch = branchSelect.value;
+
+    const processed = allRawData
+      .map(d => {
+        let score = d.dailySalesScore;
+        if (typeof score === "string") score = score.replace("%", "");
+        score = Number(score);
+        return { ...d, score };
+      })
+      .filter(d => !isNaN(d.score) && d.score > 0);
+
+    processed.sort((a, b) => b.score - a.score);
+
+    let totalNetSales = processed.reduce((s, r) => s + Number(r.netDailySales || 0), 0);
+    let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
+    let activeCount = processed.length;
+
+    let target = 0;
+    if (selectedBranch) {
+      target = branchTargets[selectedBranch] || 0;
+    } else {
+      for (const id in branchTargets) target += branchTargets[id];
     }
 
-    /* ================= RENDER ================= */
-    function renderTable(data) {
-      const tbody = document.getElementById("tableBody");
+    const branchPerf = target > 0 ? (totalNetSales / target) * 100 : 0;
+    const deficit = target - totalNetSales;
 
-      if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="5">No sales Data Available</td></tr>`;
-        return;
-      }
+    // Stat cards
+    document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
+    document.getElementById("statOrdersSub").textContent = selectedBranch
+      ? `from ${branchNames[selectedBranch] || "selected branch"}`
+      : "across all branches";
 
-      tbody.innerHTML = "";
+    document.getElementById("statActive").textContent = activeCount;
+    document.getElementById("statActiveSub").textContent = selectedBranch
+      ? `in ${branchNames[selectedBranch] || "selected branch"}`
+      : "across all branches";
 
-      data.forEach((item, index) => {
-        const sales = item.score;
-        const orders = Number(item.totalDaysCustomers || 0);
-        const cls = sales >= 80 ? "high" : sales >= 50 ? "medium" : "low";
+    // Deficit card — dynamic label, color, and value
+    const deficitEl = document.getElementById("statDeficit");
+    const deficitLabelEl = document.getElementById("deficitLabel");
+    const deficitSubEl = document.getElementById("statDeficitSub");
 
-        tbody.innerHTML += `
-          <tr>
-            <td class="rank">${index + 1}</td>
-            <td>${item.salesPersonName}</td>
-            <td>${item.branchName}</td>
-            <td class="${cls}">${sales.toFixed(1)}%</td>
-            <td>${orders}</td>
-          </tr>
-        `;
-      });
-
-      document.getElementById("scrollContainer").scrollTop = 0;
-      startAutoScroll();
+    if (deficit > 0) {
+      deficitLabelEl.textContent = "Sales Deficit";
+      deficitEl.className = "stat-value perf-low";
+      deficitEl.textContent = "KES " + formatCurrency(deficit);
+      deficitSubEl.textContent = "below target";
+    } else if (deficit < 0) {
+      deficitLabelEl.textContent = "Sales Surplus";
+      deficitEl.className = "stat-value perf-high";
+      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficit));
+      deficitSubEl.textContent = "above target";
+    } else {
+      deficitLabelEl.textContent = "Sales Deficit";
+      deficitEl.className = "stat-value perf-high";
+      deficitEl.textContent = "KES 0";
+      deficitSubEl.textContent = "exactly on target";
     }
 
-    /* ================= INIT ================= */
-    populateBranchDropdown();
-    updateHeader();
-    loadAllPages();
-    setInterval(loadAllPages, 30000);
+    // Branch perf bar
+    const perfClass = branchPerf >= 80 ? "perf-high" : branchPerf >= 50 ? "perf-medium" : "perf-low";
+    const perfEl = document.getElementById("branchPerfValue");
+    perfEl.textContent = branchPerf.toFixed(1) + "%";
+    perfEl.className = "value " + perfClass;
+
+    // Detail line
+    let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
+    if (deficit > 0) {
+      detailHTML += `Sales Deficit: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+    } else if (deficit < 0) {
+      detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
+    } else {
+      detailHTML += `<span class="surplus">Exactly on target</span>`;
+    }
+    document.getElementById("branchPerfDetail").innerHTML = detailHTML;
+
+    // Bar
+    const bar = document.getElementById("branchPerfBar");
+    const barPct = Math.min(branchPerf, 100);
+    bar.style.width = barPct + "%";
+    bar.style.background = branchPerf >= 80
+      ? "linear-gradient(90deg, #16a34a, #22c55e)"
+      : branchPerf >= 50
+        ? "linear-gradient(90deg, #ca8a04, #facc15)"
+        : "linear-gradient(90deg, #dc2626, #ef4444)";
+
+    const marker50 = document.getElementById("marker50");
+    marker50.className = branchPerf < 50 ? "active-marker" : "";
+
+    filteredData = processed;
+    applySearch();
+  }
+
+  function applySearch() {
+    const q = document.getElementById("searchBox").value.toLowerCase().trim();
+
+    if (!q) {
+      displayedData = filteredData;
+    } else {
+      displayedData = filteredData.filter(d =>
+        (d.salesPersonName || "").toLowerCase().includes(q) ||
+        (d.branchName || "").toLowerCase().includes(q)
+      );
+    }
+
+    renderTable(displayedData);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById("tableBody");
+
+    document.getElementById("tableCount").textContent =
+      data.length + (data.length === 1 ? " person" : " people");
+
+    if (!data.length) {
+      tbody.innerHTML =
+        `<tr class="no-data-row"><td colspan="6">No telesales data found</td></tr>`;
+      return;
+    }
+
+    let html = "";
+
+    data.forEach((item, i) => {
+      const sales = item.score;
+      const orders = Number(item.totalDaysCustomers || 0);
+      const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
+      const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
+      const statusText = sales >= 80 ? "Achieved" : sales >= 50 ? "Average" : "Off Track";
+      const rankClass = i < 3 ? "rank top3" : "rank";
+
+      html += `
+        <tr>
+          <td class="${rankClass}">${i + 1}</td>
+          <td class="sales-name">${item.salesPersonName}</td>
+          <td class="branch-cell">${item.branchName}</td>
+          <td style="text-align:center;">
+            <span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span>
+          </td>
+          <td class="orders-cell" style="text-align:center;">${orders}</td>
+          <td style="text-align:center;">
+            <span class="status-dot ${statusClass}">${statusText}</span>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+  }
+
+  branchSelect.addEventListener("change", () => {
+    loadAllData();
+  });
+
+  let searchDebounce = null;
+  document.getElementById("searchBox").addEventListener("input", () => {
+    if (searchDebounce) clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(applySearch, 200);
+  });
+
+  loadAllData();
+  setInterval(loadAllData, 120000);
 </script>
 
 </body>
