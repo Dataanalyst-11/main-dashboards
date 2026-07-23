@@ -548,7 +548,7 @@
 
 <footer>
   Last updated: <span class="highlight" id="lastUpdated">—</span> &nbsp;|&nbsp;
-  Auto-refreshes every 30s &nbsp;|&nbsp;
+  Auto-refreshes every 2 Mins &nbsp;|&nbsp;
   Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
 
@@ -841,7 +841,7 @@
       const orders = Number(item.totalDaysCustomers || 0);
       const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
       const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
-      const statusText = sales >= 80 ? "On Track" : sales >= 50 ? "At Risk" : "Below Target";
+      const statusText = sales >= 80 ? "Achieved" : sales >= 50 ? "Average" : "Off Track";
       const rankClass = i < 3 ? "rank top3" : "rank";
 
       html += `
@@ -874,7 +874,7 @@
   });
 
   loadAllData();
-  setInterval(loadAllData, 30000);
+  setInterval(loadAllData, 120000);
 </script>
 
 </body>
