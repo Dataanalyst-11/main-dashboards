@@ -780,15 +780,8 @@
     perfEl.className = "value " + perfClass;
 
     // Detail line
-    let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
-    if (deficit > 0) {
-      detailHTML += `Sales Deficit: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
-    } else if (deficit < 0) {
-      detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
-    } else {
-      detailHTML += `<span class="surplus">Exactly on target</span>`;
-    }
-    document.getElementById("branchPerfDetail").innerHTML = detailHTML;
+        document.getElementById("branchPerfDetail").textContent =
+      `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target`;
 
     // Bar
     const bar = document.getElementById("branchPerfBar");
