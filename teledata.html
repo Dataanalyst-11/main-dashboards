@@ -780,7 +780,7 @@
     // Detail line
     let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
     if (deficit > 0) {
-      detailHTML += `Sales Deficit: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+      detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
     } else if (deficit < 0) {
       detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
     } else {
