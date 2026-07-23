@@ -751,26 +751,24 @@
       ? `in ${branchNames[selectedBranch] || "selected branch"}`
       : "across all branches";
 
-    // Deficit card — dynamic label, color, and value
+        // Deficit card — gap to reach 80% of target
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
     const deficitSubEl = document.getElementById("statDeficitSub");
 
-    if (deficit > 0) {
-      deficitLabelEl.textContent = "Sales Deficit";
+    const eightyPctTarget = target * 0.8;
+    const deficitBelow80 = eightyPctTarget - totalNetSales;
+
+    if (deficitBelow80 > 0) {
+      deficitLabelEl.textContent = "Deficit Below 80%";
       deficitEl.className = "stat-value perf-low";
-      deficitEl.textContent = "KES " + formatCurrency(deficit);
-      deficitSubEl.textContent = "below target";
-    } else if (deficit < 0) {
-      deficitLabelEl.textContent = "Sales Surplus";
-      deficitEl.className = "stat-value perf-high";
-      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficit));
-      deficitSubEl.textContent = "above target";
+      deficitEl.textContent = "KES " + formatCurrency(deficitBelow80);
+      deficitSubEl.textContent = `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
     } else {
-      deficitLabelEl.textContent = "Sales Deficit";
+      deficitLabelEl.textContent = "Above 80% Target";
       deficitEl.className = "stat-value perf-high";
-      deficitEl.textContent = "KES 0";
-      deficitSubEl.textContent = "exactly on target";
+      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficitBelow80));
+      deficitSubEl.textContent = "minimum threshold met";
     }
 
     // Branch perf bar
@@ -782,13 +780,14 @@
     // Detail line
     let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
     if (deficit > 0) {
-      detailHTML += `Sales Deficit: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+      detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
     } else if (deficit < 0) {
       detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
     } else {
       detailHTML += `<span class="surplus">Exactly on target</span>`;
     }
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
+
 
     // Bar
     const bar = document.getElementById("branchPerfBar");
