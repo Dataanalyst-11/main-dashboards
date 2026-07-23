@@ -83,10 +83,7 @@
     outline: none;
   }
 
-  .branch-selector select:hover {
-    border-color: #ba9305;
-  }
-
+  .branch-selector select:hover { border-color: #ba9305; }
   .branch-selector select:focus {
     border-color: #ba9305;
     box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
@@ -137,7 +134,7 @@
 
   .stat-card:nth-child(1)::before { background: #22c55e; }
   .stat-card:nth-child(2)::before { background: #38bdf8; }
-  .stat-card:nth-child(3)::before { background: #a78bfa; }
+  .stat-card:nth-child(3)::before { background: #ef4444; }
 
   .stat-label {
     font-size: 12px;
@@ -149,7 +146,7 @@
   }
 
   .stat-value {
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 800;
     color: #f8fafc;
     line-height: 1;
@@ -183,7 +180,7 @@
 
   .branch-perf-info {
     flex: 0 0 auto;
-    min-width: 180px;
+    min-width: 240px;
   }
 
   .branch-perf-info .label {
@@ -204,7 +201,18 @@
   .branch-perf-info .detail {
     font-size: 13px;
     color: #94a3b8;
-    margin-top: 6px;
+    margin-top: 8px;
+    line-height: 1.7;
+  }
+
+  .branch-perf-info .detail .deficit {
+    font-weight: 700;
+    color: #ef4444;
+  }
+
+  .branch-perf-info .detail .surplus {
+    font-weight: 700;
+    color: #22c55e;
   }
 
   .perf-bar-wrap {
@@ -218,7 +226,6 @@
     background: #0f172a;
     border-radius: 99px;
     overflow: hidden;
-    position: relative;
   }
 
   .perf-bar-fill {
@@ -237,9 +244,7 @@
     font-weight: 600;
   }
 
-  .perf-bar-labels span.active-marker {
-    color: #f8fafc;
-  }
+  .perf-bar-labels span.active-marker { color: #f8fafc; }
 
   .table-section {
     flex: 1;
@@ -286,7 +291,6 @@
   }
 
   .search-box::placeholder { color: #475569; }
-
   .search-box:focus {
     border-color: #ba9305;
     box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12);
@@ -304,10 +308,7 @@
 
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
-  .table-wrap::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 99px;
-  }
+  .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
   table {
     width: 100%;
@@ -331,24 +332,12 @@
     text-align: left;
   }
 
-  th:nth-child(1), td:nth-child(1) {
-    width: 60px;
-    text-align: center;
-  }
+  th:nth-child(1), td:nth-child(1) { width: 60px; text-align: center; }
   th:nth-child(2), td:nth-child(2) { width: 28%; }
   th:nth-child(3), td:nth-child(3) { width: 22%; }
-  th:nth-child(4), td:nth-child(4) {
-    width: 18%;
-    text-align: center;
-  }
-  th:nth-child(5), td:nth-child(5) {
-    width: 18%;
-    text-align: center;
-  }
-  th:nth-child(6), td:nth-child(6) {
-    width: 14%;
-    text-align: center;
-  }
+  th:nth-child(4), td:nth-child(4) { width: 18%; text-align: center; }
+  th:nth-child(5), td:nth-child(5) { width: 18%; text-align: center; }
+  th:nth-child(6), td:nth-child(6) { width: 14%; text-align: center; }
 
   td {
     padding: 14px 18px;
@@ -357,34 +346,13 @@
     color: #cbd5e1;
   }
 
-  tbody tr {
-    transition: background 0.15s;
-  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
 
-  tbody tr:hover {
-    background: rgba(30, 41, 59, 0.6);
-  }
-
-  .rank {
-    color: #64748b;
-    font-weight: 700;
-    font-size: 13px;
-  }
-
-  .rank.top3 {
-    color: #ba9305;
-    font-size: 15px;
-  }
-
-  .sales-name {
-    font-weight: 700;
-    color: #f1f5f9;
-  }
-
-  .branch-cell {
-    font-size: 13px;
-    color: #94a3b8;
-  }
+  .rank { color: #64748b; font-weight: 700; font-size: 13px; }
+  .rank.top3 { color: #ba9305; font-size: 15px; }
+  .sales-name { font-weight: 700; color: #f1f5f9; }
+  .branch-cell { font-size: 13px; color: #94a3b8; }
 
   .pct-badge {
     display: inline-block;
@@ -396,25 +364,11 @@
     text-align: center;
   }
 
-  .pct-high {
-    background: rgba(34, 197, 94, 0.12);
-    color: #22c55e;
-  }
+  .pct-high { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+  .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+  .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 
-  .pct-medium {
-    background: rgba(250, 204, 21, 0.12);
-    color: #facc15;
-  }
-
-  .pct-low {
-    background: rgba(239, 68, 68, 0.12);
-    color: #ef4444;
-  }
-
-  .orders-cell {
-    font-weight: 700;
-    color: #e2e8f0;
-  }
+  .orders-cell { font-weight: 700; color: #e2e8f0; }
 
   .status-dot {
     display: inline-flex;
@@ -436,26 +390,13 @@
 
   .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .status-on-track { color: #22c55e; }
-
   .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
   .status-at-risk { color: #facc15; }
-
   .status-below::before { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
   .status-below { color: #ef4444; }
 
-  .no-data-row td {
-    text-align: center;
-    padding: 60px 20px;
-    color: #475569;
-    font-size: 15px;
-  }
-
-  .loading-row td {
-    text-align: center;
-    padding: 60px 20px;
-    color: #64748b;
-    font-size: 15px;
-  }
+  .no-data-row td { text-align: center; padding: 60px 20px; color: #475569; font-size: 15px; }
+  .loading-row td { text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px; }
 
   .loading-spinner {
     display: inline-block;
@@ -469,9 +410,7 @@
     margin-right: 10px;
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   footer {
     text-align: center;
@@ -482,10 +421,7 @@
     border-top: 1px solid #1e293b;
   }
 
-  footer span.highlight {
-    color: #ba9305;
-    font-weight: 600;
-  }
+  footer span.highlight { color: #ba9305; font-weight: 600; }
 
   .toast {
     position: fixed;
@@ -505,17 +441,16 @@
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .toast.show {
-    transform: translateX(0);
-  }
+  .toast.show { transform: translateX(0); }
 
   @media (max-width: 768px) {
     header { padding: 14px 18px; }
     .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
     .branch-perf-section { padding: 16px 18px 0; }
     .table-section { padding: 16px 18px 18px; }
-    .stat-value { font-size: 24px; }
+    .stat-value { font-size: 20px; }
     .branch-perf-info .value { font-size: 32px; }
+    .branch-perf-info { min-width: 100%; }
     .branch-selector { min-width: 100%; }
     .search-box { width: 100%; }
     th:nth-child(6), td:nth-child(6) { display: none; }
@@ -552,9 +487,9 @@
     <div class="stat-sub" id="statActiveSub">with recorded sales</div>
   </div>
   <div class="stat-card">
-    <div class="stat-label">Average Performance</div>
-    <div class="stat-value" id="statAvg">—</div>
-    <div class="stat-sub" id="statAvgSub">per telesale</div>
+    <div class="stat-label" id="deficitLabel">Sales Deficit</div>
+    <div class="stat-value" id="statDeficit">—</div>
+    <div class="stat-sub" id="statDeficitSub">vs branch target</div>
   </div>
 </div>
 
@@ -697,25 +632,23 @@
 
   const branchSelect = document.getElementById("branchSelect");
 
-  const sortedBranches = Object.entries(branchNames).sort((a, b) =>
-    a[1].localeCompare(b[1])
-  );
-
-  sortedBranches.forEach(([id, name]) => {
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = name;
-    branchSelect.appendChild(opt);
-  });
+  Object.entries(branchNames)
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      branchSelect.appendChild(opt);
+    });
 
   let allRawData = [];
   let filteredData = [];
   let displayedData = [];
 
   function formatCurrency(num) {
-    if (num >= 1_000_000) return "KES " + (num / 1_000_000).toFixed(2) + "M";
-    if (num >= 1_000) return "KES " + (num / 1_000).toFixed(1) + "K";
-    return "KES " + num.toLocaleString();
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+    return Math.round(num).toLocaleString();
   }
 
   function formatFullCurrency(num) {
@@ -796,7 +729,6 @@
     let totalNetSales = processed.reduce((s, r) => s + Number(r.netDailySales || 0), 0);
     let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
     let activeCount = processed.length;
-    let avgPerf = activeCount > 0 ? processed.reduce((s, r) => s + r.score, 0) / activeCount : 0;
 
     let target = 0;
     if (selectedBranch) {
@@ -806,7 +738,9 @@
     }
 
     const branchPerf = target > 0 ? (totalNetSales / target) * 100 : 0;
+    const deficit = target - totalNetSales;
 
+    // Stat cards
     document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
     document.getElementById("statOrdersSub").textContent = selectedBranch
       ? `from ${branchNames[selectedBranch] || "selected branch"}`
@@ -817,19 +751,46 @@
       ? `in ${branchNames[selectedBranch] || "selected branch"}`
       : "across all branches";
 
-    const avgClass = avgPerf >= 80 ? "perf-high" : avgPerf >= 50 ? "perf-medium" : "perf-low";
-    document.getElementById("statAvg").className = "stat-value " + avgClass;
-    document.getElementById("statAvg").textContent = avgPerf.toFixed(1) + "%";
-    document.getElementById("statAvgSub").textContent = activeCount > 0 ? "per telesale" : "no data";
+    // Deficit card — dynamic label, color, and value
+    const deficitEl = document.getElementById("statDeficit");
+    const deficitLabelEl = document.getElementById("deficitLabel");
+    const deficitSubEl = document.getElementById("statDeficitSub");
 
+    if (deficit > 0) {
+      deficitLabelEl.textContent = "Sales Deficit";
+      deficitEl.className = "stat-value perf-low";
+      deficitEl.textContent = "KES " + formatCurrency(deficit);
+      deficitSubEl.textContent = "below target";
+    } else if (deficit < 0) {
+      deficitLabelEl.textContent = "Sales Surplus";
+      deficitEl.className = "stat-value perf-high";
+      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficit));
+      deficitSubEl.textContent = "above target";
+    } else {
+      deficitLabelEl.textContent = "Sales Deficit";
+      deficitEl.className = "stat-value perf-high";
+      deficitEl.textContent = "KES 0";
+      deficitSubEl.textContent = "exactly on target";
+    }
+
+    // Branch perf bar
     const perfClass = branchPerf >= 80 ? "perf-high" : branchPerf >= 50 ? "perf-medium" : "perf-low";
     const perfEl = document.getElementById("branchPerfValue");
     perfEl.textContent = branchPerf.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    document.getElementById("branchPerfDetail").textContent =
-      `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target`;
+    // Detail line
+    let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
+    if (deficit > 0) {
+      detailHTML += `Sales Deficit: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+    } else if (deficit < 0) {
+      detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
+    } else {
+      detailHTML += `<span class="surplus">Exactly on target</span>`;
+    }
+    document.getElementById("branchPerfDetail").innerHTML = detailHTML;
 
+    // Bar
     const bar = document.getElementById("branchPerfBar");
     const barPct = Math.min(branchPerf, 100);
     bar.style.width = barPct + "%";
