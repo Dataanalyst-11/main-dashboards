@@ -90,7 +90,7 @@
   }
 
   .branch-selector::after {
-    content: "▾";
+    content: "\25BE";
     position: absolute;
     right: 16px;
     top: 50%;
@@ -327,20 +327,51 @@
     letter-spacing: 1px;
     font-weight: 700;
     z-index: 2;
-    padding: 14px 18px;
+    padding: 14px 14px;
     border-bottom: 2px solid #334155;
     text-align: left;
+    user-select: none;
+    white-space: nowrap;
   }
 
-  th:nth-child(1), td:nth-child(1) { width: 60px; text-align: center; }
-  th:nth-child(2), td:nth-child(2) { width: 28%; }
-  th:nth-child(3), td:nth-child(3) { width: 22%; }
-  th:nth-child(4), td:nth-child(4) { width: 18%; text-align: center; }
-  th:nth-child(5), td:nth-child(5) { width: 18%; text-align: center; }
-  th:nth-child(6), td:nth-child(6) { width: 14%; text-align: center; }
+  thead th.sortable {
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  thead th.sortable:hover {
+    color: #f1f5f9;
+    background: #263348;
+  }
+
+  thead th.sortable.active-sort {
+    color: #ba9305;
+  }
+
+  .sort-icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 9px;
+    opacity: 0.35;
+    vertical-align: middle;
+    transition: opacity 0.2s, transform 0.25s;
+  }
+
+  thead th.sortable:hover .sort-icon { opacity: 0.7; }
+  thead th.sortable.active-sort .sort-icon { opacity: 1; }
+  thead th.sortable.active-sort.sort-asc .sort-icon { transform: rotate(0deg); }
+  thead th.sortable.active-sort.sort-desc .sort-icon { transform: rotate(180deg); }
+
+  th:nth-child(1), td:nth-child(1) { width: 46px; text-align: center; }
+  th:nth-child(2), td:nth-child(2) { width: 20%; }
+  th:nth-child(3), td:nth-child(3) { width: 14%; }
+  th:nth-child(4), td:nth-child(4) { width: 12%; text-align: center; }
+  th:nth-child(5), td:nth-child(5) { width: 10%; text-align: center; }
+  th:nth-child(6), td:nth-child(6) { width: 16%; text-align: right; }
+  th:nth-child(7), td:nth-child(7) { width: 14%; text-align: center; }
 
   td {
-    padding: 14px 18px;
+    padding: 13px 14px;
     border-bottom: 1px solid #1e293b;
     vertical-align: middle;
     color: #cbd5e1;
@@ -351,16 +382,16 @@
 
   .rank { color: #64748b; font-weight: 700; font-size: 13px; }
   .rank.top3 { color: #ba9305; font-size: 15px; }
-  .sales-name { font-weight: 700; color: #f1f5f9; }
-  .branch-cell { font-size: 13px; color: #94a3b8; }
+  .sales-name { font-weight: 700; color: #f1f5f9; font-size: 13px; }
+  .branch-cell { font-size: 12px; color: #94a3b8; }
 
   .pct-badge {
     display: inline-block;
-    padding: 4px 14px;
+    padding: 4px 10px;
     border-radius: 99px;
     font-weight: 800;
-    font-size: 13px;
-    min-width: 70px;
+    font-size: 12px;
+    min-width: 62px;
     text-align: center;
   }
 
@@ -368,13 +399,28 @@
   .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
   .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 
-  .orders-cell { font-weight: 700; color: #e2e8f0; }
+  .orders-cell { font-weight: 700; color: #e2e8f0; font-size: 13px; }
+
+  .value-cell {
+    font-weight: 700;
+    color: #e2e8f0;
+    font-size: 13px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .value-cell .kes {
+    font-weight: 400;
+    color: #64748b;
+    font-size: 11px;
+    margin-right: 2px;
+  }
 
   .status-dot {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -382,8 +428,8 @@
 
   .status-dot::before {
     content: "";
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     display: inline-block;
   }
@@ -411,6 +457,14 @@
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .sort-hint {
+    font-size: 11px;
+    color: #475569;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
 
   footer {
     text-align: center;
@@ -443,7 +497,17 @@
 
   .toast.show { transform: translateX(0); }
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
+    th:nth-child(7), td:nth-child(7) { display: none; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+    th:nth-child(2), td:nth-child(2) { width: 30%; }
+    th:nth-child(4), td:nth-child(4) { width: 16%; }
+    th:nth-child(5), td:nth-child(5) { width: 14%; }
+    th:nth-child(6), td:nth-child(6) { width: 22%; text-align: center; }
+    .value-cell { text-align: center; }
+  }
+
+  @media (max-width: 600px) {
     header { padding: 14px 18px; }
     .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
     .branch-perf-section { padding: 16px 18px 0; }
@@ -454,6 +518,9 @@
     .branch-selector { min-width: 100%; }
     .search-box { width: 100%; }
     th:nth-child(6), td:nth-child(6) { display: none; }
+    th:nth-child(2), td:nth-child(2) { width: 40%; }
+    th:nth-child(4), td:nth-child(4) { width: 22%; }
+    th:nth-child(5), td:nth-child(5) { width: 20%; }
   }
 </style>
 </head>
@@ -516,9 +583,10 @@
 
 <div class="table-section">
   <div class="table-header">
-    <div style="display:flex;align-items:center;gap:14px;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
       <span class="table-title">Telesales Ranking</span>
       <span class="table-count" id="tableCount">0 people</span>
+      <span class="sort-hint" id="sortHint">Click column headers to sort</span>
     </div>
     <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
   </div>
@@ -527,16 +595,17 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Telesale Name</th>
-          <th>Branch</th>
-          <th>Sales (%)</th>
-          <th>Orders</th>
+          <th class="sortable" data-sort="name">Telesale Name <span class="sort-icon">▲</span></th>
+          <th class="sortable" data-sort="branch">Branch <span class="sort-icon">▲</span></th>
+          <th class="sortable active-sort sort-desc" data-sort="score" style="text-align:center;">Sales % <span class="sort-icon">▲</span></th>
+          <th class="sortable" data-sort="orders" style="text-align:center;">Orders <span class="sort-icon">▲</span></th>
+          <th class="sortable" data-sort="value" style="text-align:right;">Order Value <span class="sort-icon">▲</span></th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody id="tableBody">
         <tr class="loading-row">
-          <td colspan="6">
+          <td colspan="7">
             <span class="loading-spinner"></span>
             Loading sales data...
           </td>
@@ -548,7 +617,7 @@
 
 <footer>
   Last updated: <span class="highlight" id="lastUpdated">—</span> &nbsp;|&nbsp;
-  Auto-refreshes every 2 Mins &nbsp;|&nbsp;
+  Auto-refreshes every 30s &nbsp;|&nbsp;
   Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
 
@@ -557,6 +626,10 @@
 <script src="config.js"></script>
 
 <script>
+  /* ── Sort state ─────────────────────────────────────────── */
+  let currentSort = { key: "score", dir: "desc" };
+
+  /* ── Date range helper ──────────────────────────────────── */
   function getDateRange() {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -574,6 +647,7 @@
     return { startDate, endDate };
   }
 
+  /* ── Static lookups ─────────────────────────────────────── */
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -599,10 +673,7 @@
     "orgbranch-685001ff7d3c6f75c8c1da5e": "Bungoma",
     "orgbranch-685002097d3c6f75c8c1dac1": "Makindu",
     "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
-    "orgbranch-685002247d3c6f75c8c1dc25": "Embu",
-   "orgbranch-69df9dc58418a65253e015a6" :"Arms Narok Wholesale",
-   "orgbranch-6a14177260c3a453acb56ceb" :"Nanyuki",
-   "orgbranch-69f7511b83ba28b7dda7ccd1" : "Arms Ol Kalou"
+    "orgbranch-685002247d3c6f75c8c1dc25": "Embu"
   };
 
   const branchTargets = {
@@ -630,14 +701,11 @@
     "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,
     "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
     "orgbranch-685002137d3c6f75c8c1db4f": 710690,
-    "orgbranch-685002247d3c6f75c8c1dc25": 1228095,
-   "orgbranch-69df9dc58418a65253e015a6" :650000,
-   "orgbranch-6a14177260c3a453acb56ceb" : 538000,
-   "orgbranch-69f7511b83ba28b7dda7ccd1" : 100000
+    "orgbranch-685002247d3c6f75c8c1dc25": 1228095
   };
 
+  /* ── Populate branch dropdown ───────────────────────────── */
   const branchSelect = document.getElementById("branchSelect");
-
   Object.entries(branchNames)
     .sort((a, b) => a[1].localeCompare(b[1]))
     .forEach(([id, name]) => {
@@ -647,9 +715,18 @@
       branchSelect.appendChild(opt);
     });
 
+  /* ── Data stores ────────────────────────────────────────── */
   let allRawData = [];
   let filteredData = [];
   let displayedData = [];
+
+  /* ── Helpers ────────────────────────────────────────────── */
+  function formatValue(num) {
+    const n = Math.round(num);
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + "M";
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + "K";
+    return n.toLocaleString();
+  }
 
   function formatCurrency(num) {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
@@ -670,6 +747,7 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
   }
 
+  /* ── API fetch (paginated) ──────────────────────────────── */
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
   async function fetchPage(pageNum, branchId) {
@@ -714,10 +792,11 @@
       console.error(err);
       showToast("Failed to load data: " + err.message);
       document.getElementById("tableBody").innerHTML =
-        `<tr class="no-data-row"><td colspan="6">Failed to load data. Please try again.</td></tr>`;
+        `<tr class="no-data-row"><td colspan="7">Failed to load data. Please try again.</td></tr>`;
     }
   }
 
+  /* ── Core processing ────────────────────────────────────── */
   function processAndRender() {
     const selectedBranch = branchSelect.value;
 
@@ -726,13 +805,14 @@
         let score = d.dailySalesScore;
         if (typeof score === "string") score = score.replace("%", "");
         score = Number(score);
-        return { ...d, score };
+        const netValue = Number(d.netDailySales || 0);
+        return { ...d, score, netValue };
       })
       .filter(d => !isNaN(d.score) && d.score > 0);
 
     processed.sort((a, b) => b.score - a.score);
 
-    let totalNetSales = processed.reduce((s, r) => s + Number(r.netDailySales || 0), 0);
+    let totalNetSales = processed.reduce((s, r) => s + r.netValue, 0);
     let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
     let activeCount = processed.length;
 
@@ -746,7 +826,7 @@
     const branchPerf = target > 0 ? (totalNetSales / target) * 100 : 0;
     const deficit = target - totalNetSales;
 
-    // Stat cards
+    /* Stat cards */
     document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
     document.getElementById("statOrdersSub").textContent = selectedBranch
       ? `from ${branchNames[selectedBranch] || "selected branch"}`
@@ -757,7 +837,6 @@
       ? `in ${branchNames[selectedBranch] || "selected branch"}`
       : "across all branches";
 
-        // Deficit card — gap to reach 80% of target
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
     const deficitSubEl = document.getElementById("statDeficitSub");
@@ -777,13 +856,12 @@
       deficitSubEl.textContent = "minimum threshold met";
     }
 
-    // Branch perf bar
+    /* Branch perf bar */
     const perfClass = branchPerf >= 80 ? "perf-high" : branchPerf >= 50 ? "perf-medium" : "perf-low";
     const perfEl = document.getElementById("branchPerfValue");
     perfEl.textContent = branchPerf.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    // Detail line
     let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
     if (deficit > 0) {
       detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
@@ -794,8 +872,6 @@
     }
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
 
-
-    // Bar
     const bar = document.getElementById("branchPerfBar");
     const barPct = Math.min(branchPerf, 100);
     bar.style.width = barPct + "%";
@@ -809,24 +885,57 @@
     marker50.className = branchPerf < 50 ? "active-marker" : "";
 
     filteredData = processed;
-    applySearch();
+    applySearchAndSort();
   }
 
-  function applySearch() {
+  /* ── Sorting logic ──────────────────────────────────────── */
+  function getSortValue(item, key) {
+    switch (key) {
+      case "name":   return (item.salesPersonName || "").toLowerCase();
+      case "branch": return (item.branchName || "").toLowerCase();
+      case "score":  return item.score;
+      case "orders": return Number(item.totalDaysCustomers || 0);
+      case "value":  return item.netValue;
+      default:       return 0;
+    }
+  }
+
+  function sortData(data) {
+    const { key, dir } = currentSort;
+    const sorted = [...data];
+
+    sorted.sort((a, b) => {
+      const va = getSortValue(a, key);
+      const vb = getSortValue(b, key);
+
+      if (typeof va === "string") {
+        const cmp = va.localeCompare(vb);
+        return dir === "asc" ? cmp : -cmp;
+      }
+
+      return dir === "asc" ? va - vb : vb - va;
+    });
+
+    return sorted;
+  }
+
+  /* ── Search + sort combined ─────────────────────────────── */
+  function applySearchAndSort() {
     const q = document.getElementById("searchBox").value.toLowerCase().trim();
 
-    if (!q) {
-      displayedData = filteredData;
-    } else {
-      displayedData = filteredData.filter(d =>
+    let data = filteredData;
+    if (q) {
+      data = data.filter(d =>
         (d.salesPersonName || "").toLowerCase().includes(q) ||
         (d.branchName || "").toLowerCase().includes(q)
       );
     }
 
+    displayedData = sortData(data);
     renderTable(displayedData);
   }
 
+  /* ── Table rendering ────────────────────────────────────── */
   function renderTable(data) {
     const tbody = document.getElementById("tableBody");
 
@@ -835,7 +944,7 @@
 
     if (!data.length) {
       tbody.innerHTML =
-        `<tr class="no-data-row"><td colspan="6">No telesales data found</td></tr>`;
+        `<tr class="no-data-row"><td colspan="7">No telesales data found</td></tr>`;
       return;
     }
 
@@ -844,9 +953,10 @@
     data.forEach((item, i) => {
       const sales = item.score;
       const orders = Number(item.totalDaysCustomers || 0);
+      const value = item.netValue;
       const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
       const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
-      const statusText = sales >= 80 ? "Achieved" : sales >= 50 ? "Average" : "Off Track";
+      const statusText = sales >= 80 ? "ACHIEVED" : sales >= 50 ? "AVERAGE" : "OFF TRACK";
       const rankClass = i < 3 ? "rank top3" : "rank";
 
       html += `
@@ -858,6 +968,9 @@
             <span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span>
           </td>
           <td class="orders-cell" style="text-align:center;">${orders}</td>
+          <td class="value-cell">
+            <span class="kes">KES</span> ${formatValue(value)}
+          </td>
           <td style="text-align:center;">
             <span class="status-dot ${statusClass}">${statusText}</span>
           </td>
@@ -868,18 +981,64 @@
     tbody.innerHTML = html;
   }
 
+  /* ── Sort header click handling ─────────────────────────── */
+  const sortLabels = {
+    name:   "Name",
+    branch: "Branch",
+    score:  "Sales %",
+    orders: "Orders",
+    value:  "Order Value"
+  };
+
+  function updateSortHeaders() {
+    document.querySelectorAll("thead th.sortable").forEach(th => {
+      const key = th.dataset.sort;
+      th.classList.remove("active-sort", "sort-asc", "sort-desc");
+
+      if (key === currentSort.key) {
+        th.classList.add("active-sort", currentSort.dir === "asc" ? "sort-asc" : "sort-desc");
+      }
+    });
+
+    const hint = document.getElementById("sortHint");
+    const arrow = currentSort.dir === "asc" ? "↑" : "↓";
+    hint.textContent = `Sorted by ${sortLabels[currentSort.key]} ${arrow}`;
+  }
+
+  document.querySelectorAll("thead th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+
+      if (currentSort.key === key) {
+        currentSort.dir = currentSort.dir === "desc" ? "asc" : "desc";
+      } else {
+        currentSort.key = key;
+        currentSort.dir = (key === "score" || key === "orders" || key === "value") ? "desc" : "asc";
+      }
+
+      updateSortHeaders();
+      applySearchAndSort();
+    });
+  });
+
+  /* ── Branch change ──────────────────────────────────────── */
   branchSelect.addEventListener("change", () => {
+    currentSort = { key: "score", dir: "desc" };
+    updateSortHeaders();
     loadAllData();
   });
 
+  /* ── Search ─────────────────────────────────────────────── */
   let searchDebounce = null;
   document.getElementById("searchBox").addEventListener("input", () => {
     if (searchDebounce) clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(applySearch, 200);
+    searchDebounce = setTimeout(applySearchAndSort, 200);
   });
 
+  /* ── Init ───────────────────────────────────────────────── */
+  updateSortHeaders();
   loadAllData();
-  setInterval(loadAllData, 120000);
+  setInterval(loadAllData, 30000);
 </script>
 
 </body>
