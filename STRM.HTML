@@ -134,7 +134,7 @@ document.getElementById('lu2').textContent = full;
 const DF='createdAt', PS=5000, FETCH_DAYS=90;
 let raw=[], filt=[], all=[], pd=7, ld=false, fetching=false, silent=false;
 const BK='spbf', SK='spsd', EK='sped', QK='spqr';
-const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD']];
+const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD'],['ytd','YTD']];
 
 /* Toast notification */
 function showToast(msg, isErr) {
@@ -165,11 +165,13 @@ setInterval(updClk, 1000); updClk();
 function fdu(d) { return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
 function fdn(s) { if(!s) return ''; return new Date(s+'T00:00:00Z').toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}); }
 
-/* Get the 90-day fetch window: [today - (FETCH_DAYS-1), today] */
+/* Get the fetch window: [Jan 1st of current year, today] */
 function getFetchWindow() {
     const now = new Date();
     const end = fdu(now);
-    const start = fdu(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (FETCH_DAYS - 1))));
+    // Dynamically fetch starting from January 1st of the current year.
+    // If you strictly want January 2026, change to: new Date(Date.UTC(2026, 0, 1))
+    const start = fdu(new Date(Date.UTC(now.getUTCFullYear(), 0, 1))); 
     return { s: start, e: end };
 }
 
@@ -182,6 +184,7 @@ function gdr(k) {
         case '30d': s.setUTCDate(s.getUTCDate()-29); break;
         case '90d': s.setUTCDate(s.getUTCDate()-89); break;
         case 'mtd': s = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), 1)); break;
+        case 'ytd': s = new Date(Date.UTC(n.getUTCFullYear(), 0, 1)); break;
     }
     return { s: fdu(s), e: fdu(e) };
 }
@@ -291,7 +294,7 @@ function updRi(s, e, tc, fc) {
         '<span class="gr">✅ Filtered by <span class="pu">' + DF + '</span> (raw UTC)</span> · ' +
         '<span class="bl">Period:</span> ' + fdn(s) + ' — ' + fdn(e) + ' <span style="color:#4a6580">(' + d + (d === 1 ? ' day' : ' days') + ')</span> · ' +
         '<span class="gr">' + fc.toLocaleString() + ' of ' + tc.toLocaleString() + ' records</span> · ' +
-        '<span class="cy">🔄 Fetch window: last ' + FETCH_DAYS + ' days</span>';
+        '<span class="cy">🔄 Fetch window: Since Jan ' + new Date().getUTCFullYear() + '</span>';
 }
 
 function buildRows(d) {
@@ -367,9 +370,9 @@ async function go(sl) {
     fetching = true;
     const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
     
-    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (last ' + FETCH_DAYS + ' days)...</td></tr>';
+    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (Since Jan ' + new Date().getUTCFullYear() + ')...</td></tr>';
 
-    /* Always fetch only the last 90 days from the backend */
+    /* Fetch from Jan 1st of current year to today */
     var fw = getFetchWindow();
     var fetchParams = 'startDate=' + fw.s + '&endDate=' + fw.e;
 
@@ -610,7 +613,7 @@ async function exportExcel() {
         { metric: 'Period End', value: fdn(eVal) },
         { metric: 'Period Days', value: pd },
         { metric: 'Branch Filter', value: brVal === 'ALL' ? 'All Branches' : brVal },
-        { metric: 'Backend Fetch Window', value: 'Last ' + FETCH_DAYS + ' days' },
+        { metric: 'Backend Fetch Window', value: 'Since Jan ' + new Date().getUTCFullYear() },
         { metric: '', value: '' },
         { metric: 'Total Attendants', value: data.length },
         { metric: 'Total Orders', value: totalOrders.toLocaleString() },
