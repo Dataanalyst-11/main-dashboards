@@ -28,326 +28,175 @@
     gap: 16px;
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
 
   .header-logo {
-    width: 44px;
-    height: 44px;
-    background: #ba9305;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 20px;
-    color: #020617;
-    flex-shrink: 0;
+    width: 44px; height: 44px;
+    background: #ba9305; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 20px; color: #020617; flex-shrink: 0;
   }
 
-  .header-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #f8fafc;
-    letter-spacing: -0.3px;
-  }
+  .header-title { font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
+  .header-subtitle { font-size: 12px; color: #64748b; font-weight: 400; margin-top: 2px; }
 
-  .header-subtitle {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 400;
-    margin-top: 2px;
-  }
-
-  .branch-selector {
-    position: relative;
-    min-width: 260px;
-  }
+  .branch-selector { position: relative; min-width: 260px; }
 
   .branch-selector select {
-    width: 100%;
-    padding: 12px 42px 12px 16px;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #1e293b;
-    color: #f1f5f9;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+    width: 100%; padding: 12px 42px 12px 16px;
+    border-radius: 10px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none;
   }
-
   .branch-selector select:hover { border-color: #ba9305; }
-  .branch-selector select:focus {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
-  }
-
+  .branch-selector select:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186,147,5,0.15); }
   .branch-selector::after {
-    content: "▾";
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ba9305;
-    font-size: 18px;
-    pointer-events: none;
+    content: "▾"; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); color: #ba9305; font-size: 18px; pointer-events: none;
   }
 
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    padding: 24px 32px 0;
-  }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
 
   .stat-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 22px 24px;
-    position: relative;
-    overflow: hidden;
+    background: #1e293b; border: 1px solid #334155; border-radius: 14px;
+    padding: 22px 24px; position: relative; overflow: hidden;
     transition: border-color 0.2s, transform 0.15s;
   }
-
-  .stat-card:hover {
-    border-color: #475569;
-    transform: translateY(-2px);
-  }
-
-  .stat-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 4px 0 0 4px;
-  }
-
+  .stat-card:hover { border-color: #475569; transform: translateY(-2px); }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
   .stat-card:nth-child(1)::before { background: #22c55e; }
   .stat-card:nth-child(2)::before { background: #38bdf8; }
   .stat-card:nth-child(3)::before { background: #ef4444; }
 
-  .stat-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #64748b;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  .stat-value {
-    font-size: 26px;
-    font-weight: 800;
-    color: #f8fafc;
-    line-height: 1;
-  }
-
-  .stat-sub {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-top: 6px;
-    font-weight: 400;
-  }
+  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #64748b; font-weight: 600; margin-bottom: 10px; }
+  .stat-value { font-size: 26px; font-weight: 800; color: #f8fafc; line-height: 1; }
+  .stat-sub { font-size: 13px; color: #94a3b8; margin-top: 6px; font-weight: 400; }
 
   .perf-high { color: #22c55e !important; }
   .perf-medium { color: #facc15 !important; }
   .perf-low { color: #ef4444 !important; }
 
-  .branch-perf-section {
-    padding: 20px 32px 0;
-  }
+  .branch-perf-section { padding: 20px 32px 0; }
 
   .branch-perf-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    flex-wrap: wrap;
+    background: #1e293b; border: 1px solid #334155; border-radius: 14px;
+    padding: 24px 28px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
   }
 
-  .branch-perf-info {
-    flex: 0 0 auto;
-    min-width: 240px;
-  }
+  .branch-perf-info { flex: 0 0 auto; min-width: 240px; }
+  .branch-perf-info .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+  .branch-perf-info .value { font-size: 42px; font-weight: 900; line-height: 1; }
+  .branch-perf-info .detail { font-size: 13px; color: #94a3b8; margin-top: 8px; line-height: 1.7; }
+  .branch-perf-info .detail .deficit { font-weight: 700; color: #ef4444; }
+  .branch-perf-info .detail .surplus { font-weight: 700; color: #22c55e; }
 
-  .branch-perf-info .label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #64748b;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .branch-perf-info .value {
-    font-size: 42px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .branch-perf-info .detail {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-top: 8px;
-    line-height: 1.7;
-  }
-
-  .branch-perf-info .detail .deficit {
-    font-weight: 700;
-    color: #ef4444;
-  }
-
-  .branch-perf-info .detail .surplus {
-    font-weight: 700;
-    color: #22c55e;
-  }
-
-  .perf-bar-wrap {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .perf-bar-track {
-    width: 100%;
-    height: 14px;
-    background: #0f172a;
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .perf-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s;
-    min-width: 0;
-  }
-
-  .perf-bar-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px;
-    color: #475569;
-    font-weight: 600;
-  }
-
+  .perf-bar-wrap { flex: 1; min-width: 200px; }
+  .perf-bar-track { width: 100%; height: 14px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+  .perf-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1), background 0.4s; min-width: 0; }
+  .perf-bar-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: #475569; font-weight: 600; }
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
-  .table-section {
-    flex: 1;
-    padding: 20px 32px 24px;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
+  .table-section { flex: 1; padding: 20px 32px 24px; display: flex; flex-direction: column; min-height: 0; }
 
   .table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-    gap: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 12px;
   }
 
-  .table-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #f1f5f9;
-  }
+  .table-title { font-size: 16px; font-weight: 700; color: #f1f5f9; }
+  .table-count { font-size: 13px; color: #64748b; background: #0f172a; padding: 5px 14px; border-radius: 99px; font-weight: 600; }
 
-  .table-count {
-    font-size: 13px;
-    color: #64748b;
-    background: #0f172a;
-    padding: 5px 14px;
-    border-radius: 99px;
-    font-weight: 600;
-  }
+  .table-actions { display: flex; gap: 10px; align-items: center; }
 
   .search-box {
-    padding: 9px 16px 9px 38px;
-    border-radius: 10px;
-    border: 2px solid #334155;
+    padding: 9px 16px 9px 38px; border-radius: 10px; border: 2px solid #334155;
     background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
-    color: #f1f5f9;
-    font-size: 14px;
-    width: 260px;
-    outline: none;
+    color: #f1f5f9; font-size: 14px; width: 260px; outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-
   .search-box::placeholder { color: #475569; }
-  .search-box:focus {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12);
+  .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186,147,5,0.12); }
+
+  .clear-filters-btn {
+    padding: 9px 16px; border-radius: 10px; border: 2px solid #334155;
+    background: #0f172a; color: #94a3b8; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap; display: flex; align-items: center; gap: 6px;
+  }
+  .clear-filters-btn:hover { border-color: #ba9305; color: #ba9305; }
+  .clear-filters-btn.has-filters { border-color: #ba9305; color: #ba9305; }
+  .clear-filters-btn .filter-count {
+    background: #ba9305; color: #020617; border-radius: 99px;
+    padding: 1px 7px; font-size: 11px; font-weight: 800; min-width: 18px; text-align: center;
   }
 
   .table-wrap {
-    flex: 1;
-    overflow-y: auto;
-    border-radius: 14px;
-    border: 1px solid #334155;
-    background: #0f172a;
-    scrollbar-width: thin;
-    scrollbar-color: #334155 transparent;
+    flex: 1; overflow-y: auto; border-radius: 14px; border: 1px solid #334155;
+    background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent;
   }
-
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    font-size: 14px;
-  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
 
   thead th {
-    position: sticky;
-    top: 0;
-    background: #1e293b;
-    color: #94a3b8;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: 700;
-    z-index: 2;
-    padding: 14px 18px;
-    border-bottom: 2px solid #334155;
-    text-align: left;
+    position: sticky; top: 0; background: #1e293b; color: #94a3b8;
+    text-transform: uppercase; font-size: 11px; letter-spacing: 1px; font-weight: 700;
+    z-index: 2; padding: 12px 18px; border-bottom: 2px solid #334155; text-align: left;
   }
 
   th:nth-child(1), td:nth-child(1) { width: 60px; text-align: center; }
-  th:nth-child(2), td:nth-child(2) { width: 28%; }
-  th:nth-child(3), td:nth-child(3) { width: 22%; }
-  th:nth-child(4), td:nth-child(4) { width: 18%; text-align: center; }
-  th:nth-child(5), td:nth-child(5) { width: 18%; text-align: center; }
-  th:nth-child(6), td:nth-child(6) { width: 14%; text-align: center; }
+  th:nth-child(2), td:nth-child(2) { width: 26%; }
+  th:nth-child(3), td:nth-child(3) { width: 20%; }
+  th:nth-child(4), td:nth-child(4) { width: 19%; text-align: center; }
+  th:nth-child(5), td:nth-child(5) { width: 19%; text-align: center; }
+  th:nth-child(6), td:nth-child(6) { width: 16%; text-align: center; }
 
-  td {
-    padding: 14px 18px;
-    border-bottom: 1px solid #1e293b;
-    vertical-align: middle;
-    color: #cbd5e1;
+  .th-content { display: flex; flex-direction: column; gap: 6px; }
+  .th-content > .th-label { display: block; }
+
+  /* Sortable Header Styles */
+  .sortable-th {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
   }
+  .sortable-th:hover { color: #f8fafc; }
+  .sort-icon {
+    font-size: 10px;
+    color: #64748b;
+    transition: color 0.2s;
+  }
+  .sortable-th.sorted .sort-icon { color: #ba9305; }
 
+  /* Column filter dropdowns */
+  .column-filter {
+    width: 100%; padding: 5px 26px 5px 8px; border-radius: 6px;
+    border: 1px solid #475569; background: #0f172a; color: #cbd5e1;
+    font-size: 12px; font-weight: 400; outline: none; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    text-transform: none; letter-spacing: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .column-filter:hover { border-color: #ba9305; }
+  .column-filter:focus { border-color: #ba9305; box-shadow: 0 0 0 2px rgba(186,147,5,0.15); }
+  .column-filter.select-filter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='%23ba9305' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .column-filter option { background: #1e293b; color: #cbd5e1; }
+
+  th.filter-active { border-bottom-color: #ba9305; }
+
+  td { padding: 14px 18px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
   tbody tr { transition: background 0.15s; }
-  tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
+  tbody tr:hover { background: rgba(30,41,59,0.6); }
 
   .rank { color: #64748b; font-weight: 700; font-size: 13px; }
   .rank.top3 { color: #ba9305; font-size: 15px; }
@@ -355,39 +204,20 @@
   .branch-cell { font-size: 13px; color: #94a3b8; }
 
   .pct-badge {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 99px;
-    font-weight: 800;
-    font-size: 13px;
-    min-width: 70px;
-    text-align: center;
+    display: inline-block; padding: 4px 14px; border-radius: 99px;
+    font-weight: 800; font-size: 13px; min-width: 70px; text-align: center;
   }
-
-  .pct-high { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
-  .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
-  .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+  .pct-high { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .pct-medium { background: rgba(250,204,21,0.12); color: #facc15; }
+  .pct-low { background: rgba(239,68,68,0.12); color: #ef4444; }
 
   .orders-cell { font-weight: 700; color: #e2e8f0; }
 
   .status-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
   }
-
-  .status-dot::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
+  .status-dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .status-on-track { color: #22c55e; }
   .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
@@ -399,48 +229,27 @@
   .loading-row td { text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px; }
 
   .loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #334155;
-    border-top-color: #ba9305;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 10px;
+    display: inline-block; width: 20px; height: 20px;
+    border: 3px solid #334155; border-top-color: #ba9305;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 10px;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
 
   footer {
-    text-align: center;
-    padding: 14px;
-    font-size: 12px;
-    background: #0f172a;
-    color: #475569;
-    border-top: 1px solid #1e293b;
+    text-align: center; padding: 14px; font-size: 12px;
+    background: #0f172a; color: #475569; border-top: 1px solid #1e293b;
   }
-
   footer span.highlight { color: #ba9305; font-weight: 600; }
 
   .toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-left: 4px solid #ef4444;
-    color: #f1f5f9;
-    padding: 16px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    z-index: 999;
-    transform: translateX(120%);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    position: fixed; bottom: 30px; right: 30px;
+    background: #1e293b; border: 1px solid #334155; border-left: 4px solid #ef4444;
+    color: #f1f5f9; padding: 16px 24px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 999; transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
   }
-
   .toast.show { transform: translateX(0); }
 
   @media (max-width: 768px) {
@@ -453,6 +262,7 @@
     .branch-perf-info { min-width: 100%; }
     .branch-selector { min-width: 100%; }
     .search-box { width: 100%; }
+    .table-actions { width: 100%; flex-direction: column; }
     th:nth-child(6), td:nth-child(6) { display: none; }
   }
 </style>
@@ -520,18 +330,58 @@
       <span class="table-title">Telesales Ranking</span>
       <span class="table-count" id="tableCount">0 people</span>
     </div>
-    <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+    <div class="table-actions">
+      <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+      <button class="clear-filters-btn" id="clearFiltersBtn">Clear Filters</button>
+    </div>
   </div>
   <div class="table-wrap" id="tableWrap">
     <table>
       <thead>
         <tr>
           <th>#</th>
-          <th>Telesale Name</th>
-          <th>Branch</th>
-          <th>Sales (%)</th>
-          <th>Orders</th>
-          <th>Status</th>
+          <th><div class="th-content"><span class="th-label">Telesale Name</span></div></th>
+          <th><div class="th-content"><span class="th-label">Branch</span></div></th>
+          <th>
+            <div class="th-content">
+              <span class="th-label">Sales (%)</span>
+              <select class="column-filter select-filter" id="salesFilter">
+                <option value="">All Sales</option>
+                <option value="high">≥ 80%</option>
+                <option value="medium">50% – 79%</option>
+                <option value="low">&lt; 50%</option>
+              </select>
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              <span class="th-label sortable-th" id="ordersSortLabel">
+                Orders <span id="ordersSortIcon" class="sort-icon">↕</span>
+              </span>
+              <select class="column-filter select-filter" id="ordersFilter">
+                <option value="">All Orders</option>
+                <option value="1-10">1 – 10</option>
+                <option value="11-20">11 – 20</option>
+                <option value="21-30">21 – 30</option>
+                <option value="31-40">31 – 40</option>
+                <option value="41-50">41 – 50</option>
+                <option value="51-70">51 – 70</option>
+                <option value="71-100">71 – 100</option>
+                <option value="100+">100+</option>
+              </select>
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              <span class="th-label">Status</span>
+              <select class="column-filter select-filter" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="on-track">Achieved</option>
+                <option value="at-risk">Average</option>
+                <option value="below">Off Track</option>
+              </select>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -644,6 +494,7 @@
   let allRawData = [];
   let filteredData = [];
   let displayedData = [];
+  let ordersSortState = 'none'; // 'none', 'desc', 'asc'
 
   function formatCurrency(num) {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
@@ -751,7 +602,7 @@
       ? `in ${branchNames[selectedBranch] || "selected branch"}`
       : "across all branches";
 
-        // Deficit card — gap to reach 80% of target
+    // Deficit card
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
     const deficitSubEl = document.getElementById("statDeficitSub");
@@ -777,7 +628,6 @@
     perfEl.textContent = branchPerf.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    // Detail line
     let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
     if (deficit > 0) {
       detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
@@ -788,8 +638,6 @@
     }
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
 
-
-    // Bar
     const bar = document.getElementById("branchPerfBar");
     const barPct = Math.min(branchPerf, 100);
     bar.style.width = barPct + "%";
@@ -803,22 +651,120 @@
     marker50.className = branchPerf < 50 ? "active-marker" : "";
 
     filteredData = processed;
-    applySearch();
+    
+    // Reset sort state when data is freshly loaded
+    ordersSortState = 'none';
+    updateSortIcon();
+    
+    applyFilters();
   }
 
-  function applySearch() {
-    const q = document.getElementById("searchBox").value.toLowerCase().trim();
+  function applyFilters() {
+    const q           = document.getElementById("searchBox").value.toLowerCase().trim();
+    const salesFilter  = document.getElementById("salesFilter").value;
+    const ordersFilter = document.getElementById("ordersFilter").value;
+    const statusFilter = document.getElementById("statusFilter").value;
 
-    if (!q) {
-      displayedData = filteredData;
-    } else {
-      displayedData = filteredData.filter(d =>
-        (d.salesPersonName || "").toLowerCase().includes(q) ||
-        (d.branchName || "").toLowerCase().includes(q)
-      );
+    displayedData = filteredData.filter(d => {
+      if (q) {
+        const nameMatch   = (d.salesPersonName || "").toLowerCase().includes(q);
+        const branchMatch = (d.branchName || "").toLowerCase().includes(q);
+        if (!nameMatch && !branchMatch) return false;
+      }
+
+      if (salesFilter === "high"   && d.score < 80) return false;
+      if (salesFilter === "medium" && (d.score < 50 || d.score >= 80)) return false;
+      if (salesFilter === "low"    && d.score >= 50) return false;
+
+      // Exact Intervals for Orders
+      const orders = Number(d.totalDaysCustomers || 0);
+      if (ordersFilter === "1-10"   && (orders < 1   || orders > 10))  return false;
+      if (ordersFilter === "11-20"  && (orders < 11  || orders > 20))  return false;
+      if (ordersFilter === "21-30"  && (orders < 21  || orders > 30))  return false;
+      if (ordersFilter === "31-40"  && (orders < 31  || orders > 40))  return false;
+      if (ordersFilter === "41-50"  && (orders < 41  || orders > 50))  return false;
+      if (ordersFilter === "51-70"  && (orders < 51  || orders > 70))  return false;
+      if (ordersFilter === "71-100" && (orders < 71  || orders > 100)) return false;
+      if (ordersFilter === "100+"   && orders < 101) return false;
+
+      if (statusFilter === "on-track" && d.score < 80) return false;
+      if (statusFilter === "at-risk"  && (d.score < 50 || d.score >= 80)) return false;
+      if (statusFilter === "below"    && d.score >= 50) return false;
+
+      return true;
+    });
+
+    // Apply Sorting
+    if (ordersSortState === 'desc') {
+      displayedData.sort((a, b) => Number(b.totalDaysCustomers || 0) - Number(a.totalDaysCustomers || 0));
+    } else if (ordersSortState === 'asc') {
+      displayedData.sort((a, b) => Number(a.totalDaysCustomers || 0) - Number(b.totalDaysCustomers || 0));
     }
 
     renderTable(displayedData);
+    updateClearButton();
+    updateFilterIndicators();
+  }
+
+  function toggleOrdersSort() {
+    // Toggle directly between Descending and Ascending
+    if (ordersSortState === 'desc') {
+      ordersSortState = 'asc';
+    } else {
+      // If 'none' or 'asc', default to 'desc' first
+      ordersSortState = 'desc';
+    }
+    
+    updateSortIcon();
+    applyFilters();
+  }
+
+  function updateSortIcon() {
+    const label = document.getElementById("ordersSortLabel");
+    const icon = document.getElementById("ordersSortIcon");
+    if (ordersSortState === 'asc') {
+      icon.textContent = '▲';
+      label.classList.add('sorted');
+    } else if (ordersSortState === 'desc') {
+      icon.textContent = '▼';
+      label.classList.add('sorted');
+    } else {
+      icon.textContent = '↕';
+      label.classList.remove('sorted');
+    }
+  }
+
+  function updateClearButton() {
+    const activeCount = [
+      document.getElementById("searchBox").value,
+      document.getElementById("salesFilter").value,
+      document.getElementById("ordersFilter").value,
+      document.getElementById("statusFilter").value
+    ].filter(v => v.trim()).length;
+
+    const btn = document.getElementById("clearFiltersBtn");
+    if (activeCount > 0) {
+      btn.classList.add("has-filters");
+      btn.innerHTML = `Clear Filters <span class="filter-count">${activeCount}</span>`;
+    } else {
+      btn.classList.remove("has-filters");
+      btn.textContent = "Clear Filters";
+    }
+  }
+
+  function updateFilterIndicators() {
+    const ths = document.querySelectorAll("thead th");
+    ths[3].classList.toggle("filter-active", !!document.getElementById("salesFilter").value);
+    ths[4].classList.toggle("filter-active", !!document.getElementById("ordersFilter").value);
+    ths[5].classList.toggle("filter-active", !!document.getElementById("statusFilter").value);
+  }
+
+  function clearAllFilters() {
+    document.getElementById("searchBox").value   = "";
+    document.getElementById("salesFilter").value  = "";
+    document.getElementById("ordersFilter").value = "";
+    document.getElementById("statusFilter").value = "";
+    applyFilters();
   }
 
   function renderTable(data) {
@@ -828,49 +774,54 @@
       data.length + (data.length === 1 ? " person" : " people");
 
     if (!data.length) {
-      tbody.innerHTML =
-        `<tr class="no-data-row"><td colspan="6">No telesales data found</td></tr>`;
+      const hasFilters =
+        document.getElementById("searchBox").value ||
+        document.getElementById("salesFilter").value ||
+        document.getElementById("ordersFilter").value ||
+        document.getElementById("statusFilter").value;
+      tbody.innerHTML = hasFilters
+        ? `<tr class="no-data-row"><td colspan="6">No data matches your filters. Try clearing some filters.</td></tr>`
+        : `<tr class="no-data-row"><td colspan="6">No telesales data found</td></tr>`;
       return;
     }
 
     let html = "";
-
     data.forEach((item, i) => {
-      const sales = item.score;
+      const sales  = item.score;
       const orders = Number(item.totalDaysCustomers || 0);
-      const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
+      const pctClass    = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
       const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
-      const statusText = sales >= 80 ? "Achieved" : sales >= 50 ? "Average" : "Off Track";
-      const rankClass = i < 3 ? "rank top3" : "rank";
+      const statusText  = sales >= 80 ? "Achieved" : sales >= 50 ? "Average" : "Off Track";
+      const rankClass   = i < 3 ? "rank top3" : "rank";
 
       html += `
         <tr>
           <td class="${rankClass}">${i + 1}</td>
           <td class="sales-name">${item.salesPersonName}</td>
           <td class="branch-cell">${item.branchName}</td>
-          <td style="text-align:center;">
-            <span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span>
-          </td>
+          <td style="text-align:center;"><span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span></td>
           <td class="orders-cell" style="text-align:center;">${orders}</td>
-          <td style="text-align:center;">
-            <span class="status-dot ${statusClass}">${statusText}</span>
-          </td>
-        </tr>
-      `;
+          <td style="text-align:center;"><span class="status-dot ${statusClass}">${statusText}</span></td>
+        </tr>`;
     });
 
     tbody.innerHTML = html;
   }
 
-  branchSelect.addEventListener("change", () => {
-    loadAllData();
-  });
+  // ── Event listeners ──
+  branchSelect.addEventListener("change", () => loadAllData());
 
   let searchDebounce = null;
   document.getElementById("searchBox").addEventListener("input", () => {
     if (searchDebounce) clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(applySearch, 200);
+    searchDebounce = setTimeout(applyFilters, 200);
   });
+
+  document.getElementById("salesFilter").addEventListener("change", applyFilters);
+  document.getElementById("ordersFilter").addEventListener("change", applyFilters);
+  document.getElementById("statusFilter").addEventListener("change", applyFilters);
+  document.getElementById("ordersSortLabel").addEventListener("click", toggleOrdersSort);
+  document.getElementById("clearFiltersBtn").addEventListener("click", clearAllFilters);
 
   loadAllData();
   setInterval(loadAllData, 120000);
