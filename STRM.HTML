@@ -88,6 +88,7 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 <div class="sc"><div class="v" id="s4">--</div><div class="l">Total Items</div></div>
 <div class="sc"><div class="v" id="s5">--</div><div class="l">Avg Score</div></div>
 <div class="sc"><div class="v" id="s6">--</div><div class="l">Top Score</div></div>
+<div class="sc"><div class="v" id="s8">--</div><div class="l">Total Order Value</div></div>
 <div class="sc"><div class="v" id="s7">--</div><div class="l">Branches</div></div>
 </div>
 <div class="tc" id="tc">
@@ -275,6 +276,11 @@ function updSt(d) {
     const av = n ? d.reduce((s, a) => s + a.pf.score, 0) / n : 0;
     document.getElementById('s5').textContent = av.toFixed(1) + '%';
     document.getElementById('s6').textContent = n ? Math.max(...d.map(a => a.pf.score)).toFixed(1) + '%' : '0%';
+    
+    /* Total Order Value Calculation */
+    const totalVal = d.reduce((s, a) => s + (a.orderAmount || 0), 0);
+    document.getElementById('s8').textContent = totalVal.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    
     document.getElementById('s7').textContent = new Set(d.map(a => a.orgBranchName)).size;
 }
 
