@@ -393,17 +393,27 @@ async function loadAllPages() {
     `;
 
     /* ================= PROCESS ================= */
-    const processed = allData
-      .map(d => {
-        let score = d.dailySalesScore;
-        if (typeof score === "string") {
-          score = score.replace("%", "");
-        }
-        score = Number(score);
-        return { ...d, score };
-      })
-      .filter(d => !isNaN(d.score) && d.score > 0)
-      .sort((a, b) => b.score - a.score);
+    // People to hide from the display
+ const hiddenSalesPeople = [
+  "Triphonia Wanza",
+  "Maronga Ombaso Benerd",
+  "Dennis Nyabuto Nyaberi"
+  ];
+
+const processed = allData
+  .map(d => {
+    let score = d.dailySalesScore;
+    if (typeof score === "string") {
+      score = score.replace("%", "");
+    }
+    score = Number(score);
+    return { ...d, score };
+  })
+  // Keep valid scores only
+  .filter(d => !isNaN(d.score) && d.score > 0)
+  // Hide selected salespeople from the table only
+  .filter(d => !hiddenSalesPeople.includes(d.salesPersonName))
+  .sort((a, b) => b.score - a.score);
 
     renderTable(processed);
 
@@ -456,7 +466,7 @@ function renderTable(data) {
 
 /* ================= INIT ================= */
 loadAllPages();
-setInterval(loadAllPages, 30000);
+setInterval(loadAllPages, 120000);
 </script>
 
 </body>
