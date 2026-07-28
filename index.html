@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard Hub</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; padding: 50px; margin: 0; }
+        h1 { color: #333; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .dashboard-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-decoration: none; color: #333; width: 250px; transition: transform 0.2s; }
+        .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #007bff; }
+        .dashboard-card h2 { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Select a Dashboard</h1>
+    <p>Click on a dashboard below to view it.</p>
+    
+    <div class="container">
+        <!-- TEL Dashboard -->
+        <a href="TEL.html" class="dashboard-card">
+            <h2>TEL Dashboard</h2>
+            <p>View TEL data</p>
+        </a>
+        
+        <!-- Store M&E Dashboard -->
+        <a href="StoreM&E.html" class="dashboard-card">
+            <h2>Store M&E Dashboard</h2>
+            <p>View Store Monitoring & Evaluation</p>
+        </a>
+    </div>
+</body>
+</html>
