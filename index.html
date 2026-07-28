@@ -3,31 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Dashboard Hub</title>
+    <title>Dashboard Hub | Analytics Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; padding: 50px; margin: 0; }
-        h1 { color: #333; }
-        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .dashboard-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-decoration: none; color: #333; width: 250px; transition: transform 0.2s; }
-        .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #007bff; }
-        .dashboard-card h2 { color: #007bff; }
+        /* CSS Reset and Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            overflow-x: hidden;
+            padding: 40px 20px;
+        }
+
+        /* Animated Background Blobs */
+        .blob { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.4; }
+        .blob1 { width: 300px; height: 300px; background: #3b82f6; top: -50px; left: -50px; animation: float 8s infinite ease-in-out; }
+        .blob2 { width: 400px; height: 400px; background: #8b5cf6; bottom: -100px; right: -100px; animation: float 10s infinite ease-in-out reverse; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -40px); }
+        }
+
+        /* Header Styles */
+        h1 { 
+            font-size: 2.8rem; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            font-weight: 700; 
+            background: linear-gradient(to right, #60a5fa, #a78bfa, #f472b6); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        p.subtitle { color: #94a3b8; margin-bottom: 50px; text-align: center; font-weight: 300; font-size: 1.1rem; }
+
+        /* Card Container */
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; width: 100%; max-width: 1200px; }
+        
+        /* Dashboard Cards (Glassmorphism) */
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #f8fafc;
+            width: 300px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Glowing top border */
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            transition: height 0.3s ease;
+        }
+        .tel::before { background: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
+        .strm::before { background: #c084fc; box-shadow: 0 0 15px #c084fc; }
+        .conf::before { background: #fbbf24; box-shadow: 0 0 15px #fbbf24; }
+
+        /* Hover Effects */
+        .dashboard-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        .dashboard-card:hover::before { height: 8px; }
+
+        /* Icons */
+        .icon-box {
+            width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+            border-radius: 50%;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s ease, background 0.4s ease;
+        }
+        .dashboard-card:hover .icon-box { transform: rotate(10deg) scale(1.1); }
+
+        .dashboard-card h2 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 600; }
+        .dashboard-card p { font-size: 0.95rem; color: #94a3b8; font-weight: 300; line-height: 1.6; margin-bottom: 25px; }
+        
+        .view-btn {
+            margin-top: auto;
+            padding: 10px 25px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .tel:hover .view-btn { background: #38bdf8; color: #0f172a; }
+        .strm:hover .view-btn { background: #c084fc; color: #0f172a; }
+        .conf:hover .view-btn { background: #fbbf24; color: #0f172a; }
+
+        /* Entrance Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dashboard-card { animation: fadeInUp 0.8s ease-out backwards; }
+        .dashboard-card:nth-child(1) { animation-delay: 0.2s; }
+        .dashboard-card:nth-child(2) { animation-delay: 0.4s; }
+        .dashboard-card:nth-child(3) { animation-delay: 0.6s; }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .dashboard-card { width: 100%; max-width: 350px; }
+        }
     </style>
 </head>
 <body>
-    <h1>Select a Dashboard</h1>
-    <p>Click on a dashboard below to view it.</p>
+    <!-- Background Shapes -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <h1>Analytics Hub</h1>
+    <p class="subtitle">Select a dashboard to explore real-time insights</p>
     
     <div class="container">
         <!-- TEL Dashboard -->
-        <a href="TEL.html" class="dashboard-card">
+        <a href="TEL.HTML" class="dashboard-card tel">
+            <div class="icon-box">📈</div>
             <h2>TEL Dashboard</h2>
-            <p>View TEL data</p>
+            <p>Dive into detailed TEL performance metrics and visual data trends.</p>
+            <div class="view-btn">Open Dashboard</div>
         </a>
         
-        <!-- Store M&E Dashboard -->
-        <a href="StoreM&E.html" class="dashboard-card">
-            <h2>Store M&E Dashboard</h2>
-            <p>View Store Monitoring & Evaluation</p>
+        <!-- STRM Dashboard -->
+        <a href="STRM.HTML" class="dashboard-card strm">
+            <div class="icon-box">🛒</div>
+            <h2>STRM Dashboard</h2>
+            <p>Monitor comprehensive store metrics and evaluation reports.</p>
+            <div class="view-btn">Open Dashboard</div>
+        </a>
+
+        <!-- Conf M&E Dashboard -->
+        <a href="confM&E.html" class="dashboard-card conf">
+            <div class="icon-box">🗂️</div>
+            <h2>Conf M&E</h2>
+            <p>Track conference monitoring and evaluation analytics seamlessly.</p>
+            <div class="view-btn">Open Dashboard</div>
         </a>
     </div>
 </body>
