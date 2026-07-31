@@ -165,14 +165,13 @@ setInterval(updClk, 1000); updClk();
 function fdu(d) { return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
 function fdn(s) { if(!s) return ''; return new Date(s+'T00:00:00Z').toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}); }
 
-/* Get the fetch window: [Jan 1st of current year, today] */
+/* Get the fetch window: last 90 days (today - 89 days → today) */
 function getFetchWindow() {
     const now = new Date();
     const end = fdu(now);
-    // Dynamically fetch starting from January 1st of the current year.
-    // If you strictly want January 2026, change to: new Date(Date.UTC(2026, 0, 1))
-    const start = fdu(new Date(Date.UTC(now.getUTCFullYear(), 0, 1))); 
-    return { s: start, e: end };
+    const startD = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    startD.setUTCDate(startD.getUTCDate() - (FETCH_DAYS - 1));
+    return { s: fdu(startD), e: end };
 }
 
 function gdr(k) {
@@ -294,7 +293,7 @@ function updRi(s, e, tc, fc) {
         '<span class="gr">✅ Filtered by <span class="pu">' + DF + '</span> (raw UTC)</span> · ' +
         '<span class="bl">Period:</span> ' + fdn(s) + ' — ' + fdn(e) + ' <span style="color:#4a6580">(' + d + (d === 1 ? ' day' : ' days') + ')</span> · ' +
         '<span class="gr">' + fc.toLocaleString() + ' of ' + tc.toLocaleString() + ' records</span> · ' +
-        '<span class="cy">🔄 Fetch window: Since Jan ' + new Date().getUTCFullYear() + '</span>';
+        '<span class="cy">🔄 Fetch window: Last 90 Days</span>';
 }
 
 function buildRows(d) {
@@ -370,9 +369,9 @@ async function go(sl) {
     fetching = true;
     const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
     
-    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (Since Jan ' + new Date().getUTCFullYear() + ')...</td></tr>';
+    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (Last 90 Days)...</td></tr>';
 
-    /* Fetch from Jan 1st of current year to today */
+    /* Fetch last 90 days */
     var fw = getFetchWindow();
     var fetchParams = 'startDate=' + fw.s + '&endDate=' + fw.e;
 
@@ -613,7 +612,7 @@ async function exportExcel() {
         { metric: 'Period End', value: fdn(eVal) },
         { metric: 'Period Days', value: pd },
         { metric: 'Branch Filter', value: brVal === 'ALL' ? 'All Branches' : brVal },
-        { metric: 'Backend Fetch Window', value: 'Since Jan ' + new Date().getUTCFullYear() },
+        { metric: 'Backend Fetch Window', value: 'Last 90 Days' },
         { metric: '', value: '' },
         { metric: 'Total Attendants', value: data.length },
         { metric: 'Total Orders', value: totalOrders.toLocaleString() },
