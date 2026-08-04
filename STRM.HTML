@@ -39,11 +39,11 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .tc::-webkit-scrollbar-track{background:#0f1923}
 .tc::-webkit-scrollbar-thumb{background:#2c3e50;border-radius:3px}
 table{width:100%;border-collapse:collapse}
-th,td{padding:8px;text-align:center;border-bottom:1px solid #1a2a3a;font-size:12px;white-space:nowrap}
-th{background:#162230;color:#8fa4b8;font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;position:sticky;top:0;z-index:10;border-bottom:2px solid #e67e22}
-tr.rh{background:rgba(39,174,96,.12);border-left:4px solid #27ae60}
-tr.rm{background:rgba(241,196,15,.1);border-left:4px solid #f1c40f}
-tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
+th,td{padding:8px;text-align:center;font-size:12px;white-space:nowrap;border:none !important}
+th{background:#162230;color:#8fa4b8;font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;position:sticky;top:0;z-index:10}
+tr.rh{background:rgba(39,174,96,.12)}
+tr.rm{background:rgba(241,196,15,.1)}
+tr.rl{background:rgba(231,76,60,.1)}
 .rb{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-weight:800;font-size:11px}
 .r1{background:linear-gradient(135deg,#f1c40f,#e67e22);color:#1a1a1a}
 .r2{background:linear-gradient(135deg,#bdc3c7,#95a5a6);color:#1a1a1a}
@@ -66,6 +66,32 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);box-shadow:0 6px 20px rgba(39,174,96,.4);pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:linear-gradient(135deg,#e74c3c,#c0392b);box-shadow:0 6px 20px rgba(231,76,60,.4)}
+
+/* --- INACTIVE STAFF STYLING (Pure Red Background, Black Italic Text) --- */
+tr.inactive-staff, tr.inactive-staff td {
+    background-color: #FF0000 !important; /* Pure Red */
+    color: #000000 !important;           /* Black text */
+    font-style: italic !important;
+}
+tr.inactive-staff .bt, tr.inactive-staff .db {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #000000 !important;
+    font-style: italic !important;
+}
+tr.inactive-staff .rb {
+    background-color: #000000 !important;
+    color: #FF0000 !important;
+    font-style: normal !important; 
+}
+tr.inactive-staff .sbw {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+tr.inactive-staff .sb2 {
+    background-color: #000000 !important;
+}
+tr.inactive-staff .st {
+    color: #000000 !important;
+}
 </style>
 </head>
 <body>
@@ -93,8 +119,8 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 </div>
 <div class="tc" id="tc">
 <table><thead><tr>
-<th style="width:46px">Rank</th><th>Store Attendant</th><th>Branch</th><th>Entries</th><th>Hrs Worked</th><th>Total Orders</th><th>Line Items</th><th>Items/Hr</th><th>Orders/Hr</th><th>Avg Order Val</th><th>Order Value</th><th style="width:120px">Efficiency</th>
-</tr></thead><tbody id="tb"><tr><td colspan="12" class="lm">Loading data...</td></tr></tbody></table>
+<th style="width:46px">Rank</th><th>Store Attendant</th><th>Branch</th><th>Entries</th><th>Hrs Worked</th><th>Total Orders</th><th>Line Items</th><th>Items/Hr</th><th>Orders/Hr</th><th>Avg Order Val</th><th>Order Value</th><th>Last Duty</th><th style="width:120px">Efficiency</th>
+</tr></thead><tbody id="tb"><tr><td colspan="13" class="lm">Loading data...</td></tr></tbody></table>
 </div>
 
 <!-- Blue Footer -->
@@ -213,23 +239,27 @@ function burl(p) {
     return b + 'store-picker-reports' + (p ? '?' + p : '');
 }
 
-function agg(raw) {
+function agg(rawData) {
     const m = {};
-    raw.forEach(r => {
+    rawData.forEach(r => {
         if (r.isDeleted) return;
         const n = (r.storePickerName || '').trim(), br = (r.orgBranchName || '').trim();
         if (!n) return;
         const k = n + '|||' + br;
-        if (!m[k]) m[k] = { storePickerName: n, orgBranchName: br, numberOfOrders: 0, numberOfLineItems: 0, orderAmount: 0, ec: 0 };
+        if (!m[k]) m[k] = { storePickerName: n, orgBranchName: br, numberOfOrders: 0, numberOfLineItems: 0, orderAmount: 0, ec: 0, maxDate: '' };
         m[k].numberOfOrders += (r.numberOfOrders || 0);
         m[k].numberOfLineItems += (r.numberOfLineItems || 0);
         m[k].orderAmount += (r.orderAmount || 0);
         m[k].ec += 1;
+        
+        // Track the most recent date they were on duty
+        const d = exd(r);
+        if (d && d > m[k].maxDate) m[k].maxDate = d;
     });
     return Object.values(m).map(a => {
         const d = Math.max(1, a.ec);
         delete a.ec;
-        return { ...a, daysWorked: d, hoursWorked: d * 10 };
+        return { ...a, daysWorked: d, hoursWorked: d * 10, lastDutyDate: a.maxDate };
     });
 }
 
@@ -288,7 +318,6 @@ function updSt(d) {
 
 function updRi(s, e, tc, fc) {
     const d = gpd(s, e);
-    const fw = getFetchWindow();
     document.getElementById('ri').innerHTML =
         '<span class="gr">✅ Filtered by <span class="pu">' + DF + '</span> (raw UTC)</span> · ' +
         '<span class="bl">Period:</span> ' + fdn(s) + ' — ' + fdn(e) + ' <span style="color:#4a6580">(' + d + (d === 1 ? ' day' : ' days') + ')</span> · ' +
@@ -297,12 +326,25 @@ function updRi(s, e, tc, fc) {
 }
 
 function buildRows(d) {
-    if (!d.length) return '<tr><td colspan="12" class="em">No data found for this selection.</td></tr>';
+    if (!d.length) return '<tr><td colspan="13" class="em">No data found for this selection.</td></tr>';
     calcPct(d);
     d.sort((a, b) => b.pf.score - a.pf.score);
+    
+    // Calculate 10 days ago from today for inactive check
+    const todayD = new Date();
+    const tenDaysAgo = new Date(Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate() - 10));
+    const tenDaysAgoStr = fdu(tenDaysAgo);
+    
     return d.map((a, i) => {
         const r = i + 1, sc = scc(a.pf.score), rc = rkc(r), rw = rwc(a.pf.score), dc = a.daysWorked >= pd ? 'f' : 'p';
-        return '<tr class="' + rw + '"><td><span class="rb ' + rc + '">' + r + '</span></td><td class="an">' + (a.storePickerName || '—') + '</td><td><span class="bt" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || '—') + '</span></td><td><span class="db ' + dc + '">' + a.daysWorked + '/' + pd + '</span></td><td>' + a.hoursWorked + '</td><td>' + a.numberOfOrders.toLocaleString() + '</td><td>' + a.numberOfLineItems.toLocaleString() + '</td><td>' + a.pf.itemsPerHour.toFixed(2) + '</td><td>' + a.pf.ordersPerHour.toFixed(2) + '</td><td>' + a.pf.avgOrderValue.toFixed(0) + '</td><td>' + (a.orderAmount || 0).toLocaleString() + '</td><td><div class="scl ' + sc + '"><div class="sbw"><div class="sb2" style="width:' + a.pf.score + '%"></div></div><span class="st">' + a.pf.score.toFixed(1) + '%</span></div></td></tr>';
+        
+        // Check if staff has not been on duty for the last 10 days
+        let inactiveClass = '';
+        if (a.lastDutyDate && a.lastDutyDate < tenDaysAgoStr) {
+            inactiveClass = ' inactive-staff';
+        }
+        
+        return '<tr class="' + rw + inactiveClass + '"><td><span class="rb ' + rc + '">' + r + '</span></td><td class="an">' + (a.storePickerName || '—') + '</td><td><span class="bt" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || '—') + '</span></td><td><span class="db ' + dc + '">' + a.daysWorked + '/' + pd + '</span></td><td>' + a.hoursWorked + '</td><td>' + a.numberOfOrders.toLocaleString() + '</td><td>' + a.numberOfLineItems.toLocaleString() + '</td><td>' + a.pf.itemsPerHour.toFixed(2) + '</td><td>' + a.pf.ordersPerHour.toFixed(2) + '</td><td>' + a.pf.avgOrderValue.toFixed(0) + '</td><td>' + (a.orderAmount || 0).toLocaleString() + '</td><td>' + (a.lastDutyDate ? fdn(a.lastDutyDate) : '—') + '</td><td><div class="scl ' + sc + '"><div class="sbw"><div class="sb2" style="width:' + a.pf.score + '%"></div></div><span class="st">' + a.pf.score.toFixed(1) + '%</span></div></td></tr>';
     }).join('');
 }
 
@@ -369,7 +411,7 @@ async function go(sl) {
     fetching = true;
     const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
     
-    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (Last 90 Days)...</td></tr>';
+    if (!sl) tb.innerHTML = '<tr><td colspan="13" class="lm">Loading data (Last 90 Days)...</td></tr>';
 
     /* Fetch last 90 days */
     var fw = getFetchWindow();
@@ -383,7 +425,7 @@ async function go(sl) {
     }
 
     if (!data.length) {
-        if (!sl) tb.innerHTML = '<tr><td colspan="12" class="em">Failed to fetch data<br><small style="color:#e67e22">' + burl(fetchParams) + '</small><br><small style="color:#8fa4b8">Error: ' + (err ? err.message : 'Unknown') + '</small></td></tr>';
+        if (!sl) tb.innerHTML = '<tr><td colspan="13" class="em">Failed to fetch data<br><small style="color:#e67e22">' + burl(fetchParams) + '</small><br><small style="color:#8fa4b8">Error: ' + (err ? err.message : 'Unknown') + '</small></td></tr>';
         fetching = false;
         return;
     }
@@ -393,21 +435,11 @@ async function go(sl) {
     document.getElementById('lu').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     if (sl) {
-        /*
-         * Silent backend refresh.
-         * Do NOT read or write any UI control values.
-         * applyF() reads the CURRENT sd/ed values (whatever the user has right now),
-         * re-filters raw data, re-aggregates, and calls proc() → applyBr()
-         * which reads the CURRENT branch selection and re-renders the table.
-         * Quick-range buttons, date inputs, and branch dropdown are never touched.
-         * Scroll position is preserved via the silent flag.
-         */
         silent = true;
         applyF();
         silent = false;
         tc.scrollTop = sv;
     } else {
-        /* Initial load — apply filters, then restore branch from localStorage */
         silent = false;
         applyF();
         var savedBranch = localStorage.getItem(BK);
@@ -457,10 +489,10 @@ async function exportExcel() {
     // === Sheet 1: Performance Data ===
     const ws1 = wb.addWorksheet('Store Attendant Performance', {
         properties: { defaultRowHeight: 22 },
-        views: [{ showGridLines: false }] // Hide gridlines for a cleaner UI look
+        views: [{ showGridLines: false }]
     });
 
-    // Define Columns
+    // Define Columns (Added Last Duty Date)
     ws1.columns = [
         { header: 'Rank', key: 'rank', width: 8 },
         { header: 'Store Attendant', key: 'name', width: 30 },
@@ -473,6 +505,7 @@ async function exportExcel() {
         { header: 'Orders/Hr', key: 'oph', width: 12 },
         { header: 'Avg Order Val', key: 'aov', width: 16 },
         { header: 'Order Value', key: 'ov', width: 16 },
+        { header: 'Last Duty Date', key: 'lastduty', width: 16 },
         { header: 'Efficiency Score', key: 'score', width: 18 },
         { header: 'Performance', key: 'perf', width: 15 }
     ];
@@ -481,39 +514,39 @@ async function exportExcel() {
     const headerRow = ws1.getRow(1);
     headerRow.height = 26;
     headerRow.eachCell((cell) => {
-        cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF162230' } // Dark blue header
-        };
-        cell.font = {
-            color: { argb: 'FFE67E22' }, // Orange text
-            bold: true,
-            size: 11
-        };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
+        cell.font = { color: { argb: 'FFE67E22' }, bold: true, size: 11 };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.border = {
-            bottom: { style: 'thin', color: { argb: 'FFE67E22' } } // Orange bottom border
-        };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE67E22' } } };
     });
+
+    // Calculate 10 days ago for Excel export as well
+    const todayD = new Date();
+    const tenDaysAgo = new Date(Date.UTC(todayD.getUTCFullYear(), todayD.getUTCMonth(), todayD.getUTCDate() - 10));
+    const tenDaysAgoStr = fdu(tenDaysAgo);
 
     // Add Data Rows
     data.forEach((a, i) => {
         const r = i + 1;
         const score = a.pf.score;
         const perf = score >= 80 ? 'High' : score >= 50 ? 'Medium' : 'Low';
+        const isInactive = a.lastDutyDate && a.lastDutyDate < tenDaysAgoStr;
         
-        // Determine row background based on performance (mimicking HTML)
+        // Determine row background based on performance OR inactivity
         let rowBg = 'FF0F1923'; // Default dark
-        if (score >= 80) rowBg = 'FF13241A'; // Dark green
-        else if (score >= 50) rowBg = 'FF242118'; // Dark yellow
-        else rowBg = 'FF241511'; // Dark red
+        if (isInactive) {
+            rowBg = 'FFFF0000'; // Pure Red highlight for inactive
+        } else if (score >= 80) rowBg = 'FF13241A';
+        else if (score >= 50) rowBg = 'FF242118';
+        else rowBg = 'FF241511';
 
         // Determine score font color
         let scoreColor = 'FFE0E6ED';
-        if (score >= 80) scoreColor = 'FF27AE60'; // Green
-        else if (score >= 50) scoreColor = 'FFF1C40F'; // Yellow
-        else scoreColor = 'FFE74C3C'; // Red
+        if (isInactive) {
+            scoreColor = 'FF000000'; // Black text for inactive
+        } else if (score >= 80) scoreColor = 'FF27AE60';
+        else if (score >= 50) scoreColor = 'FFF1C40F';
+        else scoreColor = 'FFE74C3C';
 
         const row = ws1.addRow({
             rank: r,
@@ -527,6 +560,7 @@ async function exportExcel() {
             oph: parseFloat(a.pf.ordersPerHour.toFixed(2)),
             aov: parseFloat(a.pf.avgOrderValue.toFixed(0)),
             ov: parseFloat((a.orderAmount || 0).toFixed(0)),
+            lastduty: a.lastDutyDate ? fdn(a.lastDutyDate) : '—',
             score: parseFloat(score.toFixed(1)),
             perf: perf
         });
@@ -535,24 +569,24 @@ async function exportExcel() {
         
         // Style Individual Cells in the Row
         row.eachCell((cell, colNumber) => {
-            // Base styling for all cells
-            cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: rowBg }
-            };
-            cell.font = {
-                color: { argb: 'FFE0E6ED' }, // Light grey text
-                size: 11
-            };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
+            
+            // Font styling (Black italic if inactive)
+            if (isInactive) {
+                cell.font = { color: { argb: 'FF000000' }, italic: true, size: 11 };
+            } else {
+                cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
+            }
+            
             cell.alignment = { vertical: 'middle', horizontal: 'center' };
-            cell.border = {
-                bottom: { style: 'thin', color: { argb: 'FF1A2A3A' } }
-            };
+            cell.border = {};
 
             // Special styling for Rank (Badges)
             if (colNumber === 1) {
-                if (r === 1) {
+                if (isInactive) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF000000' } };
+                    cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 11, italic: true };
+                } else if (r === 1) {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1C40F' } };
                     cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
                 } else if (r === 2) {
@@ -577,10 +611,11 @@ async function exportExcel() {
                 cell.numFmt = '0.00';
             }
             
-            // Score text color
-            if (colNumber === 12) {
+            // Score text color (Col 13 now due to last duty insertion)
+            if (colNumber === 13) {
                 cell.font = { color: { argb: scoreColor }, bold: true, size: 11 };
-                cell.numFmt = '0.0"%"'; // Append % sign
+                if (isInactive) cell.font.italic = true; // Keep italic if inactive
+                cell.numFmt = '0.0"%"';
             }
         });
     });
@@ -625,6 +660,7 @@ async function exportExcel() {
         { metric: 'High Performers (>=80%)', value: data.filter(a => a.pf.score >= 80).length },
         { metric: 'Medium Performers (50-79%)', value: data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length },
         { metric: 'Low Performers (<50%)', value: data.filter(a => a.pf.score < 50).length },
+        { metric: 'Inactive Staff (>10 Days)', value: data.filter(a => a.lastDutyDate && a.lastDutyDate < tenDaysAgoStr).length },
     ];
 
     // Add Summary Data Rows
@@ -635,7 +671,7 @@ async function exportExcel() {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F1923' } };
             cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
             cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-            cell.border = { bottom: { style: 'thin', color: { argb: 'FF1A2A3A' } } };
+            cell.border = {};
             
             if (colNumber === 2) {
                 cell.font = { color: { argb: 'FF8FA4B8' }, size: 11, bold: true };
