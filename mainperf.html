@@ -303,8 +303,6 @@
     "orgbranch-68458a4b76bd774c32f10527"  // Githu Pharma
   ];
 
-  /* Build a Set of branch NAMES from the allowed IDs for fast matching.
-     The API only returns branchName — no branch ID in the record. */
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -318,11 +316,11 @@
     "orgbranch-685001457d3c6f75c8c1d5ba": "Kisii",
     "orgbranch-685001557d3c6f75c8c1d61d": "Philton",
     "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
-    "orgbranch-685001667d3c6f75c8c1d6e3": "Malindi",
+    "orgbranch-685001667d3c6f75c8c1d6e3": "Philmed Malindi",
     "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
-    "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
+    "orgbranch-6850019e7d6f75c8c1d7a9": "Nakuru",
     "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
-    "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
+    "orgbranch-685001b17d3c6f75c8c1d86f": "Philmed Eldoret",
     "orgbranch-685001c17d3c6f75c8c1d8d2": "Philmed Thika",
     "orgbranch-685001ce7d3c6f75c8c1d935": "Voi Branch",
     "orgbranch-685001e27d3c6f75c8c1d998": "Kendia",
@@ -347,43 +345,52 @@
     "Dennis Nyabuto Nyaberi"
   ];
 
-  /* ---------- BRANCH TARGETS ---------- */
-  const branchTargets = {
-    "orgbranch-683976e3994a072a600cbd7a": 9555462,
-    "orgbranch-684558f576bd774c32f00d8e": 840599,
-    "orgbranch-68455bea76bd774c32f031cc": 1648410,
-    "orgbranch-68458a4b76bd774c32f10527": 2293279,
-    "orgbranch-684593b176bd774c32f150c6": 2557170,
-    "orgbranch-685001107d3c6f75c8c1d42e": 1539617,
-    "orgbranch-685001217d3c6f75c8c1d491": 2789834,
-    "orgbranch-6850012f7d3c6f75c8c1d4f4": 1104974,
-    "orgbranch-685001387d3c6f75c8c1d557": 3187525,
-    "orgbranch-685001457d3c6f75c8c1d5ba": 3633705,
-    "orgbranch-685001557d3c6f75c8c1d61d": 1789168,
-    "orgbranch-6850015d7d3c6f75c8c1d680": 1395065,
-    "orgbranch-685001667d3c6f75c8c1d6e3": 1597460,
-    "orgbranch-685001967d3c6f75c8c1d746": 1608257,
-    "orgbranch-6850019e7d3c6f75c8c1d7a9": 2000000,
-    "orgbranch-685001a77d3c6f75c8c1d80c": 1382655,
-    "orgbranch-685001b17d3c6f75c8c1d86f": 2838928,
-    "orgbranch-685001c17d3c6f75c8c1d8d2": 1104378,
-    "orgbranch-685001ce7d3c6f75c8c1d935": 804269,
-    "orgbranch-685001e27d3c6f75c8c1d998": 997747,
-    "orgbranch-685001f37d3c6f75c8c1d9fb": 1544541,
-    "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,
-    "orgbranch-685002097d3c6f75c8c1dac1": 1247065,
-    "orgbranch-685002137d3c6f75c8c1db4f": 710690,
-    "orgbranch-685002247d3c6f75c8c1dc25": 1228095,
-    "orgbranch-69df9dc58418a65253e015a6": 650000,
-    "orgbranch-69f7511b83ba28b7dda7ccd1": 538000,
-    "orgbranch-6a14177260c3a453acb56ceb": 538000
-  };
+  /*
+   * ── branchTargets REMOVED ─────────────────────────────────
+   * Ticker performance now comes from the
+   * branch-sales-performance-reports endpoint — no more
+   * manual calculation from salesperson data.
+   */
 
   /* ---------- API CONFIG ---------- */
   const BASE_API =
     `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&endDate=${formattedEnd}`;
 
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
+
+  /* ── Branch performance data store (cached) ──────────────── */
+  let branchPerfData = [];
+
+  /* ── Match branch by name across the two endpoints ───────── */
+  function getBranchPerfByName(name) {
+    if (!name) return null;
+    const normalized = name.toLowerCase().trim();
+    return branchPerfData.find(d =>
+      (d.orgBranchName || "").toLowerCase().trim() === normalized
+    ) || null;
+  }
+
+  /* ===================== FETCH BRANCH PERFORMANCE ===================== */
+  async function fetchBranchPerformance() {
+    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports`;
+
+    const res = await fetch(url, {
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error("Branch perf HTTP " + res.status);
+    const json = await res.json();
+
+    const dataArr = Array.isArray(json) ? json : (json.data || []);
+    if (dataArr.length > 0) {
+      console.log("%c[Branch Perf Sample]", "color:#ba9305;font-weight:bold", dataArr[0]);
+    }
+
+    return dataArr;
+  }
 
   /* ===================== AUTO SCROLL TABLE ===================== */
   function startAutoScroll() {
@@ -439,23 +446,26 @@
   }
 
   /* ===================== BUILD TICKER ===================== */
-  function buildTicker(allData) {
+  function buildTicker() {
     let cardsHTML = "";
 
     allowedBranchIds.forEach(branchId => {
-      // Match records by branchName since the API has no branch ID field
       const name = branchNames[branchId];
       if (!name) return;
 
-      const branchData = allData.filter(r => r.branchName === name);
+      const entry = getBranchPerfByName(name);
 
-      const totalSales = branchData.reduce(
-        (sum, r) => sum + Number(r.netDailySales || 0),
-        0
-      );
-
-      const target = branchTargets[branchId] || 0;
-      const performance = target > 0 ? (totalSales / target) * 100 : 0;
+      let performance = 0;
+      if (entry) {
+        /*
+         * ⚠️ Update this field name if your API uses
+         * a different one. Check the [Branch Perf Sample]
+         * console log to confirm.
+         */
+        performance = Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0);
+      } else {
+        console.warn(`[Ticker] "${name}" not found in branch performance data.`);
+      }
 
       const tier =
         performance >= 80 ? "high" :
@@ -485,6 +495,12 @@
   /* ===================== LOAD ALL PAGES ===================== */
   async function loadAllPages() {
     try {
+      /* Fetch branch perf only if not cached yet */
+      if (branchPerfData.length === 0) {
+        branchPerfData = await fetchBranchPerformance();
+      }
+
+      /* Fetch salesperson data */
       let allData = [];
 
       const firstResponse = await fetchPage(0);
@@ -501,8 +517,8 @@
         allData.push(...(res.data || []));
       });
 
-      /* ---------- TICKER ---------- */
-      buildTicker(allData);
+      /* ---------- TICKER (now from branch API, not manual calc) ---------- */
+      buildTicker();
 
       /* ---------- TABLE DATA ---------- */
       const processed = allData
@@ -514,13 +530,9 @@
           score = Number(score);
           return { ...d, score };
         })
-        // Filter by branchName — the only branch field the API returns
         .filter(d => allowedBranchNames.has(d.branchName))
-        // Valid positive scores only
         .filter(d => !isNaN(d.score) && d.score > 0)
-        // Always hide these salespeople
         .filter(d => !hiddenSalesPeople.includes(d.salesPersonName))
-        // Highest performers first
         .sort((a, b) => b.score - a.score);
 
       renderTable(processed);
@@ -574,7 +586,10 @@
 
   /* ===================== INIT ===================== */
   loadAllPages();
-  setInterval(loadAllPages, 120000);
+  setInterval(() => {
+    branchPerfData = [];
+    loadAllPages();
+  }, 120000);
 </script>
 
 </body>
