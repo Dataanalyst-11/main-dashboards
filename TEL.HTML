@@ -647,12 +647,12 @@
     return { startDate, endDate };
   }
 
-  /* ── Static lookups ─────────────────────────────────────── */
+  /* ── Branch names lookup (kept for dropdown & table display) */
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
     "orgbranch-68455bea76bd774c32f031cc": "Kitengela",
-    "orgbranch-68458a4b76bd774c32f10527": "Githu Pharma",
+    "orgbranch-68458a4b76bd774c32f10527": "Githurai",
     "orgbranch-684593b176bd774c32f150c6": "Kawangware Wholesale",
     "orgbranch-685001107d3c6f75c8c1d42e": "Karatina",
     "orgbranch-685001217d3c6f75c8c1d491": "Meru",
@@ -661,13 +661,13 @@
     "orgbranch-685001457d3c6f75c8c1d5ba": "Kisii",
     "orgbranch-685001557d3c6f75c8c1d61d": "Philton",
     "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
-    "orgbranch-685001667d3c6f75c8c1d6e3": "Malindi",
+    "orgbranch-685001667d3c6f75c8c1d6e3": "Philmed Malindi",
     "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
     "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
     "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
-    "orgbranch-685001b17d3c6f75c8c1d86f": "Eldoret",
-    "orgbranch-685001c17d3c6f75c8c1d8d2": "Thika",
-    "orgbranch-685001ce7d3c6f75c8c1d935": "Voi",
+    "orgbranch-685001b17d3c6f75c8c1d86f": "Philmed Eldoret",
+    "orgbranch-685001c17d3c6f75c8c1d8d2": "Philmed Thika",
+    "orgbranch-685001ce7d3c6f75c8c1d935": "Voi Branch",
     "orgbranch-685001e27d3c6f75c8c1d998": "Kendia",
     "orgbranch-685001f37d3c6f75c8c1d9fb": "Kakamega",
     "orgbranch-685001ff7d3c6f75c8c1da5e": "Bungoma",
@@ -675,40 +675,17 @@
     "orgbranch-685002137d3c6f75c8c1db4f": "Rongai Wholesale",
     "orgbranch-685002247d3c6f75c8c1dc25": "Embu",
     "orgbranch-69df9dc58418a65253e015a6": "Arms Narok Wholesale",
-    "orgbranch-69f7511b83ba28b7dda7ccd1": "Arms Ol Kalou",
-   "orgbranch-6a14177260c3a453acb56ceb": "Nanyuki"
+    "orgbranch-69f7511b83ba28b7dda7ccd1": "Ol Kalou",
+    "orgbranch-6a14177260c3a453acb56ceb": "Nanyuki"
   };
 
-  const branchTargets = {
-    "orgbranch-683976e3994a072a600cbd7a": 9555462,//Head office
-    "orgbranch-684558f576bd774c32f00d8e": 840599,//Naivasha
-    "orgbranch-68455bea76bd774c32f031cc": 1648410,//Kitengela
-    "orgbranch-68458a4b76bd774c32f10527": 2293279,//Githu Pharma
-    "orgbranch-684593b176bd774c32f150c6": 2557170,//Kawangware
-    "orgbranch-685001107d3c6f75c8c1d42e": 1539617,//Karatina
-    "orgbranch-685001217d3c6f75c8c1d491": 2789834,//Meru
-    "orgbranch-6850012f7d3c6f75c8c1d4f4": 1104974,//Busia
-    "orgbranch-685001387d3c6f75c8c1d557": 3187525,//Mombasa WHLs
-    "orgbranch-685001457d3c6f75c8c1d5ba": 3633705,//Kisii
-    "orgbranch-685001557d3c6f75c8c1d61d": 1789168,//Philton
-    "orgbranch-6850015d7d3c6f75c8c1d680": 1395065,//Kitui WHLS
-    "orgbranch-685001667d3c6f75c8c1d6e3": 1597460,//Malindi
-    "orgbranch-685001967d3c6f75c8c1d746": 1608257,//Kericho
-    "orgbranch-6850019e7d3c6f75c8c1d7a9": 2000000,//Nakuru
-    "orgbranch-685001a77d3c6f75c8c1d80c": 1382655,//Kisumu
-    "orgbranch-685001b17d3c6f75c8c1d86f": 2838928,//Eldoret
-    "orgbranch-685001c17d3c6f75c8c1d8d2": 1104378,//Thika
-    "orgbranch-685001ce7d3c6f75c8c1d935": 804269,//Voi
-    "orgbranch-685001e27d3c6f75c8c1d998": 997747,//Kendia
-    "orgbranch-685001f37d3c6f75c8c1d9fb": 1544541,//Kakamega
-    "orgbranch-685001ff7d3c6f75c8c1da5e": 1102352,//Bungoma
-    "orgbranch-685002097d3c6f75c8c1dac1": 1247065,//Makindu
-    "orgbranch-685002137d3c6f75c8c1db4f": 710690,//Rongai WHLS
-    "orgbranch-685002247d3c6f75c8c1dc25": 1228095,//Embu
-   "orgbranch-69df9dc58418a65253e015a6": 650000,//Arms Narok
-    "orgbranch-69f7511b83ba28b7dda7ccd1": 538000,//ARms Ol Kalou
-   "orgbranch-6a14177260c3a453acb56ceb": 538000 // Nanyuki
-  };
+  /*
+   * ── branchTargets REMOVED ─────────────────────────────────
+   * Branch targets are now fetched dynamically from the
+   * branch-sales-perfomance-report endpoint instead of being
+   * hardcoded here. This ensures targets stay in sync with
+   * the source of truth.
+   */
 
   /* ── Populate branch dropdown ───────────────────────────── */
   const branchSelect = document.getElementById("branchSelect");
@@ -722,7 +699,8 @@
     });
 
   /* ── Data stores ────────────────────────────────────────── */
-  let allRawData = [];
+  let allRawData = [];       // Salesperson data from sales-person-performance endpoint
+  let branchPerfData = [];   // Branch data from branch-sales-performance-reports endpoint
   let filteredData = [];
   let displayedData = [];
 
@@ -753,10 +731,11 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
   }
 
-  /* ── API fetch (paginated) ──────────────────────────────── */
+  /* ── API config ─────────────────────────────────────────── */
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-  async function fetchPage(pageNum, branchId) {
+  /* ── Fetch salesperson data (paginated) ─────────────────── */
+  async function fetchSalesPage(pageNum, branchId) {
     const { startDate, endDate } = getDateRange();
     let url = `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&startDate=${startDate}&endDate=${endDate}&pageNum=${pageNum}`;
     if (branchId) url += `&orgBranchId=${branchId}`;
@@ -768,27 +747,89 @@
       }
     });
 
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) throw new Error("Salesperson HTTP " + res.status);
     return await res.json();
   }
 
+  async function fetchAllSalesData(branchId) {
+    let allData = [];
+    const first = await fetchSalesPage(0, branchId);
+    const pageCount = first.pageCount || 1;
+    allData.push(...(first.data || []));
+
+    if (pageCount > 1) {
+      const promises = [];
+      for (let i = 1; i < pageCount; i++) {
+        promises.push(fetchSalesPage(i, branchId));
+      }
+      const responses = await Promise.all(promises);
+      responses.forEach(r => allData.push(...(r.data || [])));
+    }
+
+    return allData;
+  }
+
+  /*
+   * ── Fetch branch performance data ────────────────────────
+   * Always fetches ALL branches (no branch filter) because
+   * the branch IDs differ between the two endpoints.
+   * We match branches by NAME instead of ID.
+   *
+   * If this endpoint is also paginated, add pagination logic
+   * similar to fetchAllSalesData() above.
+   */
+  async function fetchBranchPerformance() {
+    const { startDate, endDate } = getDateRange();
+    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports?startDate=${startDate}&endDate=${endDate}`;
+
+    const res = await fetch(url, {
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error("Branch perf HTTP " + res.status);
+    const json = await res.json();
+
+    /* Log the first record so you can verify field names */
+    const dataArr = Array.isArray(json) ? json : (json.data || []);
+    if (dataArr.length > 0) {
+      console.log("%c[Branch Perf Sample] First record from branch-sales-perfomance-report:", "color:#ba9305;font-weight:bold", dataArr[0]);
+    }
+
+    return dataArr;
+  }
+
+  /* ── Load all data (both endpoints in parallel) ─────────── */
   async function loadAllData() {
     const selectedBranch = branchSelect.value;
 
     try {
-      let allData = [];
-      const first = await fetchPage(0, selectedBranch);
-      const pageCount = first.pageCount || 1;
-      allData.push(...(first.data || []));
+      /* Fetch both endpoints simultaneously for speed */
+      const [salesData, branchData] = await Promise.all([
+        fetchAllSalesData(selectedBranch),
+        fetchBranchPerformance()
+      ]);
 
-      const promises = [];
-      for (let i = 1; i < pageCount; i++) {
-        promises.push(fetchPage(i, selectedBranch));
+      allRawData = salesData;
+      branchPerfData = branchData;
+
+      /* Log unmatched branches for debugging */
+      const reportNames = new Set(
+        branchData.map(d => (d.orgBranchName || "").toLowerCase().trim())
+      );
+      for (const id in branchNames) {
+        const name = branchNames[id].toLowerCase().trim();
+        if (!reportNames.has(name)) {
+          console.warn(
+            `%c[Unmatched Branch] "${branchNames[id]}" not found in branch-sales-perfomance-report response. ` +
+            `Check if the name matches exactly (case-insensitive).`,
+            "color:#ef4444;font-weight:bold"
+          );
+        }
       }
-      const responses = await Promise.all(promises);
-      responses.forEach(r => allData.push(...(r.data || [])));
 
-      allRawData = allData;
       processAndRender();
 
       document.getElementById("lastUpdated").textContent =
@@ -802,10 +843,21 @@
     }
   }
 
+  /* ── Helper: find branch perf record by name ────────────── */
+  function getBranchPerfByName(branchName) {
+    if (!branchName) return null;
+    const normalized = branchName.toLowerCase().trim();
+    return branchPerfData.find(d =>
+      (d.orgBranchName || "").toLowerCase().trim() === normalized
+      /*     ^^^^^^^^^^^^ changed from d.branchName */
+    ) || null;
+  }
   /* ── Core processing ────────────────────────────────────── */
   function processAndRender() {
     const selectedBranch = branchSelect.value;
+    const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
 
+    /* ── Process individual salesperson data (table only) ──── */
     const processed = allRawData
       .map(d => {
         let score = d.dailySalesScore;
@@ -818,37 +870,71 @@
 
     processed.sort((a, b) => b.score - a.score);
 
-    let totalNetSales = processed.reduce((s, r) => s + r.netValue, 0);
+    /* Orders & active count still come from salesperson data */
     let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
     let activeCount = processed.length;
 
-    let target = 0;
+    /*
+     * ── Branch performance from branch-sales-perfomance-report ──
+     * Target, net sales, and performance % now come from the
+     * branch report endpoint — NOT from summing salesperson data
+     * and NOT from hardcoded targets.
+     */
+    let branchTarget = 0;
+    let branchNetSales = 0;
+    let branchPerfPct = 0;
+
     if (selectedBranch) {
-      target = branchTargets[selectedBranch] || 0;
+      /* Single branch: match by name in the branch report data */
+      const entry = getBranchPerfByName(selectedBranchName);
+      if (entry) {
+        /*
+         * ⚠️ IMPORTANT: Update these field names to match your
+         * branch-sales-perfomance-report API response exactly.
+         * Check the console log labeled [Branch Perf Sample]
+         * to see the actual field names.
+         */
+        branchTarget   = Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
+        branchNetSales = Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
+        branchPerfPct  = Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0);
+      } else {
+        console.warn(`[No Match] Branch "${selectedBranchName}" not found in branch performance data.`);
+      }
     } else {
-      for (const id in branchTargets) target += branchTargets[id];
+      /* All branches: aggregate only branches that exist in our dropdown */
+      for (const id in branchNames) {
+        const name = branchNames[id];
+        const entry = getBranchPerfByName(name);
+        if (entry) {
+          branchTarget   += Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
+          branchNetSales += Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
+        }
+      }
+      /* Calculate overall % from aggregated totals (more accurate than averaging) */
+      branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
     }
 
-    const branchPerf = target > 0 ? (totalNetSales / target) * 100 : 0;
-    const deficit = target - totalNetSales;
+    /* ── Deficit calculations (same logic, new data source) ── */
+    const deficit = branchTarget - branchNetSales;
+    const eightyPctTarget = branchTarget * 0.8;
+    const deficitBelow80 = eightyPctTarget - branchNetSales;
 
-    /* Stat cards */
+    /* ── Stat card: Total Orders ───────────────────────────── */
     document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
     document.getElementById("statOrdersSub").textContent = selectedBranch
-      ? `from ${branchNames[selectedBranch] || "selected branch"}`
+      ? `from ${selectedBranchName}`
       : "across all branches";
 
+    /* ── Stat card: Active Telesales ───────────────────────── */
     document.getElementById("statActive").textContent = activeCount;
     document.getElementById("statActiveSub").textContent = selectedBranch
-      ? `in ${branchNames[selectedBranch] || "selected branch"}`
+      ? `in ${selectedBranchName}`
       : "across all branches";
 
+    /* ── Stat card: Deficit ────────────────────────────────── */
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
     const deficitSubEl = document.getElementById("statDeficitSub");
-
-    const eightyPctTarget = target * 0.8;
-    const deficitBelow80 = eightyPctTarget - totalNetSales;
 
     if (deficitBelow80 > 0) {
       deficitLabelEl.textContent = "Deficit Below 80%";
@@ -862,13 +948,13 @@
       deficitSubEl.textContent = "minimum threshold met";
     }
 
-    /* Branch perf bar */
-    const perfClass = branchPerf >= 80 ? "perf-high" : branchPerf >= 50 ? "perf-medium" : "perf-low";
+    /* ── Branch performance bar ────────────────────────────── */
+    const perfClass = branchPerfPct >= 80 ? "perf-high" : branchPerfPct >= 50 ? "perf-medium" : "perf-low";
     const perfEl = document.getElementById("branchPerfValue");
-    perfEl.textContent = branchPerf.toFixed(1) + "%";
+    perfEl.textContent = branchPerfPct.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    let detailHTML = `${formatFullCurrency(totalNetSales)} of ${formatFullCurrency(target)} target<br>`;
+    let detailHTML = `${formatFullCurrency(branchNetSales)} of ${formatFullCurrency(branchTarget)} target<br>`;
     if (deficit > 0) {
       detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
     } else if (deficit < 0) {
@@ -879,17 +965,18 @@
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
 
     const bar = document.getElementById("branchPerfBar");
-    const barPct = Math.min(branchPerf, 100);
+    const barPct = Math.min(branchPerfPct, 100);
     bar.style.width = barPct + "%";
-    bar.style.background = branchPerf >= 80
+    bar.style.background = branchPerfPct >= 80
       ? "linear-gradient(90deg, #16a34a, #22c55e)"
-      : branchPerf >= 50
+      : branchPerfPct >= 50
         ? "linear-gradient(90deg, #ca8a04, #facc15)"
         : "linear-gradient(90deg, #dc2626, #ef4444)";
 
     const marker50 = document.getElementById("marker50");
-    marker50.className = branchPerf < 50 ? "active-marker" : "";
+    marker50.className = branchPerfPct < 50 ? "active-marker" : "";
 
+    /* ── Pass processed salesperson data to table ──────────── */
     filteredData = processed;
     applySearchAndSort();
   }
