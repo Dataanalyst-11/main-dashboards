@@ -62,6 +62,44 @@
     margin-top: 2px;
   }
 
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  /* ── View Toggle ─────────────────────────────────────────── */
+  .view-toggle {
+    display: flex;
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 3px;
+    border: 2px solid #334155;
+  }
+
+  .view-toggle button {
+    padding: 8px 22px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+
+  .view-toggle button:hover {
+    color: #94a3b8;
+  }
+
+  .view-toggle button.active {
+    background: #ba9305;
+    color: #020617;
+  }
+
   .branch-selector {
     position: relative;
     min-width: 260px;
@@ -100,9 +138,27 @@
     pointer-events: none;
   }
 
+  /* ── View Containers ─────────────────────────────────────── */
+  #telesalesView,
+  #branchView {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #branchView { display: none; }
+
+  /* ── Stat Cards (shared) ────────────────────────────────── */
   .stats-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 24px 32px 0;
+  }
+
+  .branch-summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 16px;
     padding: 24px 32px 0;
   }
@@ -135,6 +191,7 @@
   .stat-card:nth-child(1)::before { background: #22c55e; }
   .stat-card:nth-child(2)::before { background: #38bdf8; }
   .stat-card:nth-child(3)::before { background: #ef4444; }
+  .branch-summary-row .stat-card:nth-child(4)::before { background: #f97316; }
 
   .stat-label {
     font-size: 12px;
@@ -163,6 +220,7 @@
   .perf-medium { color: #facc15 !important; }
   .perf-low { color: #ef4444 !important; }
 
+  /* ── Telesales: Branch Perf Bar ──────────────────────────── */
   .branch-perf-section {
     padding: 20px 32px 0;
   }
@@ -205,20 +263,10 @@
     line-height: 1.7;
   }
 
-  .branch-perf-info .detail .deficit {
-    font-weight: 700;
-    color: #ef4444;
-  }
+  .branch-perf-info .detail .deficit { font-weight: 700; color: #ef4444; }
+  .branch-perf-info .detail .surplus { font-weight: 700; color: #22c55e; }
 
-  .branch-perf-info .detail .surplus {
-    font-weight: 700;
-    color: #22c55e;
-  }
-
-  .perf-bar-wrap {
-    flex: 1;
-    min-width: 200px;
-  }
+  .perf-bar-wrap { flex: 1; min-width: 200px; }
 
   .perf-bar-track {
     width: 100%;
@@ -246,6 +294,7 @@
 
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
+  /* ── Telesales: Table ───────────────────────────────────── */
   .table-section {
     flex: 1;
     padding: 20px 32px 24px;
@@ -263,11 +312,7 @@
     gap: 12px;
   }
 
-  .table-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #f1f5f9;
-  }
+  .table-title { font-size: 16px; font-weight: 700; color: #f1f5f9; }
 
   .table-count {
     font-size: 13px;
@@ -334,19 +379,9 @@
     white-space: nowrap;
   }
 
-  thead th.sortable {
-    cursor: pointer;
-    transition: color 0.2s, background 0.2s;
-  }
-
-  thead th.sortable:hover {
-    color: #f1f5f9;
-    background: #263348;
-  }
-
-  thead th.sortable.active-sort {
-    color: #ba9305;
-  }
+  thead th.sortable { cursor: pointer; transition: color 0.2s, background 0.2s; }
+  thead th.sortable:hover { color: #f1f5f9; background: #263348; }
+  thead th.sortable.active-sort { color: #ba9305; }
 
   .sort-icon {
     display: inline-block;
@@ -409,12 +444,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .value-cell .kes {
-    font-weight: 400;
-    color: #64748b;
-    font-size: 11px;
-    margin-right: 2px;
-  }
+  .value-cell .kes { font-weight: 400; color: #64748b; font-size: 11px; margin-right: 2px; }
 
   .status-dot {
     display: inline-flex;
@@ -426,14 +456,7 @@
     letter-spacing: 0.5px;
   }
 
-  .status-dot::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
+  .status-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
   .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .status-on-track { color: #22c55e; }
   .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
@@ -458,14 +481,124 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .sort-hint {
-    font-size: 11px;
-    color: #475569;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0;
+  .sort-hint { font-size: 11px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+  /* ── Branch View: Grid ──────────────────────────────────── */
+  .branch-grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
+  .branch-grid-wrap {
+    flex: 1;
+    padding: 0 32px 24px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+
+  .branch-grid-wrap::-webkit-scrollbar { width: 6px; }
+  .branch-grid-wrap::-webkit-scrollbar-track { background: transparent; }
+  .branch-grid-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+  .branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .b-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 20px 22px 26px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.2s;
+  }
+
+  .b-card:hover {
+    transform: translateY(-2px);
+    border-color: #475569;
+  }
+
+  .b-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .b-card.tier-high::before { background: #22c55e; }
+  .b-card.tier-medium::before { background: #facc15; }
+  .b-card.tier-low::before { background: #ef4444; }
+  .b-card.tier-none { opacity: 0.35; border-style: dashed; }
+  .b-card.tier-none::before { background: #475569; }
+
+   .b-card-name {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #e2e8f0;
+    font-weight: 800;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .b-card-pct {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    color: #f8fafc;
+    margin-bottom: 10px;
+  }
+
+  .b-card-detail {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.4;
+  }
+
+  .b-card-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #0f172a;
+  }
+
+  .b-card-bar-fill {
+    height: 100%;
+    border-radius: 0 0 14px 0;
+    transition: width 0.8s ease;
+  }
+
+  .bar-high { background: #22c55e; }
+  .bar-medium { background: #facc15; }
+  .bar-low { background: #ef4444; }
+  .bar-none { background: #475569; }
+
+  .b-card.hidden { display: none; }
+
+  .no-branch-data {
+    text-align: center;
+    padding: 60px 20px;
+    color: #475569;
+    font-size: 15px;
+    grid-column: 1 / -1;
+  }
+
+  /* ── Footer / Toast ─────────────────────────────────────── */
   footer {
     text-align: center;
     padding: 14px;
@@ -497,6 +630,11 @@
 
   .toast.show { transform: translateX(0); }
 
+  /* ── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 1100px) {
+    .branch-summary-row { grid-template-columns: 1fr 1fr; }
+  }
+
   @media (max-width: 900px) {
     th:nth-child(7), td:nth-child(7) { display: none; }
     th:nth-child(3), td:nth-child(3) { display: none; }
@@ -510,13 +648,19 @@
   @media (max-width: 600px) {
     header { padding: 14px 18px; }
     .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
+    .branch-summary-row { grid-template-columns: 1fr; padding: 16px 18px 0; }
     .branch-perf-section { padding: 16px 18px 0; }
     .table-section { padding: 16px 18px 18px; }
+    .branch-grid-wrap { padding: 0 18px 18px; }
+    .branch-grid { grid-template-columns: 1fr; }
     .stat-value { font-size: 20px; }
     .branch-perf-info .value { font-size: 32px; }
     .branch-perf-info { min-width: 100%; }
     .branch-selector { min-width: 100%; }
     .search-box { width: 100%; }
+    .header-right { width: 100%; }
+    .view-toggle { flex: 1; }
+    .view-toggle button { flex: 1; text-align: center; }
     th:nth-child(6), td:nth-child(6) { display: none; }
     th:nth-child(2), td:nth-child(2) { width: 40%; }
     th:nth-child(4), td:nth-child(4) { width: 22%; }
@@ -531,88 +675,140 @@
   <div class="header-left">
     <div class="header-logo">TS</div>
     <div>
-      <div class="header-title">Telesales Performance Dashboard</div>
-      <div class="header-subtitle">Management Overview — Real-time Sales Tracking</div>
+      <div class="header-title" id="headerTitle">Telesales Performance Dashboard</div>
+      <div class="header-subtitle" id="headerSubtitle">Management Overview — Real-time Sales Tracking</div>
     </div>
   </div>
-  <div class="branch-selector">
-    <select id="branchSelect">
-      <option value="">All Branches</option>
-    </select>
+  <div class="header-right">
+    <div class="view-toggle">
+      <button id="btnTelesales" class="active" onclick="switchView('telesales')">Telesales</button>
+      <button id="btnBranches" onclick="switchView('branches')">Branches</button>
+    </div>
+    <div class="branch-selector" id="branchSelectorWrap">
+      <select id="branchSelect">
+        <option value="">All Branches</option>
+      </select>
+    </div>
   </div>
 </header>
 
-<div class="stats-row">
-  <div class="stat-card">
-    <div class="stat-label">Total Customer Orders</div>
-    <div class="stat-value" id="statOrders">—</div>
-    <div class="stat-sub" id="statOrdersSub">across all telesales</div>
+<!-- ═══════════════ TELESALES VIEW ═══════════════ -->
+<div id="telesalesView">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Customer Orders</div>
+      <div class="stat-value" id="statOrders">—</div>
+      <div class="stat-sub" id="statOrdersSub">across all telesales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Telesales</div>
+      <div class="stat-value" id="statActive">—</div>
+      <div class="stat-sub" id="statActiveSub">with recorded sales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="deficitLabel">Sales Deficit</div>
+      <div class="stat-value" id="statDeficit">—</div>
+      <div class="stat-sub" id="statDeficitSub">vs branch target</div>
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Active Telesales</div>
-    <div class="stat-value" id="statActive">—</div>
-    <div class="stat-sub" id="statActiveSub">with recorded sales</div>
+
+  <div class="branch-perf-section">
+    <div class="branch-perf-card">
+      <div class="branch-perf-info">
+        <div class="label">Branch Performance vs Target</div>
+        <div class="value" id="branchPerfValue">—</div>
+        <div class="detail" id="branchPerfDetail">loading...</div>
+      </div>
+      <div class="perf-bar-wrap">
+        <div class="perf-bar-track">
+          <div class="perf-bar-fill" id="branchPerfBar" style="width:0%;"></div>
+        </div>
+        <div class="perf-bar-labels">
+          <span>0%</span>
+          <span id="marker50" class="">50%</span>
+          <span>80%</span>
+          <span>100%</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label" id="deficitLabel">Sales Deficit</div>
-    <div class="stat-value" id="statDeficit">—</div>
-    <div class="stat-sub" id="statDeficitSub">vs branch target</div>
+
+  <div class="table-section">
+    <div class="table-header">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <span class="table-title">Telesales Ranking</span>
+        <span class="table-count" id="tableCount">0 people</span>
+        <span class="sort-hint" id="sortHint">Click column headers to sort</span>
+      </div>
+      <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+    </div>
+    <div class="table-wrap" id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="sortable" data-sort="name">Telesale Name <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="branch">Branch <span class="sort-icon">▲</span></th>
+            <th class="sortable active-sort sort-desc" data-sort="score" style="text-align:center;">Sales % <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="orders" style="text-align:center;">Orders <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="value" style="text-align:right;">Order Value <span class="sort-icon">▲</span></th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr class="loading-row">
+            <td colspan="7">
+              <span class="loading-spinner"></span>
+              Loading sales data...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
 </div>
 
-<div class="branch-perf-section">
-  <div class="branch-perf-card">
-    <div class="branch-perf-info">
-      <div class="label">Branch Performance vs Target</div>
-      <div class="value" id="branchPerfValue">—</div>
-      <div class="detail" id="branchPerfDetail">loading...</div>
-    </div>
-    <div class="perf-bar-wrap">
-      <div class="perf-bar-track">
-        <div class="perf-bar-fill" id="branchPerfBar" style="width:0%;"></div>
-      </div>
-      <div class="perf-bar-labels">
-        <span>0%</span>
-        <span id="marker50" class="">50%</span>
-        <span>80%</span>
-        <span>100%</span>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- ═══════════════ BRANCH PERFORMANCE VIEW ═══════════════ -->
+<div id="branchView">
 
-<div class="table-section">
-  <div class="table-header">
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <span class="table-title">Telesales Ranking</span>
-      <span class="table-count" id="tableCount">0 people</span>
-      <span class="sort-hint" id="sortHint">Click column headers to sort</span>
+  <div class="branch-summary-row">
+    <div class="stat-card">
+      <div class="stat-label">Overall Performance</div>
+      <div class="stat-value" id="bsOverallPct">—</div>
+      <div class="stat-sub">aggregated all branches</div>
     </div>
-    <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+    <div class="stat-card">
+      <div class="stat-label">Total Net Sales</div>
+      <div class="stat-value" id="bsTotalSales">—</div>
+      <div class="stat-sub">across all branches</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Branches Achieved</div>
+      <div class="stat-value perf-high" id="bsOnTrack">—</div>
+      <div class="stat-sub" id="bsOnTrackSub">at 80% or above</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Branches Below Target</div>
+      <div class="stat-value perf-low" id="bsAtRisk">—</div>
+      <div class="stat-sub" id="bsAtRiskSub">below 80% threshold</div>
+    </div>
   </div>
-  <div class="table-wrap" id="tableWrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th class="sortable" data-sort="name">Telesale Name <span class="sort-icon">▲</span></th>
-          <th class="sortable" data-sort="branch">Branch <span class="sort-icon">▲</span></th>
-          <th class="sortable active-sort sort-desc" data-sort="score" style="text-align:center;">Sales % <span class="sort-icon">▲</span></th>
-          <th class="sortable" data-sort="orders" style="text-align:center;">Orders <span class="sort-icon">▲</span></th>
-          <th class="sortable" data-sort="value" style="text-align:right;">Order Value <span class="sort-icon">▲</span></th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr class="loading-row">
-          <td colspan="7">
-            <span class="loading-spinner"></span>
-            Loading sales data...
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+  <div class="branch-grid-wrap">
+    <div class="branch-grid-header">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <span class="table-title">All Branches</span>
+        <span class="table-count" id="branchCount">0 branches</span>
+      </div>
+      <input type="text" class="search-box" id="branchSearchBox" placeholder="Search branch...">
+    </div>
+    <div class="branch-grid" id="branchGrid">
+      <div class="no-branch-data">Loading branch data...</div>
+    </div>
   </div>
+
 </div>
 
 <footer>
@@ -626,8 +822,9 @@
 <script src="config.js"></script>
 
 <script>
-  /* ── Sort state ─────────────────────────────────────────── */
+  /* ── State ──────────────────────────────────────────────── */
   let currentSort = { key: "score", dir: "desc" };
+  let currentView = "telesales";
 
   /* ── Date range helper ──────────────────────────────────── */
   function getDateRange() {
@@ -647,7 +844,7 @@
     return { startDate, endDate };
   }
 
-  /* ── Branch names lookup (kept for dropdown & table display) */
+  /* ── Branch names lookup ────────────────────────────────── */
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -663,7 +860,7 @@
     "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
     "orgbranch-685001667d3c6f75c8c1d6e3": "Philmed Malindi",
     "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
-    "orgbranch-6850019e7d3c6f75c8c1d7a9": "Nakuru",
+    "orgbranch-6850019e7d6f75c8c1d7a9": "Nakuru",
     "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
     "orgbranch-685001b17d3c6f75c8c1d86f": "Philmed Eldoret",
     "orgbranch-685001c17d3c6f75c8c1d8d2": "Philmed Thika",
@@ -679,14 +876,6 @@
     "orgbranch-6a14177260c3a453acb56ceb": "Nanyuki"
   };
 
-  /*
-   * ── branchTargets REMOVED ─────────────────────────────────
-   * Branch targets are now fetched dynamically from the
-   * branch-sales-perfomance-report endpoint instead of being
-   * hardcoded here. This ensures targets stay in sync with
-   * the source of truth.
-   */
-
   /* ── Populate branch dropdown ───────────────────────────── */
   const branchSelect = document.getElementById("branchSelect");
   Object.entries(branchNames)
@@ -699,8 +888,8 @@
     });
 
   /* ── Data stores ────────────────────────────────────────── */
-  let allRawData = [];       // Salesperson data from sales-person-performance endpoint
-  let branchPerfData = [];   // Branch data from branch-sales-performance-reports endpoint
+  let allRawData = [];
+  let branchPerfData = [];
   let filteredData = [];
   let displayedData = [];
 
@@ -741,12 +930,8 @@
     if (branchId) url += `&orgBranchId=${branchId}`;
 
     const res = await fetch(url, {
-      headers: {
-        "Authorization": API_TOKEN,
-        "Content-Type": "application/json"
-      }
+      headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" }
     });
-
     if (!res.ok) throw new Error("Salesperson HTTP " + res.status);
     return await res.json();
   }
@@ -759,78 +944,66 @@
 
     if (pageCount > 1) {
       const promises = [];
-      for (let i = 1; i < pageCount; i++) {
-        promises.push(fetchSalesPage(i, branchId));
-      }
+      for (let i = 1; i < pageCount; i++) promises.push(fetchSalesPage(i, branchId));
       const responses = await Promise.all(promises);
       responses.forEach(r => allData.push(...(r.data || [])));
     }
-
     return allData;
   }
 
-  /*
-   * ── Fetch branch performance data ────────────────────────
-   * Always fetches ALL branches (no branch filter) because
-   * the branch IDs differ between the two endpoints.
-   * We match branches by NAME instead of ID.
-   *
-   * If this endpoint is also paginated, add pagination logic
-   * similar to fetchAllSalesData() above.
-   */
+  /* ── Fetch branch performance data ──────────────────────── */
   async function fetchBranchPerformance() {
-    const { startDate, endDate } = getDateRange();
-    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports?startDate=${startDate}&endDate=${endDate}`;
+    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports`;
 
     const res = await fetch(url, {
-      headers: {
-        "Authorization": API_TOKEN,
-        "Content-Type": "application/json"
-      }
+      headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" }
     });
-
     if (!res.ok) throw new Error("Branch perf HTTP " + res.status);
     const json = await res.json();
 
-    /* Log the first record so you can verify field names */
     const dataArr = Array.isArray(json) ? json : (json.data || []);
     if (dataArr.length > 0) {
-      console.log("%c[Branch Perf Sample] First record from branch-sales-perfomance-report:", "color:#ba9305;font-weight:bold", dataArr[0]);
+      console.log("%c[Branch Perf Sample]", "color:#ba9305;font-weight:bold", dataArr[0]);
     }
-
     return dataArr;
   }
 
-  /* ── Load all data (both endpoints in parallel) ─────────── */
+  /* ── Load all data ──────────────────────────────────────── */
   async function loadAllData() {
     const selectedBranch = branchSelect.value;
 
     try {
-      /* Fetch both endpoints simultaneously for speed */
-      const [salesData, branchData] = await Promise.all([
-        fetchAllSalesData(selectedBranch),
-        fetchBranchPerformance()
-      ]);
+      /* Fetch branch perf only if not cached */
+      if (branchPerfData.length === 0) {
+        branchPerfData = await fetchBranchPerformance();
+      }
 
+      /* Fetch salesperson data */
+      const salesData = await fetchAllSalesData(selectedBranch);
       allRawData = salesData;
-      branchPerfData = branchData;
 
-      /* Log unmatched branches for debugging */
-      const reportNames = new Set(
-        branchData.map(d => (d.orgBranchName || "").toLowerCase().trim())
-      );
-      for (const id in branchNames) {
-        const name = branchNames[id].toLowerCase().trim();
-        if (!reportNames.has(name)) {
-          console.warn(
-            `%c[Unmatched Branch] "${branchNames[id]}" not found in branch-sales-perfomance-report response. ` +
-            `Check if the name matches exactly (case-insensitive).`,
-            "color:#ef4444;font-weight:bold"
-          );
+      /* Log unmatched branches (first load only) */
+      if (branchPerfData._logged !== true) {
+        branchPerfData._logged = true;
+        const reportNames = new Set(
+          branchPerfData.map(d => (d.orgBranchName || "").toLowerCase().trim())
+        );
+        for (const id in branchNames) {
+          const name = branchNames[id].toLowerCase().trim();
+          if (!reportNames.has(name)) {
+            console.warn(
+              `%c[Unmatched] "${branchNames[id]}" not found in branch report.`,
+              "color:#ef4444;font-weight:bold"
+            );
+          }
         }
       }
 
+      /* Update whichever view is active */
       processAndRender();
+      if (currentView === "branches") {
+        renderBranchView();
+      }
 
       document.getElementById("lastUpdated").textContent =
         new Date().toLocaleTimeString();
@@ -849,15 +1022,135 @@
     const normalized = branchName.toLowerCase().trim();
     return branchPerfData.find(d =>
       (d.orgBranchName || "").toLowerCase().trim() === normalized
-      /*     ^^^^^^^^^^^^ changed from d.branchName */
     ) || null;
   }
-  /* ── Core processing ────────────────────────────────────── */
+
+  /* ══════════════════════════════════════════════════════════
+     VIEW SWITCHING
+     ══════════════════════════════════════════════════════════ */
+  function switchView(view) {
+    currentView = view;
+
+    const tv = document.getElementById("telesalesView");
+    const bv = document.getElementById("branchView");
+    const bt = document.getElementById("btnTelesales");
+    const bb = document.getElementById("btnBranches");
+    const bsw = document.getElementById("branchSelectorWrap");
+    const ht = document.getElementById("headerTitle");
+    const hs = document.getElementById("headerSubtitle");
+
+    if (view === "branches") {
+      tv.style.display = "none";
+      bv.style.display = "flex";
+      bt.classList.remove("active");
+      bb.classList.add("active");
+      bsw.style.display = "none";
+      ht.textContent = "Branch Performance Dashboard";
+      hs.textContent = "All Branches — Real-time Performance Monitoring";
+      renderBranchView();
+    } else {
+      tv.style.display = "flex";
+      bv.style.display = "none";
+      bt.classList.add("active");
+      bb.classList.remove("active");
+      bsw.style.display = "";
+      ht.textContent = "Telesales Performance Dashboard";
+      hs.textContent = "Management Overview — Real-time Sales Tracking";
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     BRANCH VIEW RENDERING
+     ══════════════════════════════════════════════════════════ */
+  function renderBranchView() {
+    if (!branchPerfData.length) {
+      document.getElementById("branchGrid").innerHTML =
+        '<div class="no-branch-data">Loading branch data...</div>';
+      return;
+    }
+
+    /* Build array for every branch in our dropdown */
+    const branches = [];
+    for (const id in branchNames) {
+      const name = branchNames[id];
+      const entry = getBranchPerfByName(name);
+
+      if (entry) {
+        branches.push({
+          name,
+          target:   Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0),
+          netSales: Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0),
+          pct:      Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0),
+          hasData:  true
+        });
+      } else {
+        branches.push({ name, target: 0, netSales: 0, pct: 0, hasData: false });
+      }
+    }
+
+    /* Sort: with data first (highest %), no-data last */
+    branches.sort((a, b) => {
+      if (a.hasData && !b.hasData) return -1;
+      if (!a.hasData && b.hasData) return 1;
+      if (!a.hasData && !b.hasData) return a.name.localeCompare(b.name);
+      return b.pct - a.pct;
+    });
+
+    /* Summary stats */
+    const withData = branches.filter(b => b.hasData);
+    const totalNet = withData.reduce((s, b) => s + b.netSales, 0);
+    const totalTarget = withData.reduce((s, b) => s + b.target, 0);
+    const overallPct = totalTarget > 0 ? (totalNet / totalTarget) * 100 : 0;
+    const onTrack = withData.filter(b => b.pct >= 80).length;
+    const atRisk = withData.filter(b => b.pct < 80).length;
+
+    const overallClass = overallPct >= 80 ? "perf-high" : overallPct >= 50 ? "perf-medium" : "perf-low";
+    document.getElementById("bsOverallPct").textContent = overallPct.toFixed(1) + "%";
+    document.getElementById("bsOverallPct").className = "stat-value " + overallClass;
+    document.getElementById("bsTotalSales").textContent = "KES " + formatCurrency(totalNet);
+    document.getElementById("bsOnTrack").textContent = onTrack;
+    document.getElementById("bsOnTrackSub").textContent = `of ${withData.length} branches at 80%+`;
+    document.getElementById("bsAtRisk").textContent = atRisk;
+    document.getElementById("bsAtRiskSub").textContent = `of ${withData.length} branches below 80%`;
+
+    /* Grid cards */
+    let html = "";
+    branches.forEach(b => {
+      const tier = !b.hasData ? "none" : b.pct >= 80 ? "high" : b.pct >= 50 ? "medium" : "low";
+      const barWidth = b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
+
+      html += `
+        <div class="b-card tier-${tier}" data-name="${b.name.toLowerCase()}">
+          <div class="b-card-name">${b.name}</div>
+          <div class="b-card-pct ${b.hasData ? 'perf-' + tier : ''}">${b.hasData ? b.pct.toFixed(1) + '%' : '—'}</div>
+          <div class="b-card-detail">${b.hasData ? formatFullCurrency(b.netSales) + ' of ' + formatFullCurrency(b.target) : 'No data available'}</div>
+          <div class="b-card-bar">
+            <div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div>
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById("branchGrid").innerHTML = html;
+    document.getElementById("branchCount").textContent = withData.length + " branches";
+  }
+
+  /* ── Branch search ──────────────────────────────────────── */
+  document.getElementById("branchSearchBox").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll(".b-card").forEach(card => {
+      const name = card.dataset.name;
+      card.classList.toggle("hidden", q.length > 0 && !name.includes(q));
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     TELESALES VIEW: Core processing
+     ══════════════════════════════════════════════════════════ */
   function processAndRender() {
     const selectedBranch = branchSelect.value;
     const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
 
-    /* ── Process individual salesperson data (table only) ──── */
     const processed = allRawData
       .map(d => {
         let score = d.dailySalesScore;
@@ -870,38 +1163,24 @@
 
     processed.sort((a, b) => b.score - a.score);
 
-    /* Orders & active count still come from salesperson data */
     let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
     let activeCount = processed.length;
 
-    /*
-     * ── Branch performance from branch-sales-perfomance-report ──
-     * Target, net sales, and performance % now come from the
-     * branch report endpoint — NOT from summing salesperson data
-     * and NOT from hardcoded targets.
-     */
+    /* Branch performance from API */
     let branchTarget = 0;
     let branchNetSales = 0;
     let branchPerfPct = 0;
 
     if (selectedBranch) {
-      /* Single branch: match by name in the branch report data */
       const entry = getBranchPerfByName(selectedBranchName);
       if (entry) {
-        /*
-         * ⚠️ IMPORTANT: Update these field names to match your
-         * branch-sales-perfomance-report API response exactly.
-         * Check the console log labeled [Branch Perf Sample]
-         * to see the actual field names.
-         */
         branchTarget   = Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
         branchNetSales = Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
         branchPerfPct  = Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0);
       } else {
-        console.warn(`[No Match] Branch "${selectedBranchName}" not found in branch performance data.`);
+        console.warn(`[No Match] "${selectedBranchName}" not found in branch performance data.`);
       }
     } else {
-      /* All branches: aggregate only branches that exist in our dropdown */
       for (const id in branchNames) {
         const name = branchNames[id];
         const entry = getBranchPerfByName(name);
@@ -910,28 +1189,22 @@
           branchNetSales += Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
         }
       }
-      /* Calculate overall % from aggregated totals (more accurate than averaging) */
       branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
     }
 
-    /* ── Deficit calculations (same logic, new data source) ── */
     const deficit = branchTarget - branchNetSales;
     const eightyPctTarget = branchTarget * 0.8;
     const deficitBelow80 = eightyPctTarget - branchNetSales;
 
-    /* ── Stat card: Total Orders ───────────────────────────── */
+    /* Stat cards */
     document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
     document.getElementById("statOrdersSub").textContent = selectedBranch
-      ? `from ${selectedBranchName}`
-      : "across all branches";
+      ? `from ${selectedBranchName}` : "across all branches";
 
-    /* ── Stat card: Active Telesales ───────────────────────── */
     document.getElementById("statActive").textContent = activeCount;
     document.getElementById("statActiveSub").textContent = selectedBranch
-      ? `in ${selectedBranchName}`
-      : "across all branches";
+      ? `in ${selectedBranchName}` : "across all branches";
 
-    /* ── Stat card: Deficit ────────────────────────────────── */
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
     const deficitSubEl = document.getElementById("statDeficitSub");
@@ -948,7 +1221,7 @@
       deficitSubEl.textContent = "minimum threshold met";
     }
 
-    /* ── Branch performance bar ────────────────────────────── */
+    /* Branch perf bar */
     const perfClass = branchPerfPct >= 80 ? "perf-high" : branchPerfPct >= 50 ? "perf-medium" : "perf-low";
     const perfEl = document.getElementById("branchPerfValue");
     perfEl.textContent = branchPerfPct.toFixed(1) + "%";
@@ -973,15 +1246,15 @@
         ? "linear-gradient(90deg, #ca8a04, #facc15)"
         : "linear-gradient(90deg, #dc2626, #ef4444)";
 
-    const marker50 = document.getElementById("marker50");
-    marker50.className = branchPerfPct < 50 ? "active-marker" : "";
+    document.getElementById("marker50").className = branchPerfPct < 50 ? "active-marker" : "";
 
-    /* ── Pass processed salesperson data to table ──────────── */
     filteredData = processed;
     applySearchAndSort();
   }
 
-  /* ── Sorting logic ──────────────────────────────────────── */
+  /* ══════════════════════════════════════════════════════════
+     TELESALES VIEW: Sorting
+     ══════════════════════════════════════════════════════════ */
   function getSortValue(item, key) {
     switch (key) {
       case "name":   return (item.salesPersonName || "").toLowerCase();
@@ -996,26 +1269,21 @@
   function sortData(data) {
     const { key, dir } = currentSort;
     const sorted = [...data];
-
     sorted.sort((a, b) => {
       const va = getSortValue(a, key);
       const vb = getSortValue(b, key);
-
       if (typeof va === "string") {
         const cmp = va.localeCompare(vb);
         return dir === "asc" ? cmp : -cmp;
       }
-
       return dir === "asc" ? va - vb : vb - va;
     });
-
     return sorted;
   }
 
   /* ── Search + sort combined ─────────────────────────────── */
   function applySearchAndSort() {
     const q = document.getElementById("searchBox").value.toLowerCase().trim();
-
     let data = filteredData;
     if (q) {
       data = data.filter(d =>
@@ -1023,7 +1291,6 @@
         (d.branchName || "").toLowerCase().includes(q)
       );
     }
-
     displayedData = sortData(data);
     renderTable(displayedData);
   }
@@ -1031,18 +1298,15 @@
   /* ── Table rendering ────────────────────────────────────── */
   function renderTable(data) {
     const tbody = document.getElementById("tableBody");
-
     document.getElementById("tableCount").textContent =
       data.length + (data.length === 1 ? " person" : " people");
 
     if (!data.length) {
-      tbody.innerHTML =
-        `<tr class="no-data-row"><td colspan="7">No telesales data found</td></tr>`;
+      tbody.innerHTML = `<tr class="no-data-row"><td colspan="7">No telesales data found</td></tr>`;
       return;
     }
 
     let html = "";
-
     data.forEach((item, i) => {
       const sales = item.score;
       const orders = Number(item.totalDaysCustomers || 0);
@@ -1070,29 +1334,20 @@
         </tr>
       `;
     });
-
     tbody.innerHTML = html;
   }
 
   /* ── Sort header click handling ─────────────────────────── */
-  const sortLabels = {
-    name:   "Name",
-    branch: "Branch",
-    score:  "Sales %",
-    orders: "Orders",
-    value:  "Order Value"
-  };
+  const sortLabels = { name: "Name", branch: "Branch", score: "Sales %", orders: "Orders", value: "Order Value" };
 
   function updateSortHeaders() {
     document.querySelectorAll("thead th.sortable").forEach(th => {
       const key = th.dataset.sort;
       th.classList.remove("active-sort", "sort-asc", "sort-desc");
-
       if (key === currentSort.key) {
         th.classList.add("active-sort", currentSort.dir === "asc" ? "sort-asc" : "sort-desc");
       }
     });
-
     const hint = document.getElementById("sortHint");
     const arrow = currentSort.dir === "asc" ? "↑" : "↓";
     hint.textContent = `Sorted by ${sortLabels[currentSort.key]} ${arrow}`;
@@ -1101,27 +1356,27 @@
   document.querySelectorAll("thead th.sortable").forEach(th => {
     th.addEventListener("click", () => {
       const key = th.dataset.sort;
-
       if (currentSort.key === key) {
         currentSort.dir = currentSort.dir === "desc" ? "asc" : "desc";
       } else {
         currentSort.key = key;
         currentSort.dir = (key === "score" || key === "orders" || key === "value") ? "desc" : "asc";
       }
-
       updateSortHeaders();
       applySearchAndSort();
     });
   });
 
   /* ── Branch change ──────────────────────────────────────── */
+  let branchDebounce = null;
   branchSelect.addEventListener("change", () => {
     currentSort = { key: "score", dir: "desc" };
     updateSortHeaders();
-    loadAllData();
+    if (branchDebounce) clearTimeout(branchDebounce);
+    branchDebounce = setTimeout(loadAllData, 150);
   });
 
-  /* ── Search ─────────────────────────────────────────────── */
+  /* ── Telesales search ───────────────────────────────────── */
   let searchDebounce = null;
   document.getElementById("searchBox").addEventListener("input", () => {
     if (searchDebounce) clearTimeout(searchDebounce);
@@ -1131,7 +1386,10 @@
   /* ── Init ───────────────────────────────────────────────── */
   updateSortHeaders();
   loadAllData();
-  setInterval(loadAllData, 120000);
+  setInterval(() => {
+    branchPerfData = [];
+    loadAllData();
+  }, 120000);
 </script>
 
 </body>
