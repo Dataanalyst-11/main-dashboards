@@ -967,7 +967,7 @@
 
 <footer>
   Last updated: <span class="highlight" id="lastUpdated">—</span> &nbsp;|&nbsp;
-  Auto-refreshes every 2 mins &nbsp;|&nbsp;
+  Auto-refreshes every 10 mins &nbsp;|&nbsp;
   Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
 
@@ -993,7 +993,7 @@
          SUM(target for selected days)
      ============================================================ */
 
-  const AUTO_REFRESH_MS = 300000;
+  const AUTO_REFRESH_MS = 600000;//10 minutes
   const DATA_LOOKBACK_DAYS = 365; // One API pull covers the client-side date filters.
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
@@ -1369,7 +1369,8 @@
     const url =
       `${window.API_CONFIG.API_URL}branch-sales-performance-reports` +
       `?startDate=${encodeURIComponent(startDate)}` +
-      `&endDate=${encodeURIComponent(endDate)}`;
+      `&endDate=${encodeURIComponent(endDate)}` +
+      `&pageSize=10000`;
 
     console.log("[API 2/2] Branch performance:", url);
 
@@ -1508,57 +1509,59 @@
   }
 
   function aggregateBranches(startDate, endDate) {
-    const groups = new Map();
+    // Build one record per branch/day. The branch API is preferred;
+    // missing branch/day records are recovered from the cached sales API.
+    const daily = new Map();
 
+    function addDaily(name, date, target, netSales) {
+      if (!name || !date) return;
+      const key = `${name.toLowerCase().trim()}||${date}`;
+      if (!daily.has(key)) daily.set(key, { name, date, target: 0, netSales: 0 });
+      const d = daily.get(key);
+      d.target = Number(target) || d.target;
+      d.netSales += Number(netSales) || 0;
+    }
+
+    // Branch endpoint records.
     for (const row of branchPerfData) {
-      const rowDate = getRecordDate(row);
-
-      if (!isDateInRange(rowDate, startDate, endDate)) continue;
-
-      const name = String(
-        row.orgBranchName ||
-        row.branchName ||
-        branchNames[row.orgBranchId] ||
-        ""
-      ).trim();
-
+      const date = getRecordDate(row);
+      if (!isDateInRange(date, startDate, endDate)) continue;
+      const name = String(row.orgBranchName || row.branchName || branchNames[row.orgBranchId] || '').trim();
       if (!name) continue;
+      addDaily(name, date, row.dailySalesTarget ?? row.target ?? row.branchTarget ?? row.salesTarget, getNetSales(row));
+    }
 
-      const key = name.toLowerCase();
+    // Sales-cache fallback for branch/day combinations missing above.
+    const salesDaily = new Map();
+    for (const row of allRawData) {
+      const date = getRecordDate(row);
+      if (!isDateInRange(date, startDate, endDate)) continue;
+      const name = getBranchNameFromSalesRow(row);
+      if (!name) continue;
+      const key = `${name.toLowerCase().trim()}||${date}`;
+      if (!salesDaily.has(key)) salesDaily.set(key, { name, date, target: getSalesTarget(row), netSales: 0 });
+      const d = salesDaily.get(key);
+      d.netSales += getNetSales(row);
+      if (!d.target) d.target = getSalesTarget(row);
+    }
+    for (const [key, d] of salesDaily) {
+      if (!daily.has(key)) addDaily(d.name, d.date, d.target, d.netSales);
+    }
 
-      if (!groups.has(key)) {
-        groups.set(key, {
-          name,
-          target: 0,
-          netSales: 0,
-          days: 0,
-          hasData: true
-        });
-      }
-
+    const groups = new Map();
+    for (const d of daily.values()) {
+      const key = d.name.toLowerCase().trim();
+      if (!groups.has(key)) groups.set(key, { name: d.name, target: 0, netSales: 0, days: 0, hasData: true });
       const g = groups.get(key);
-
-      /*
-        CRITICAL:
-        For a multi-day range, aggregate the raw values first.
-        Never use dailySalesScore as the range percentage.
-      */
-      g.target += toNumber(
-        row.dailySalesTarget ??
-        row.target ??
-        row.branchTarget ??
-        row.salesTarget
-      );
-
-      g.netSales += getNetSales(row);
+      g.target += d.target;
+      g.netSales += d.netSales;
       g.days += 1;
     }
 
-    return [...groups.values()]
-      .map(b => ({
-        ...b,
-        pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0
-      }));
+    return [...groups.values()].map(b => ({
+      ...b,
+      pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0
+    }));
   }
 
   /* ── Branch performance lookup ──────────────────────────── */
