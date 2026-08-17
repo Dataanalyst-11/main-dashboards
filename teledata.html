@@ -67,6 +67,197 @@
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* ── Loading overlay on header filters ─────────────────── */
+  .header-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .header-loading-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .header-loading-overlay .mini-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid #334155;
+    border-top-color: #ba9305;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* ── Shared Select Style ────────────────────────────────── */
+  .filter-select {
+    position: relative;
+  }
+
+  .filter-select select {
+    padding: 12px 42px 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #334155;
+    background: #1e293b;
+    color: #f1f5f9;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+    outline: none;
+  }
+
+  .filter-select select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .filter-select select:hover:not(:disabled) { border-color: #ba9305; }
+  .filter-select select:focus:not(:disabled) {
+    border-color: #ba9305;
+    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
+  }
+
+  .filter-select::after {
+    content: "\25BE";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ba9305;
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  .date-selector select { min-width: 160px; }
+  .branch-selector select { min-width: 240px; }
+
+  /* ── Custom Date Range Picker ───────────────────────────── */
+  .custom-date-range {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 10px;
+    border: 2px solid #334155;
+    background: #1e293b;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.3s, max-width 0.4s ease, padding 0.4s ease;
+    max-width: 0;
+    opacity: 0;
+    padding: 0;
+    border-color: transparent;
+    pointer-events: none;
+  }
+
+  .custom-date-range.visible {
+    max-width: 380px;
+    opacity: 1;
+    padding: 0;
+    border-color: #334155;
+    pointer-events: all;
+  }
+
+  .custom-date-range.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .custom-date-range:focus-within:not(.disabled) {
+    border-color: #ba9305;
+    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
+  }
+
+  .date-range-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 4px 10px;
+    position: relative;
+  }
+
+  .date-range-group + .date-range-group {
+    border-left: 1px solid #334155;
+  }
+
+  .date-range-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #ba9305;
+    margin-right: 8px;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .date-range-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .date-range-input-wrap input[type="date"] {
+    padding: 8px 10px 8px 30px;
+    border-radius: 7px;
+    border: 1.5px solid #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    width: 130px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  .date-range-input-wrap input[type="date"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .date-range-input-wrap input[type="date"]:hover:not(:disabled) { border-color: #475569; }
+  .date-range-input-wrap input[type="date"]:focus:not(:disabled) { border-color: #ba9305; }
+
+  .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .date-range-input-wrap input[type="date"]:disabled::-webkit-calendar-picker-indicator {
+    cursor: not-allowed;
+  }
+
+  .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+  .date-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .date-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: #64748b;
   }
 
   /* ── View Toggle ─────────────────────────────────────────── */
@@ -91,52 +282,9 @@
     white-space: nowrap;
   }
 
-  .view-toggle button:hover {
-    color: #94a3b8;
-  }
-
-  .view-toggle button.active {
-    background: #ba9305;
-    color: #020617;
-  }
-
-  .branch-selector {
-    position: relative;
-    min-width: 260px;
-  }
-
-  .branch-selector select {
-    width: 100%;
-    padding: 12px 42px 12px 16px;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #1e293b;
-    color: #f1f5f9;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-
-  .branch-selector select:hover { border-color: #ba9305; }
-  .branch-selector select:focus {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
-  }
-
-  .branch-selector::after {
-    content: "\25BE";
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ba9305;
-    font-size: 18px;
-    pointer-events: none;
-  }
+  .view-toggle button:hover:not(:disabled) { color: #94a3b8; }
+  .view-toggle button.active { background: #ba9305; color: #020617; }
+  .view-toggle button:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* ── View Containers ─────────────────────────────────────── */
   #telesalesView,
@@ -148,7 +296,7 @@
 
   #branchView { display: none; }
 
-  /* ── Stat Cards (shared) ────────────────────────────────── */
+  /* ── Stat Cards ─────────────────────────────────────────── */
   .stats-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -173,10 +321,7 @@
     transition: border-color 0.2s, transform 0.15s;
   }
 
-  .stat-card:hover {
-    border-color: #475569;
-    transform: translateY(-2px);
-  }
+  .stat-card:hover { border-color: #475569; transform: translateY(-2px); }
 
   .stat-card::before {
     content: "";
@@ -221,9 +366,7 @@
   .perf-low { color: #ef4444 !important; }
 
   /* ── Telesales: Branch Perf Bar ──────────────────────────── */
-  .branch-perf-section {
-    padding: 20px 32px 0;
-  }
+  .branch-perf-section { padding: 20px 32px 0; }
 
   .branch-perf-card {
     background: #1e293b;
@@ -236,10 +379,7 @@
     flex-wrap: wrap;
   }
 
-  .branch-perf-info {
-    flex: 0 0 auto;
-    min-width: 240px;
-  }
+  .branch-perf-info { flex: 0 0 auto; min-width: 240px; }
 
   .branch-perf-info .label {
     font-size: 12px;
@@ -250,19 +390,9 @@
     margin-bottom: 6px;
   }
 
-  .branch-perf-info .value {
-    font-size: 42px;
-    font-weight: 900;
-    line-height: 1;
-  }
+  .branch-perf-info .value { font-size: 42px; font-weight: 900; line-height: 1; }
 
-  .branch-perf-info .detail {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-top: 8px;
-    line-height: 1.7;
-  }
-
+  .branch-perf-info .detail { font-size: 13px; color: #94a3b8; margin-top: 8px; line-height: 1.7; }
   .branch-perf-info .detail .deficit { font-weight: 700; color: #ef4444; }
   .branch-perf-info .detail .surplus { font-weight: 700; color: #22c55e; }
 
@@ -336,10 +466,7 @@
   }
 
   .search-box::placeholder { color: #475569; }
-  .search-box:focus {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12);
-  }
+  .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12); }
 
   .table-wrap {
     flex: 1;
@@ -355,12 +482,7 @@
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    font-size: 14px;
-  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
 
   thead th {
     position: sticky;
@@ -405,13 +527,7 @@
   th:nth-child(6), td:nth-child(6) { width: 16%; text-align: right; }
   th:nth-child(7), td:nth-child(7) { width: 14%; text-align: center; }
 
-  td {
-    padding: 13px 14px;
-    border-bottom: 1px solid #1e293b;
-    vertical-align: middle;
-    color: #cbd5e1;
-  }
-
+  td { padding: 13px 14px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
 
@@ -480,7 +596,6 @@
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .sort-hint { font-size: 11px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
 
   /* ── Branch View: Grid ──────────────────────────────────── */
@@ -521,10 +636,7 @@
     transition: transform 0.15s, border-color 0.2s;
   }
 
-  .b-card:hover {
-    transform: translateY(-2px);
-    border-color: #475569;
-  }
+  .b-card:hover { transform: translateY(-2px); border-color: #475569; }
 
   .b-card::before {
     content: "";
@@ -562,11 +674,7 @@
     margin-bottom: 10px;
   }
 
-  .b-card-detail {
-    font-size: 13px;
-    color: #94a3b8;
-    line-height: 1.4;
-  }
+  .b-card-detail { font-size: 13px; color: #94a3b8; line-height: 1.4; }
 
   .b-card-bar {
     position: absolute;
@@ -587,7 +695,6 @@
   .bar-medium { background: #facc15; }
   .bar-low { background: #ef4444; }
   .bar-none { background: #475569; }
-
   .b-card.hidden { display: none; }
 
   .no-branch-data {
@@ -626,9 +733,12 @@
     z-index: 999;
     transform: translateX(120%);
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    max-width: 380px;
   }
 
   .toast.show { transform: translateX(0); }
+  .toast.toast-warn { border-left-color: #f59e0b; }
+  .toast.toast-retry { border-left-color: #38bdf8; }
 
   /* ── Responsive ──────────────────────────────────────────── */
   @media (max-width: 1100px) {
@@ -656,15 +766,26 @@
     .stat-value { font-size: 20px; }
     .branch-perf-info .value { font-size: 32px; }
     .branch-perf-info { min-width: 100%; }
-    .branch-selector { min-width: 100%; }
-    .search-box { width: 100%; }
     .header-right { width: 100%; }
+    .filter-select { flex: 1; min-width: 0; }
+    .filter-select select { width: 100%; }
     .view-toggle { flex: 1; }
     .view-toggle button { flex: 1; text-align: center; }
+    .search-box { width: 100%; }
     th:nth-child(6), td:nth-child(6) { display: none; }
     th:nth-child(2), td:nth-child(2) { width: 40%; }
     th:nth-child(4), td:nth-child(4) { width: 22%; }
     th:nth-child(5), td:nth-child(5) { width: 20%; }
+    .custom-date-range.visible {
+      max-width: 100%;
+      flex-direction: column;
+      border-radius: 10px;
+    }
+    .date-range-group + .date-range-group {
+      border-left: none;
+      border-top: 1px solid #334155;
+    }
+    .date-range-input-wrap input[type="date"] { width: 100%; }
   }
 </style>
 </head>
@@ -679,12 +800,45 @@
       <div class="header-subtitle" id="headerSubtitle">Management Overview — Real-time Sales Tracking</div>
     </div>
   </div>
-  <div class="header-right">
+  <div class="header-right" id="headerRight">
+    <div class="header-loading-overlay" id="headerLoading">
+      <div class="mini-spinner"></div>
+    </div>
+    <div class="filter-select date-selector">
+      <select id="dateSelect">
+        <option value="today" selected>Today</option>
+        <option value="yesterday">Yesterday</option>
+        <option value="7days">Last 7 Days</option>
+        <option value="30days">Last 30 Days</option>
+        <option value="90days">Last 90 Days</option>
+        <option value="custom">Custom Range</option>
+      </select>
+    </div>
+    <div class="custom-date-range" id="customDateRange">
+      <div class="date-range-group">
+        <span class="date-range-label">From</span>
+        <div class="date-range-input-wrap">
+          <span class="date-icon">
+            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+          </span>
+          <input type="date" id="dateFrom">
+        </div>
+      </div>
+      <div class="date-range-group">
+        <span class="date-range-label">To</span>
+        <div class="date-range-input-wrap">
+          <span class="date-icon">
+            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+          </span>
+          <input type="date" id="dateTo">
+        </div>
+      </div>
+    </div>
     <div class="view-toggle">
       <button id="btnTelesales" class="active" onclick="switchView('telesales')">Telesales</button>
       <button id="btnBranches" onclick="switchView('branches')">Branches</button>
     </div>
-    <div class="branch-selector" id="branchSelectorWrap">
+    <div class="filter-select branch-selector" id="branchSelectorWrap">
       <select id="branchSelect">
         <option value="">All Branches</option>
       </select>
@@ -822,29 +976,176 @@
 <script src="config.js"></script>
 
 <script>
-  /* ── State ──────────────────────────────────────────────── */
+  /* ============================================================
+     DATA ENGINE
+     ============================================================
+     IMPORTANT:
+     - Exactly TWO API requests per refresh cycle:
+         1) sales-person-performance
+         2) branch-sales-performance-reports
+     - No pagination.
+     - Both requests are made in parallel.
+     - Data is pulled once every 2 minutes.
+     - Date and branch filters are CLIENT-SIDE only.
+     - Performance for a date range is:
+         SUM(net sales for selected days)
+         -------------------------------- × 100
+         SUM(target for selected days)
+     ============================================================ */
+
+  const AUTO_REFRESH_MS = 120000;
+  const DATA_LOOKBACK_DAYS = 365; // One API pull covers the client-side date filters.
+  const API_TOKEN = window.API_CONFIG.API_TOKEN;
+
   let currentSort = { key: "score", dir: "desc" };
   let currentView = "telesales";
+  let isLoading = false;
+  let currentAbortCtrl = null;
 
-  /* ── Date range helper ──────────────────────────────────── */
-  function getDateRange() {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const endDate = `${yyyy}-${mm}-${dd}`;
+  let allRawData = [];
+  let branchPerfData = [];
+  let filteredData = [];
+  let displayedData = [];
+  let lastDataFetchAt = null;
 
-    const past = new Date();
-    past.setDate(today.getDate() - 7);
-    const pY = past.getFullYear();
-    const pM = String(past.getMonth() + 1).padStart(2, '0');
-    const pD = String(past.getDate()).padStart(2, '0');
-    const startDate = `${pY}-${pM}-${pD}`;
+  /* ── Date helpers ────────────────────────────────────────── */
 
-    return { startDate, endDate };
+  function formatDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   }
 
-  /* ── Branch names lookup ────────────────────────────────── */
+  function parseDateKey(value) {
+    if (!value) return null;
+    const s = String(value);
+    const match = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : null;
+  }
+
+  function getRecordDate(record) {
+    return parseDateKey(
+      record.reportingDate ||
+      record.reportDate ||
+      record.salesDate ||
+      record.date ||
+      record.createdAt ||
+      record.updatedAt
+    );
+  }
+
+  function getToday() {
+    return new Date();
+  }
+
+  function getFetchRange() {
+    const end = getToday();
+    const start = new Date(end);
+    start.setDate(start.getDate() - DATA_LOOKBACK_DAYS + 1);
+
+    return {
+      startDate: formatDate(start),
+      endDate: formatDate(end)
+    };
+  }
+
+  function getDateRange() {
+    const preset = document.getElementById("dateSelect").value;
+    const today = getToday();
+    const endDate = formatDate(today);
+
+    if (preset === "custom") {
+      let startDate = document.getElementById("dateFrom").value || endDate;
+      let customEnd = document.getElementById("dateTo").value || endDate;
+
+      if (startDate > customEnd) {
+        [startDate, customEnd] = [customEnd, startDate];
+      }
+
+      return { startDate, endDate: customEnd };
+    }
+
+    if (preset === "yesterday") {
+      const d = new Date(today);
+      d.setDate(d.getDate() - 1);
+      const day = formatDate(d);
+      return { startDate: day, endDate: day };
+    }
+
+    const daysMap = {
+      today: 1,
+      "7days": 7,
+      "30days": 30,
+      "90days": 90
+    };
+
+    const days = daysMap[preset] || 1;
+    const start = new Date(today);
+    start.setDate(start.getDate() - days + 1);
+
+    return {
+      startDate: formatDate(start),
+      endDate
+    };
+  }
+
+  function syncDateInputsFromPreset(preset) {
+    const today = getToday();
+    const todayStr = formatDate(today);
+    let fromStr = todayStr;
+    let toStr = todayStr;
+
+    switch (preset) {
+      case "today":
+        break;
+
+      case "yesterday": {
+        const y = new Date(today);
+        y.setDate(y.getDate() - 1);
+        fromStr = toStr = formatDate(y);
+        break;
+      }
+
+      case "7days": {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 6);
+        fromStr = formatDate(d);
+        break;
+      }
+
+      case "30days": {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 29);
+        fromStr = formatDate(d);
+        break;
+      }
+
+      case "90days": {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 89);
+        fromStr = formatDate(d);
+        break;
+      }
+
+      case "custom":
+        return;
+    }
+
+    document.getElementById("dateFrom").value = fromStr;
+    document.getElementById("dateTo").value = toStr;
+  }
+
+  function toggleCustomDateRange(show) {
+    document.getElementById("customDateRange").classList.toggle("visible", show);
+  }
+
+  function isDateInRange(dateKey, startDate, endDate) {
+    return !!dateKey && dateKey >= startDate && dateKey <= endDate;
+  }
+
+  /* ── Branch names ─────────────────────────────────────────── */
+
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -860,7 +1161,7 @@
     "orgbranch-6850015d7d3c6f75c8c1d680": "Kitui Wholesale",
     "orgbranch-685001667d3c6f75c8c1d6e3": "Philmed Malindi",
     "orgbranch-685001967d3c6f75c8c1d746": "Kericho",
-    "orgbranch-6850019e7d3c6f75c8c1d7a9"  :    "Nakuru",
+    "orgbranch-6850019e7d6f75c8c1d7a9": "Nakuru",
     "orgbranch-685001a77d3c6f75c8c1d80c": "Kisumu",
     "orgbranch-685001b17d3c6f75c8c1d86f": "Philmed Eldoret",
     "orgbranch-685001c17d3c6f75c8c1d8d2": "Philmed Thika",
@@ -876,8 +1177,8 @@
     "orgbranch-6a14177260c3a453acb56ceb": "Nanyuki"
   };
 
-  /* ── Populate branch dropdown ───────────────────────────── */
   const branchSelect = document.getElementById("branchSelect");
+
   Object.entries(branchNames)
     .sort((a, b) => a[1].localeCompare(b[1]))
     .forEach(([id, name]) => {
@@ -887,147 +1188,453 @@
       branchSelect.appendChild(opt);
     });
 
-  /* ── Data stores ────────────────────────────────────────── */
-  let allRawData = [];
-  let branchPerfData = [];
-  let filteredData = [];
-  let displayedData = [];
+  /* ── Formatting ──────────────────────────────────────────── */
 
-  /* ── Helpers ────────────────────────────────────────────── */
   function formatValue(num) {
-    const n = Math.round(num);
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + "M";
-    if (n >= 1_000) return (n / 1_000).toFixed(1) + "K";
-    return n.toLocaleString();
+    const n = Number(num) || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+    return Math.round(n).toLocaleString();
   }
 
   function formatCurrency(num) {
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
-    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-    return Math.round(num).toLocaleString();
+    const n = Number(num) || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+    return Math.round(n).toLocaleString();
   }
 
   function formatFullCurrency(num) {
-    return "KES " + Math.round(num).toLocaleString();
+    return "KES " + Math.round(Number(num) || 0).toLocaleString();
   }
+
+  function toNumber(value) {
+    if (value === null || value === undefined || value === "") return 0;
+    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+
+    const cleaned = String(value)
+      .replace(/,/g, "")
+      .replace(/%/g, "")
+      .trim();
+
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function getSalesTarget(row) {
+    return toNumber(
+      row.dailySalesTarget ??
+      row.salesTarget ??
+      row.target ??
+      row.dailyTarget ??
+      row.targetSales
+    );
+  }
+
+  function getNetSales(row) {
+    return toNumber(
+      row.netDailySales ??
+      row.netSales ??
+      row.dailyNetSales ??
+      row.branchNetSales
+    );
+  }
+
+  function getCustomerOrders(row) {
+    return toNumber(
+      row.totalDaysCustomers ??
+      row.dailyCustomers ??
+      row.customerOrders ??
+      row.totalCustomers
+    );
+  }
+
+  function getBranchNameFromSalesRow(row) {
+    return String(
+      row.branchName ||
+      row.orgBranchName ||
+      branchNames[row.orgBranchId] ||
+      ""
+    ).trim();
+  }
+
+  function getBranchIdFromRow(row) {
+    return row.orgBranchId || row.branchId || "";
+  }
+
+  function getBranchIdByName(name) {
+    const normalized = String(name || "").trim().toLowerCase();
+
+    for (const [id, branchName] of Object.entries(branchNames)) {
+      if (branchName.toLowerCase() === normalized) return id;
+    }
+
+    return "";
+  }
+
+  /* ── Toast ───────────────────────────────────────────────── */
 
   let toastTimer = null;
-  function showToast(msg) {
+
+  function showToast(msg, type) {
     const t = document.getElementById("toast");
     t.textContent = msg;
+    t.className = "toast" + (type ? " toast-" + type : "");
+    void t.offsetWidth;
     t.classList.add("show");
+
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 4500);
   }
 
-  /* ── API config ─────────────────────────────────────────── */
-  const API_TOKEN = window.API_CONFIG.API_TOKEN;
+  /* ── Abort / retry ───────────────────────────────────────── */
 
-  /* ── Fetch salesperson data (paginated) ─────────────────── */
-  async function fetchSalesPage(pageNum, branchId) {
-    const { startDate, endDate } = getDateRange();
-    let url = `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&startDate=${startDate}&endDate=${endDate}&pageNum=${pageNum}`;
-    if (branchId) url += `&orgBranchId=${branchId}`;
-
-    const res = await fetch(url, {
-      headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" }
-    });
-    if (!res.ok) throw new Error("Salesperson HTTP " + res.status);
-    return await res.json();
-  }
-
-  async function fetchAllSalesData(branchId) {
-    let allData = [];
-    const first = await fetchSalesPage(0, branchId);
-    const pageCount = first.pageCount || 1;
-    allData.push(...(first.data || []));
-
-    if (pageCount > 1) {
-      const promises = [];
-      for (let i = 1; i < pageCount; i++) promises.push(fetchSalesPage(i, branchId));
-      const responses = await Promise.all(promises);
-      responses.forEach(r => allData.push(...(r.data || [])));
+  function abortPreviousRequests() {
+    if (currentAbortCtrl) {
+      currentAbortCtrl.abort();
+      currentAbortCtrl = null;
     }
-    return allData;
+
+    currentAbortCtrl = new AbortController();
+    return currentAbortCtrl.signal;
   }
 
-  /* ── Fetch branch performance data ──────────────────────── */
-  async function fetchBranchPerformance() {
-    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports`;
+  async function fetchWithRetry(url, options, maxRetries = 3) {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, options);
 
-    const res = await fetch(url, {
-      headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" }
-    });
-    if (!res.ok) throw new Error("Branch perf HTTP " + res.status);
-    const json = await res.json();
+        if (response.status === 409 && attempt < maxRetries) {
+          const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          showToast(
+            `Rate limited — retrying in ${Math.round(delay / 1000)}s...`,
+            "retry"
+          );
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
 
-    const dataArr = Array.isArray(json) ? json : (json.data || []);
-    if (dataArr.length > 0) {
-      console.log("%c[Branch Perf Sample]", "color:#ba9305;font-weight:bold", dataArr[0]);
-    }
-    return dataArr;
-  }
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
 
-  /* ── Load all data ──────────────────────────────────────── */
-  async function loadAllData() {
-    const selectedBranch = branchSelect.value;
+        return await response.json();
 
-    try {
-      /* Fetch branch perf only if not cached */
-      if (branchPerfData.length === 0) {
-        branchPerfData = await fetchBranchPerformance();
+      } catch (err) {
+        if (err.name === "AbortError") throw err;
+
+        if (attempt < maxRetries) {
+          const delay = Math.pow(2, attempt) * 700 + Math.random() * 300;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        throw err;
       }
+    }
+  }
 
-      /* Fetch salesperson data */
-      const salesData = await fetchAllSalesData(selectedBranch);
-      allRawData = salesData;
+  /* ── EXACTLY TWO API REQUESTS ────────────────────────────── */
 
-      /* Log unmatched branches (first load only) */
-      if (branchPerfData._logged !== true) {
-        branchPerfData._logged = true;
-        const reportNames = new Set(
-          branchPerfData.map(d => (d.orgBranchName || "").toLowerCase().trim())
-        );
-        for (const id in branchNames) {
-          const name = branchNames[id].toLowerCase().trim();
-          if (!reportNames.has(name)) {
-            console.warn(
-              `%c[Unmatched] "${branchNames[id]}" not found in branch report.`,
-              "color:#ef4444;font-weight:bold"
-            );
-          }
+  async function fetchSalesData(signal) {
+    const { startDate, endDate } = getFetchRange();
+
+    /*
+      No pageNum and no pagination loop.
+      The request intentionally does NOT contain orgBranchId.
+      Branch selection is handled entirely in the browser.
+    */
+    const url =
+      `${window.API_CONFIG.API_URL}sales-person-performance` +
+      `?pageSize=10000` +
+      `&startDate=${encodeURIComponent(startDate)}` +
+      `&endDate=${encodeURIComponent(endDate)}`;
+
+    console.log("[API 1/2] Sales:", url);
+
+    const json = await fetchWithRetry(url, {
+      signal,
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
+      }
+    });
+
+    return Array.isArray(json) ? json : (json.data || []);
+  }
+
+  async function fetchBranchPerformanceData(signal) {
+    const { startDate, endDate } = getFetchRange();
+
+    const url =
+      `${window.API_CONFIG.API_URL}branch-sales-performance-reports` +
+      `?startDate=${encodeURIComponent(startDate)}` +
+      `&endDate=${encodeURIComponent(endDate)}`;
+
+    console.log("[API 2/2] Branch performance:", url);
+
+    const json = await fetchWithRetry(url, {
+      signal,
+      headers: {
+        "Authorization": API_TOKEN,
+        "Content-Type": "application/json"
+      }
+    });
+
+    return Array.isArray(json) ? json : (json.data || []);
+  }
+
+  /* ── Loading state ───────────────────────────────────────── */
+
+  function setLoadingState(loading) {
+    isLoading = loading;
+
+    const overlay = document.getElementById("headerLoading");
+    const dateSelect = document.getElementById("dateSelect");
+    const dateFrom = document.getElementById("dateFrom");
+    const dateTo = document.getElementById("dateTo");
+    const branchSel = document.getElementById("branchSelect");
+
+    /*
+      During the two API calls we lock the controls.
+      Once data is loaded, filters are unlocked and changing them
+      does NOT make another API request.
+    */
+    if (loading) {
+      overlay.classList.add("active");
+      dateSelect.disabled = true;
+      dateFrom.disabled = true;
+      dateTo.disabled = true;
+      branchSel.disabled = true;
+    } else {
+      overlay.classList.remove("active");
+      dateSelect.disabled = false;
+      dateFrom.disabled = false;
+      dateTo.disabled = false;
+      branchSel.disabled = false;
+    }
+  }
+
+  function showTableLoading() {
+    document.getElementById("tableBody").innerHTML = `
+      <tr class="loading-row">
+        <td colspan="7">
+          <span class="loading-spinner"></span>
+          Loading sales data...
+        </td>
+      </tr>`;
+  }
+
+  /* ── Client-side range aggregation ───────────────────────── */
+
+  function aggregateSalesPeople(startDate, endDate, selectedBranchId) {
+    const groups = new Map();
+
+    for (const row of allRawData) {
+      const rowDate = getRecordDate(row);
+
+      if (!isDateInRange(rowDate, startDate, endDate)) continue;
+
+      const branchId = getBranchIdFromRow(row);
+      const branchName = getBranchNameFromSalesRow(row);
+
+      if (selectedBranchId) {
+        /*
+          Prefer the actual orgBranchId from the API.
+          If the API row does not contain it, fall back to branch name.
+        */
+        const selectedName = branchNames[selectedBranchId] || "";
+
+        if (
+          branchId &&
+          branchId !== selectedBranchId &&
+          branchName.toLowerCase() !== selectedName.toLowerCase()
+        ) {
+          continue;
+        }
+
+        if (
+          !branchId &&
+          branchName.toLowerCase() !== selectedName.toLowerCase()
+        ) {
+          continue;
         }
       }
 
-      /* Update whichever view is active */
+      const name = String(
+        row.salesPersonName ||
+        row.salespersonName ||
+        row.salesPerson ||
+        row.name ||
+        ""
+      ).trim();
+
+      if (!name) continue;
+
+      const key = `${name.toLowerCase()}||${branchName.toLowerCase()}`;
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          salesPersonName: name,
+          branchName,
+          orgBranchId: branchId || getBranchIdByName(branchName),
+          netValue: 0,
+          target: 0,
+          orders: 0,
+          days: 0
+        });
+      }
+
+      const g = groups.get(key);
+
+      /*
+        CRITICAL:
+        We ADD the daily sales and daily target.
+        We do NOT use the highest dailySalesScore.
+      */
+      g.netValue += getNetSales(row);
+      g.target += getSalesTarget(row);
+      g.orders += getCustomerOrders(row);
+      g.days += 1;
+    }
+
+    return [...groups.values()]
+      .map(g => ({
+        ...g,
+        score: g.target > 0 ? (g.netValue / g.target) * 100 : 0,
+        totalDaysCustomers: g.orders
+      }))
+      .filter(g => g.score > 0);
+  }
+
+  function aggregateBranches(startDate, endDate) {
+    const groups = new Map();
+
+    for (const row of branchPerfData) {
+      const rowDate = getRecordDate(row);
+
+      if (!isDateInRange(rowDate, startDate, endDate)) continue;
+
+      const name = String(
+        row.orgBranchName ||
+        row.branchName ||
+        branchNames[row.orgBranchId] ||
+        ""
+      ).trim();
+
+      if (!name) continue;
+
+      const key = name.toLowerCase();
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          name,
+          target: 0,
+          netSales: 0,
+          days: 0,
+          hasData: true
+        });
+      }
+
+      const g = groups.get(key);
+
+      /*
+        CRITICAL:
+        For a multi-day range, aggregate the raw values first.
+        Never use dailySalesScore as the range percentage.
+      */
+      g.target += toNumber(
+        row.dailySalesTarget ??
+        row.target ??
+        row.branchTarget ??
+        row.salesTarget
+      );
+
+      g.netSales += getNetSales(row);
+      g.days += 1;
+    }
+
+    return [...groups.values()]
+      .map(b => ({
+        ...b,
+        pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0
+      }));
+  }
+
+  /* ── Branch performance lookup ──────────────────────────── */
+
+  function getBranchPerfByName(branchName, startDate, endDate) {
+    const branches = aggregateBranches(startDate, endDate);
+    const normalized = String(branchName || "").toLowerCase().trim();
+
+    return branches.find(
+      b => b.name.toLowerCase().trim() === normalized
+    ) || null;
+  }
+
+  /* ── Main two-request refresh ───────────────────────────── */
+
+  async function loadAllData() {
+    if (isLoading) return;
+
+    const signal = abortPreviousRequests();
+    setLoadingState(true);
+    showTableLoading();
+
+    try {
+      /*
+        ONLY TWO fetches.
+        They run simultaneously.
+        No pagination. No branch-specific API call.
+      */
+      const [salesData, branchData] = await Promise.all([
+        fetchSalesData(signal),
+        fetchBranchPerformanceData(signal)
+      ]);
+
+      if (signal.aborted) return;
+
+      allRawData = salesData;
+      branchPerfData = branchData;
+      lastDataFetchAt = new Date();
+
+      console.log(
+        `%c[DATA CACHE] Sales rows: ${allRawData.length} | Branch rows: ${branchPerfData.length}`,
+        "color:#22c55e;font-weight:bold"
+      );
+
       processAndRender();
+
       if (currentView === "branches") {
         renderBranchView();
       }
 
       document.getElementById("lastUpdated").textContent =
-        new Date().toLocaleTimeString();
+        lastDataFetchAt.toLocaleTimeString();
 
     } catch (err) {
+      if (err.name === "AbortError") {
+        console.log("[Request Aborted]");
+        return;
+      }
+
       console.error(err);
-      showToast("Failed to load data: " + err.message);
+      showToast("Failed to load data: " + err.message, "warn");
+
       document.getElementById("tableBody").innerHTML =
-        `<tr class="no-data-row"><td colspan="7">Failed to load data. Please try again.</td></tr>`;
+        `<tr class="no-data-row">
+          <td colspan="7">Failed to load data. Please try again.</td>
+        </tr>`;
+
+    } finally {
+      if (!signal.aborted) {
+        setLoadingState(false);
+      }
     }
   }
 
-  /* ── Helper: find branch perf record by name ────────────── */
-  function getBranchPerfByName(branchName) {
-    if (!branchName) return null;
-    const normalized = branchName.toLowerCase().trim();
-    return branchPerfData.find(d =>
-      (d.orgBranchName || "").toLowerCase().trim() === normalized
-    ) || null;
-  }
+  /* ── View switching ─────────────────────────────────────── */
 
-  /* ══════════════════════════════════════════════════════════
-     VIEW SWITCHING
-     ══════════════════════════════════════════════════════════ */
   function switchView(view) {
     currentView = view;
 
@@ -1056,39 +1663,51 @@
       bsw.style.display = "";
       ht.textContent = "Telesales Performance Dashboard";
       hs.textContent = "Management Overview — Real-time Sales Tracking";
+      processAndRender();
     }
   }
 
-  /* ══════════════════════════════════════════════════════════
-     BRANCH VIEW RENDERING
-     ══════════════════════════════════════════════════════════ */
+  /* ── Branch view ─────────────────────────────────────────── */
+
   function renderBranchView() {
     if (!branchPerfData.length) {
       document.getElementById("branchGrid").innerHTML =
-        '<div class="no-branch-data">Loading branch data...</div>';
+        '<div class="no-branch-data">No branch data available</div>';
       return;
     }
 
-    /* Build array for every branch in our dropdown */
+    const { startDate, endDate } = getDateRange();
+    const aggregated = aggregateBranches(startDate, endDate);
+
+    const byName = new Map(
+      aggregated.map(b => [b.name.toLowerCase().trim(), b])
+    );
+
     const branches = [];
+
     for (const id in branchNames) {
       const name = branchNames[id];
-      const entry = getBranchPerfByName(name);
+      const entry = byName.get(name.toLowerCase().trim());
 
       if (entry) {
         branches.push({
           name,
-          target:   Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0),
-          netSales: Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0),
-          pct:      Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0),
-          hasData:  true
+          target: entry.target,
+          netSales: entry.netSales,
+          pct: entry.pct,
+          hasData: true
         });
       } else {
-        branches.push({ name, target: 0, netSales: 0, pct: 0, hasData: false });
+        branches.push({
+          name,
+          target: 0,
+          netSales: 0,
+          pct: 0,
+          hasData: false
+        });
       }
     }
 
-    /* Sort: with data first (highest %), no-data last */
     branches.sort((a, b) => {
       if (a.hasData && !b.hasData) return -1;
       if (!a.hasData && b.hasData) return 1;
@@ -1096,34 +1715,58 @@
       return b.pct - a.pct;
     });
 
-    /* Summary stats */
     const withData = branches.filter(b => b.hasData);
     const totalNet = withData.reduce((s, b) => s + b.netSales, 0);
     const totalTarget = withData.reduce((s, b) => s + b.target, 0);
     const overallPct = totalTarget > 0 ? (totalNet / totalTarget) * 100 : 0;
+
     const onTrack = withData.filter(b => b.pct >= 80).length;
     const atRisk = withData.filter(b => b.pct < 80).length;
 
-    const overallClass = overallPct >= 80 ? "perf-high" : overallPct >= 50 ? "perf-medium" : "perf-low";
-    document.getElementById("bsOverallPct").textContent = overallPct.toFixed(1) + "%";
-    document.getElementById("bsOverallPct").className = "stat-value " + overallClass;
-    document.getElementById("bsTotalSales").textContent = "KES " + formatCurrency(totalNet);
-    document.getElementById("bsOnTrack").textContent = onTrack;
-    document.getElementById("bsOnTrackSub").textContent = `of ${withData.length} branches at 80%+`;
-    document.getElementById("bsAtRisk").textContent = atRisk;
-    document.getElementById("bsAtRiskSub").textContent = `of ${withData.length} branches below 80%`;
+    const overallClass =
+      overallPct >= 80 ? "perf-high" :
+      overallPct >= 50 ? "perf-medium" :
+      "perf-low";
 
-    /* Grid cards */
+    document.getElementById("bsOverallPct").textContent =
+      overallPct.toFixed(1) + "%";
+    document.getElementById("bsOverallPct").className =
+      "stat-value " + overallClass;
+
+    document.getElementById("bsTotalSales").textContent =
+      "KES " + formatCurrency(totalNet);
+
+    document.getElementById("bsOnTrack").textContent = onTrack;
+    document.getElementById("bsOnTrackSub").textContent =
+      `of ${withData.length} branches at 80%+`;
+
+    document.getElementById("bsAtRisk").textContent = atRisk;
+    document.getElementById("bsAtRiskSub").textContent =
+      `of ${withData.length} branches below 80%`;
+
     let html = "";
+
     branches.forEach(b => {
-      const tier = !b.hasData ? "none" : b.pct >= 80 ? "high" : b.pct >= 50 ? "medium" : "low";
-      const barWidth = b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
+      const tier =
+        !b.hasData ? "none" :
+        b.pct >= 80 ? "high" :
+        b.pct >= 50 ? "medium" :
+        "low";
+
+      const barWidth =
+        b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
 
       html += `
         <div class="b-card tier-${tier}" data-name="${b.name.toLowerCase()}">
           <div class="b-card-name">${b.name}</div>
-          <div class="b-card-pct ${b.hasData ? 'perf-' + tier : ''}">${b.hasData ? b.pct.toFixed(1) + '%' : '—'}</div>
-          <div class="b-card-detail">${b.hasData ? formatFullCurrency(b.netSales) + ' of ' + formatFullCurrency(b.target) : 'No data available'}</div>
+          <div class="b-card-pct ${b.hasData ? "perf-" + tier : ""}">
+            ${b.hasData ? b.pct.toFixed(1) + "%" : "—"}
+          </div>
+          <div class="b-card-detail">
+            ${b.hasData
+              ? formatFullCurrency(b.netSales) + " of " + formatFullCurrency(b.target)
+              : "No data available"}
+          </div>
           <div class="b-card-bar">
             <div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div>
           </div>
@@ -1132,78 +1775,95 @@
     });
 
     document.getElementById("branchGrid").innerHTML = html;
-    document.getElementById("branchCount").textContent = withData.length + " branches";
+    document.getElementById("branchCount").textContent =
+      withData.length + " branches";
   }
 
-  /* ── Branch search ──────────────────────────────────────── */
-  document.getElementById("branchSearchBox").addEventListener("input", (e) => {
+  document.getElementById("branchSearchBox").addEventListener("input", e => {
     const q = e.target.value.toLowerCase().trim();
+
     document.querySelectorAll(".b-card").forEach(card => {
       const name = card.dataset.name;
-      card.classList.toggle("hidden", q.length > 0 && !name.includes(q));
+      card.classList.toggle(
+        "hidden",
+        q.length > 0 && !name.includes(q)
+      );
     });
   });
 
-  /* ══════════════════════════════════════════════════════════
-     TELESALES VIEW: Core processing
-     ══════════════════════════════════════════════════════════ */
-  function processAndRender() {
-    const selectedBranch = branchSelect.value;
-    const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
+  /* ── Telesales processing ───────────────────────────────── */
 
-    const processed = allRawData
-      .map(d => {
-        let score = d.dailySalesScore;
-        if (typeof score === "string") score = score.replace("%", "");
-        score = Number(score);
-        const netValue = Number(d.netDailySales || 0);
-        return { ...d, score, netValue };
-      })
-      .filter(d => !isNaN(d.score) && d.score > 0);
+  function processAndRender() {
+    const { startDate, endDate } = getDateRange();
+    const selectedBranch = branchSelect.value;
+    const selectedBranchName = selectedBranch
+      ? (branchNames[selectedBranch] || "")
+      : "";
+
+    const processed = aggregateSalesPeople(
+      startDate,
+      endDate,
+      selectedBranch
+    );
 
     processed.sort((a, b) => b.score - a.score);
 
-    let totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
-    let activeCount = processed.length;
+    const totalOrders = processed.reduce(
+      (s, r) => s + Number(r.totalDaysCustomers || 0),
+      0
+    );
 
-    /* Branch performance from API */
-    let branchTarget = 0;
-    let branchNetSales = 0;
-    let branchPerfPct = 0;
+    const activeCount = processed.length;
 
-    if (selectedBranch) {
-      const entry = getBranchPerfByName(selectedBranchName);
-      if (entry) {
-        branchTarget   = Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
-        branchNetSales = Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
-        branchPerfPct  = Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0);
-      } else {
-        console.warn(`[No Match] "${selectedBranchName}" not found in branch performance data.`);
-      }
-    } else {
-      for (const id in branchNames) {
-        const name = branchNames[id];
-        const entry = getBranchPerfByName(name);
-        if (entry) {
-          branchTarget   += Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
-          branchNetSales += Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
-        }
-      }
-      branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
-    }
+    /*
+      Branch summary also uses SUM(net sales) / SUM(target)
+      over the selected dates.
+    */
+    const selectedBranches = selectedBranch
+      ? [selectedBranchName]
+      : Object.values(branchNames);
+
+    const branchAggregated = aggregateBranches(startDate, endDate);
+
+    const selectedBranchSet = new Set(
+      selectedBranches.map(n => n.toLowerCase().trim())
+    );
+
+    const relevantBranches = branchAggregated.filter(b =>
+      selectedBranchSet.has(b.name.toLowerCase().trim())
+    );
+
+    const branchTarget = relevantBranches.reduce(
+      (s, b) => s + b.target, 0
+    );
+
+    const branchNetSales = relevantBranches.reduce(
+      (s, b) => s + b.netSales, 0
+    );
+
+    const branchPerfPct =
+      branchTarget > 0
+        ? (branchNetSales / branchTarget) * 100
+        : 0;
 
     const deficit = branchTarget - branchNetSales;
     const eightyPctTarget = branchTarget * 0.8;
     const deficitBelow80 = eightyPctTarget - branchNetSales;
 
-    /* Stat cards */
-    document.getElementById("statOrders").textContent = totalOrders.toLocaleString();
-    document.getElementById("statOrdersSub").textContent = selectedBranch
-      ? `from ${selectedBranchName}` : "across all branches";
+    document.getElementById("statOrders").textContent =
+      totalOrders.toLocaleString();
+
+    document.getElementById("statOrdersSub").textContent =
+      selectedBranch
+        ? `from ${selectedBranchName}`
+        : "across all branches";
 
     document.getElementById("statActive").textContent = activeCount;
-    document.getElementById("statActiveSub").textContent = selectedBranch
-      ? `in ${selectedBranchName}` : "across all branches";
+
+    document.getElementById("statActiveSub").textContent =
+      selectedBranch
+        ? `in ${selectedBranchName}`
+        : "across all branches";
 
     const deficitEl = document.getElementById("statDeficit");
     const deficitLabelEl = document.getElementById("deficitLabel");
@@ -1212,108 +1872,155 @@
     if (deficitBelow80 > 0) {
       deficitLabelEl.textContent = "Deficit Below 80%";
       deficitEl.className = "stat-value perf-low";
-      deficitEl.textContent = "KES " + formatCurrency(deficitBelow80);
-      deficitSubEl.textContent = `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
+      deficitEl.textContent =
+        "KES " + formatCurrency(deficitBelow80);
+      deficitSubEl.textContent =
+        `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
     } else {
       deficitLabelEl.textContent = "Above 80% Target";
       deficitEl.className = "stat-value perf-high";
-      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficitBelow80));
+      deficitEl.textContent =
+        "KES " + formatCurrency(Math.abs(deficitBelow80));
       deficitSubEl.textContent = "minimum threshold met";
     }
 
-    /* Branch perf bar */
-    const perfClass = branchPerfPct >= 80 ? "perf-high" : branchPerfPct >= 50 ? "perf-medium" : "perf-low";
+    const perfClass =
+      branchPerfPct >= 80 ? "perf-high" :
+      branchPerfPct >= 50 ? "perf-medium" :
+      "perf-low";
+
     const perfEl = document.getElementById("branchPerfValue");
     perfEl.textContent = branchPerfPct.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    let detailHTML = `${formatFullCurrency(branchNetSales)} of ${formatFullCurrency(branchTarget)} target<br>`;
+    let detailHTML =
+      `${formatFullCurrency(branchNetSales)} of ` +
+      `${formatFullCurrency(branchTarget)} target<br>`;
+
     if (deficit > 0) {
-      detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+      detailHTML +=
+        `Deficit on 100%: <span class="deficit">` +
+        `${formatFullCurrency(deficit)}</span>`;
     } else if (deficit < 0) {
-      detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
+      detailHTML +=
+        `Surplus: <span class="surplus">` +
+        `${formatFullCurrency(Math.abs(deficit))}</span>`;
     } else {
       detailHTML += `<span class="surplus">Exactly on target</span>`;
     }
+
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
 
     const bar = document.getElementById("branchPerfBar");
     const barPct = Math.min(branchPerfPct, 100);
-    bar.style.width = barPct + "%";
-    bar.style.background = branchPerfPct >= 80
-      ? "linear-gradient(90deg, #16a34a, #22c55e)"
-      : branchPerfPct >= 50
-        ? "linear-gradient(90deg, #ca8a04, #facc15)"
-        : "linear-gradient(90deg, #dc2626, #ef4444)";
 
-    document.getElementById("marker50").className = branchPerfPct < 50 ? "active-marker" : "";
+    bar.style.width = barPct + "%";
+    bar.style.background =
+      branchPerfPct >= 80
+        ? "linear-gradient(90deg, #16a34a, #22c55e)"
+        : branchPerfPct >= 50
+          ? "linear-gradient(90deg, #ca8a04, #facc15)"
+          : "linear-gradient(90deg, #dc2626, #ef4444)";
+
+    document.getElementById("marker50").className =
+      branchPerfPct < 50 ? "active-marker" : "";
 
     filteredData = processed;
     applySearchAndSort();
   }
 
-  /* ══════════════════════════════════════════════════════════
-     TELESALES VIEW: Sorting
-     ══════════════════════════════════════════════════════════ */
+  /* ── Telesales sorting ───────────────────────────────────── */
+
   function getSortValue(item, key) {
     switch (key) {
-      case "name":   return (item.salesPersonName || "").toLowerCase();
-      case "branch": return (item.branchName || "").toLowerCase();
-      case "score":  return item.score;
-      case "orders": return Number(item.totalDaysCustomers || 0);
-      case "value":  return item.netValue;
-      default:       return 0;
+      case "name":
+        return (item.salesPersonName || "").toLowerCase();
+      case "branch":
+        return (item.branchName || "").toLowerCase();
+      case "score":
+        return item.score;
+      case "orders":
+        return Number(item.totalDaysCustomers || 0);
+      case "value":
+        return item.netValue;
+      default:
+        return 0;
     }
   }
 
   function sortData(data) {
     const { key, dir } = currentSort;
     const sorted = [...data];
+
     sorted.sort((a, b) => {
       const va = getSortValue(a, key);
       const vb = getSortValue(b, key);
+
       if (typeof va === "string") {
         const cmp = va.localeCompare(vb);
         return dir === "asc" ? cmp : -cmp;
       }
+
       return dir === "asc" ? va - vb : vb - va;
     });
+
     return sorted;
   }
 
-  /* ── Search + sort combined ─────────────────────────────── */
   function applySearchAndSort() {
-    const q = document.getElementById("searchBox").value.toLowerCase().trim();
+    const q = document.getElementById("searchBox").value
+      .toLowerCase()
+      .trim();
+
     let data = filteredData;
+
     if (q) {
       data = data.filter(d =>
         (d.salesPersonName || "").toLowerCase().includes(q) ||
         (d.branchName || "").toLowerCase().includes(q)
       );
     }
+
     displayedData = sortData(data);
     renderTable(displayedData);
   }
 
-  /* ── Table rendering ────────────────────────────────────── */
   function renderTable(data) {
     const tbody = document.getElementById("tableBody");
+
     document.getElementById("tableCount").textContent =
       data.length + (data.length === 1 ? " person" : " people");
 
     if (!data.length) {
-      tbody.innerHTML = `<tr class="no-data-row"><td colspan="7">No telesales data found</td></tr>`;
+      tbody.innerHTML =
+        `<tr class="no-data-row">
+          <td colspan="7">No telesales data found for the selected range</td>
+        </tr>`;
       return;
     }
 
     let html = "";
+
     data.forEach((item, i) => {
-      const sales = item.score;
+      const sales = Number(item.score) || 0;
       const orders = Number(item.totalDaysCustomers || 0);
-      const value = item.netValue;
-      const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
-      const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
-      const statusText = sales >= 80 ? "ACHIEVED" : sales >= 50 ? "AVERAGE" : "OFF TRACK";
+      const value = Number(item.netValue) || 0;
+
+      const pctClass =
+        sales >= 80 ? "pct-high" :
+        sales >= 50 ? "pct-medium" :
+        "pct-low";
+
+      const statusClass =
+        sales >= 80 ? "status-on-track" :
+        sales >= 50 ? "status-at-risk" :
+        "status-below";
+
+      const statusText =
+        sales >= 80 ? "ACHIEVED" :
+        sales >= 50 ? "AVERAGE" :
+        "OFF TRACK";
+
       const rankClass = i < 3 ? "rank top3" : "rank";
 
       html += `
@@ -1322,74 +2029,188 @@
           <td class="sales-name">${item.salesPersonName}</td>
           <td class="branch-cell">${item.branchName}</td>
           <td style="text-align:center;">
-            <span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span>
+            <span class="pct-badge ${pctClass}">
+              ${sales.toFixed(1)}%
+            </span>
           </td>
-          <td class="orders-cell" style="text-align:center;">${orders}</td>
+          <td class="orders-cell" style="text-align:center;">
+            ${orders.toLocaleString()}
+          </td>
           <td class="value-cell">
             <span class="kes">KES</span> ${formatValue(value)}
           </td>
           <td style="text-align:center;">
-            <span class="status-dot ${statusClass}">${statusText}</span>
+            <span class="status-dot ${statusClass}">
+              ${statusText}
+            </span>
           </td>
         </tr>
       `;
     });
+
     tbody.innerHTML = html;
   }
 
-  /* ── Sort header click handling ─────────────────────────── */
-  const sortLabels = { name: "Name", branch: "Branch", score: "Sales %", orders: "Orders", value: "Order Value" };
+  /* ── Sort headers ────────────────────────────────────────── */
+
+  const sortLabels = {
+    name: "Name",
+    branch: "Branch",
+    score: "Sales %",
+    orders: "Orders",
+    value: "Order Value"
+  };
 
   function updateSortHeaders() {
     document.querySelectorAll("thead th.sortable").forEach(th => {
       const key = th.dataset.sort;
-      th.classList.remove("active-sort", "sort-asc", "sort-desc");
+
+      th.classList.remove(
+        "active-sort",
+        "sort-asc",
+        "sort-desc"
+      );
+
       if (key === currentSort.key) {
-        th.classList.add("active-sort", currentSort.dir === "asc" ? "sort-asc" : "sort-desc");
+        th.classList.add(
+          "active-sort",
+          currentSort.dir === "asc" ? "sort-asc" : "sort-desc"
+        );
       }
     });
+
     const hint = document.getElementById("sortHint");
     const arrow = currentSort.dir === "asc" ? "↑" : "↓";
-    hint.textContent = `Sorted by ${sortLabels[currentSort.key]} ${arrow}`;
+    hint.textContent =
+      `Sorted by ${sortLabels[currentSort.key]} ${arrow}`;
   }
 
   document.querySelectorAll("thead th.sortable").forEach(th => {
     th.addEventListener("click", () => {
       const key = th.dataset.sort;
+
       if (currentSort.key === key) {
-        currentSort.dir = currentSort.dir === "desc" ? "asc" : "desc";
+        currentSort.dir =
+          currentSort.dir === "desc" ? "asc" : "desc";
       } else {
         currentSort.key = key;
-        currentSort.dir = (key === "score" || key === "orders" || key === "value") ? "desc" : "asc";
+        currentSort.dir =
+          (key === "score" ||
+           key === "orders" ||
+           key === "value")
+            ? "desc"
+            : "asc";
       }
+
       updateSortHeaders();
       applySearchAndSort();
     });
   });
 
-  /* ── Branch change ──────────────────────────────────────── */
-  let branchDebounce = null;
+  /* ── FILTER HANDLERS ───────────────────────────────────────
+     IMPORTANT: NONE OF THESE CALL THE API.
+     They only recalculate from allRawData / branchPerfData.
+     --------------------------------------------------------- */
+
+  function refreshFromCachedData() {
+    if (!allRawData.length && !branchPerfData.length) return;
+
+    processAndRender();
+
+    if (currentView === "branches") {
+      renderBranchView();
+    }
+  }
+
+  document.getElementById("dateSelect").addEventListener("change", () => {
+    const val = document.getElementById("dateSelect").value;
+
+    if (val === "custom") {
+      toggleCustomDateRange(true);
+
+      if (
+        !document.getElementById("dateFrom").value &&
+        !document.getElementById("dateTo").value
+      ) {
+        const todayStr = formatDate(getToday());
+        document.getElementById("dateFrom").value = todayStr;
+        document.getElementById("dateTo").value = todayStr;
+      }
+
+      return;
+    }
+
+    toggleCustomDateRange(false);
+    syncDateInputsFromPreset(val);
+
+    /* CLIENT-SIDE ONLY */
+    refreshFromCachedData();
+  });
+
+  function onCustomDateChange() {
+    if (
+      document.getElementById("dateSelect").value !== "custom"
+    ) {
+      document.getElementById("dateSelect").value = "custom";
+      toggleCustomDateRange(true);
+    }
+
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+
+    if (from && to && from > to) {
+      document.getElementById("dateTo").value = from;
+    }
+
+    /* CLIENT-SIDE ONLY */
+    refreshFromCachedData();
+  }
+
+  document.getElementById("dateFrom")
+    .addEventListener("change", onCustomDateChange);
+
+  document.getElementById("dateTo")
+    .addEventListener("change", onCustomDateChange);
+
   branchSelect.addEventListener("change", () => {
     currentSort = { key: "score", dir: "desc" };
     updateSortHeaders();
-    if (branchDebounce) clearTimeout(branchDebounce);
-    branchDebounce = setTimeout(loadAllData, 150);
+
+    /* CLIENT-SIDE ONLY — NO API CALL */
+    refreshFromCachedData();
   });
 
-  /* ── Telesales search ───────────────────────────────────── */
   let searchDebounce = null;
-  document.getElementById("searchBox").addEventListener("input", () => {
-    if (searchDebounce) clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(applySearchAndSort, 200);
-  });
 
-  /* ── Init ───────────────────────────────────────────────── */
+  document.getElementById("searchBox")
+    .addEventListener("input", () => {
+      if (searchDebounce) clearTimeout(searchDebounce);
+
+      searchDebounce = setTimeout(
+        applySearchAndSort,
+        150
+      );
+    });
+
+  /* ── Initial load ────────────────────────────────────────── */
+
+  syncDateInputsFromPreset("today");
+  toggleCustomDateRange(false);
   updateSortHeaders();
+
+  /* Exactly two API requests here. */
   loadAllData();
+
+  /*
+    ONLY automatic API refresh.
+    User filter changes never call loadAllData().
+  */
   setInterval(() => {
-    branchPerfData = [];
-    loadAllData();
-  }, 120000);
+    if (!isLoading) {
+      loadAllData();
+    }
+  }, AUTO_REFRESH_MS);
+
 </script>
 
 </body>
