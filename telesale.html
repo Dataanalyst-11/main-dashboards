@@ -250,7 +250,7 @@ document.querySelector("header").textContent =
     `Live Telesales Performance — ${displayName}`;
 
 let BASE_API =
-`${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&endDate=${formattedEnd}`;
+`${window.API_CONFIG.API_URL}sales-person-performance?pageSize=500&startDate=${formattedEnd}&endDate=${formattedEnd}`;
 
 if (branchId) {
     BASE_API += `&orgBranchId=${branchId}`;
