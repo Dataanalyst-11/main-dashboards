@@ -28,196 +28,106 @@
         flex-shrink: 0;
     }
 
-    .header h1 {
-        font-size: 19px;
-        font-weight: 700;
-        color: #fff;
-        letter-spacing: 0.5px;
-    }
+    .header h1 { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
 
-    .header-filters {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex-wrap: wrap;
-    }
+    .header-filters { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 
-    .filter-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
 
     .filter-group label {
-        font-size: 11px;
-        color: #8fa4b8;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 11px; color: #8fa4b8; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     .filter-group select {
-        background: #0f1923;
-        color: #e0e6ed;
-        border: 1px solid #2ecc71;
-        border-radius: 6px;
-        padding: 7px 14px;
-        font-size: 13px;
-        font-family: inherit;
-        cursor: pointer;
-        outline: none;
+        background: #0f1923; color: #e0e6ed; border: 1px solid #2ecc71;
+        border-radius: 6px; padding: 7px 14px; font-size: 13px;
+        font-family: inherit; cursor: pointer; outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .filter-group select:focus {
-        border-color: #58d68d;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.25);
+        border-color: #58d68d; box-shadow: 0 0 0 2px rgba(46,204,113,0.25);
     }
 
     #dateRangeSelect { min-width: 160px; }
     #branchFilter    { min-width: 210px; }
 
     .date-bar {
-        background: #13202e;
-        padding: 8px 24px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        border-bottom: 1px solid #1e3347;
-        flex-shrink: 0;
-        flex-wrap: wrap;
+        background: #13202e; padding: 8px 24px;
+        display: flex; align-items: center; gap: 16px;
+        border-bottom: 1px solid #1e3347; flex-shrink: 0; flex-wrap: wrap;
     }
 
-    .range-indicator {
-        font-size: 12px;
-        color: #4a6580;
-        font-weight: 500;
-    }
-
-    .range-indicator strong {
-        color: #8fa4b8;
-        font-weight: 600;
-    }
+    .range-indicator { font-size: 12px; color: #4a6580; font-weight: 500; }
+    .range-indicator strong { color: #8fa4b8; font-weight: 600; }
 
     .fair-share-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: rgba(46,204,113,0.1);
-        border: 1px solid rgba(46,204,113,0.2);
-        color: #2ecc71;
-        padding: 2px 10px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
+        display: inline-flex; align-items: center; gap: 4px;
+        background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.2);
+        color: #2ecc71; padding: 2px 10px; border-radius: 4px;
+        font-size: 11px; font-weight: 600;
     }
 
     .custom-range-bar {
-        background: #162230;
-        padding: 0;
-        max-height: 0;
-        overflow: hidden;
-        border-bottom: 0px solid #1e3347;
+        background: #162230; padding: 0; max-height: 0; overflow: hidden;
+        border-bottom: 0px solid #1e3347; flex-shrink: 0;
         transition: max-height 0.25s ease, padding 0.25s ease, border-bottom-width 0.25s ease;
-        flex-shrink: 0;
     }
 
     .custom-range-bar.visible {
-        max-height: 60px;
-        padding: 10px 24px;
+        max-height: 60px; padding: 10px 24px;
         border-bottom-width: 1px solid #1e3347;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     }
 
     .custom-range-bar label {
-        font-size: 12px;
-        color: #8fa4b8;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
+        font-size: 12px; color: #8fa4b8; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.4px;
     }
 
     .custom-range-bar input[type="date"] {
-        background: #0f1923;
-        color: #e0e6ed;
-        border: 1px solid #2c3e50;
-        border-radius: 5px;
-        padding: 6px 12px;
-        font-size: 13px;
-        font-family: inherit;
-        outline: none;
-        transition: border-color 0.2s;
+        background: #0f1923; color: #e0e6ed; border: 1px solid #2c3e50;
+        border-radius: 5px; padding: 6px 12px; font-size: 13px;
+        font-family: inherit; outline: none; transition: border-color 0.2s;
     }
 
     .custom-range-bar input[type="date"]:focus {
-        border-color: #2ecc71;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.2);
+        border-color: #2ecc71; box-shadow: 0 0 0 2px rgba(46,204,113,0.2);
     }
 
     .custom-range-bar input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(0.7);
-        cursor: pointer;
+        filter: invert(0.7); cursor: pointer;
     }
 
     .apply-btn {
-        background: #2ecc71;
-        color: #0f1923;
-        border: none;
-        border-radius: 5px;
-        padding: 7px 20px;
-        font-size: 12px;
-        font-family: inherit;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        background: #2ecc71; color: #0f1923; border: none; border-radius: 5px;
+        padding: 7px 20px; font-size: 12px; font-family: inherit; font-weight: 700;
+        cursor: pointer; transition: background 0.2s, transform 0.1s;
+        text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     .apply-btn:hover { background: #27ae60; }
     .apply-btn:active { transform: scale(0.97); }
 
     .stats-bar {
-        display: flex;
-        gap: 0;
-        background: #162230;
-        border-bottom: 1px solid #1e3347;
-        flex-shrink: 0;
-        overflow-x: auto;
+        display: flex; gap: 0; background: #162230;
+        border-bottom: 1px solid #1e3347; flex-shrink: 0; overflow-x: auto;
     }
 
     .stat-card {
-        flex: 1;
-        min-width: 110px;
-        padding: 10px 14px;
-        text-align: center;
-        border-right: 1px solid #1e3347;
+        flex: 1; min-width: 110px; padding: 10px 14px;
+        text-align: center; border-right: 1px solid #1e3347;
     }
 
     .stat-card:last-child { border-right: none; }
-
-    .stat-card .stat-value {
-        font-size: 18px;
-        font-weight: 800;
-        color: #2ecc71;
-    }
-
+    .stat-card .stat-value { font-size: 18px; font-weight: 800; color: #2ecc71; }
     .stat-card .stat-label {
-        font-size: 10px;
-        color: #6b8299;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        margin-top: 2px;
+        font-size: 10px; color: #6b8299;
+        text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px;
     }
 
-    .table-container {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
+    .table-container { flex: 1; overflow-y: auto; overflow-x: hidden; }
 
     .table-container::-webkit-scrollbar { width: 6px; }
     .table-container::-webkit-scrollbar-track { background: #0f1923; }
@@ -227,38 +137,22 @@
     table { width: 100%; border-collapse: collapse; }
 
     th, td {
-        padding: 10px 14px;
-        text-align: center;
-        border-bottom: 1px solid #1a2a3a;
-        font-size: 13px;
-        white-space: nowrap;
+        padding: 10px 14px; text-align: center;
+        border-bottom: 1px solid #1a2a3a; font-size: 13px; white-space: nowrap;
     }
 
     th {
-        background: #162230;
-        color: #8fa4b8;
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 700;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        border-bottom: 2px solid #2ecc71;
+        background: #162230; color: #8fa4b8; font-size: 10px;
+        text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;
+        position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #2ecc71;
     }
 
     tr { transition: background 0.15s; }
     tbody tr:hover { background: rgba(46,204,113,0.06); }
 
     .rank-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        font-weight: 800;
-        font-size: 13px;
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; border-radius: 50%; font-weight: 800; font-size: 13px;
     }
 
     .rank-1 { background: linear-gradient(135deg, #f1c40f, #e67e22); color: #1a1a1a; }
@@ -266,27 +160,14 @@
     .rank-3 { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
     .rank-other { background: #1e3347; color: #6b8299; }
 
-    .score-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
+    .score-cell { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
     .score-bar-wrap {
-        width: 70px;
-        height: 6px;
-        background: #1e3347;
-        border-radius: 3px;
-        overflow: hidden;
+        width: 70px; height: 6px; background: #1e3347;
+        border-radius: 3px; overflow: hidden;
     }
 
-    .score-bar {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 0.4s ease;
-    }
-
+    .score-bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
     .score-high .score-bar { background: #27ae60; }
     .score-medium .score-bar { background: #f1c40f; }
     .score-low .score-bar { background: #e74c3c; }
@@ -296,98 +177,53 @@
     .score-medium .score-text { color: #f1c40f; }
     .score-low .score-text { color: #e74c3c; }
 
-    .cleared-cell {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-    }
+    .cleared-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .cleared-value { font-weight: 700; font-size: 14px; }
 
-    .cleared-value {
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    .issue-tags {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+    .issue-tags { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
 
     .issue-tag {
-        font-size: 10px;
-        padding: 1px 7px;
-        border-radius: 3px;
-        font-weight: 600;
-        line-height: 1.5;
+        font-size: 10px; padding: 1px 7px; border-radius: 3px;
+        font-weight: 600; line-height: 1.5;
     }
 
     .tag-cancelled {
-        color: #e74c3c;
-        background: rgba(231,76,60,0.12);
+        color: #e74c3c; background: rgba(231,76,60,0.12);
         border: 1px solid rgba(231,76,60,0.25);
     }
 
     .tag-failed {
-        color: #e67e22;
-        background: rgba(230,126,34,0.12);
+        color: #e67e22; background: rgba(230,126,34,0.12);
         border: 1px solid rgba(230,126,34,0.25);
     }
 
     .branch-tag {
-        display: inline-block;
-        background: #1e3347;
-        color: #8fa4b8;
-        padding: 3px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        max-width: 180px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        display: inline-block; background: #1e3347; color: #8fa4b8;
+        padding: 3px 10px; border-radius: 4px; font-size: 12px;
+        max-width: 180px; overflow: hidden; text-overflow: ellipsis;
     }
 
-    .attendant-name {
-        text-align: left;
-        font-weight: 600;
-        color: #e0e6ed;
-    }
+    .attendant-name { text-align: left; font-weight: 600; color: #e0e6ed; }
 
     .footer {
-        background: #162230;
-        border-top: 2px solid #1e3347;
-        padding: 7px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 11px;
-        color: #4a6580;
-        flex-shrink: 0;
-        gap: 12px;
-        flex-wrap: wrap;
+        background: #162230; border-top: 2px solid #1e3347;
+        padding: 7px 24px; display: flex; justify-content: space-between;
+        align-items: center; font-size: 11px; color: #4a6580;
+        flex-shrink: 0; gap: 12px; flex-wrap: wrap;
     }
 
     .footer span { white-space: nowrap; }
 
-    .loading-msg, .empty-msg, .error-msg {
-        text-align: center;
-        padding: 60px 20px;
-        font-size: 15px;
-    }
+    .loading-msg, .empty-msg, .error-msg { text-align: center; padding: 60px 20px; font-size: 15px; }
     .loading-msg { color: #2ecc71; }
     .empty-msg  { color: #6b8299; }
     .error-msg  { color: #e74c3c; }
 
     .loading-spinner {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        border: 2px solid #1e3347;
-        border-top-color: #2ecc71;
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-        vertical-align: middle;
-        margin-right: 8px;
+        display: inline-block; width: 18px; height: 18px;
+        border: 2px solid #1e3347; border-top-color: #2ecc71;
+        border-radius: 50%; animation: spin 0.7s linear infinite;
+        vertical-align: middle; margin-right: 8px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -506,17 +342,11 @@
 <script src="config.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   CONFIGURATION
-   ═══════════════════════════════════════════════════════════════ */
-const AUTO_REFRESH_MS    = 300000;  // 5 minutes
+const AUTO_REFRESH_MS    = 300000;//Auto refreshes every 5 minutes
 const DATA_LOOKBACK_DAYS = 365;
 const API_TOKEN          = window.API_CONFIG.API_TOKEN;
 const API_URL            = `${window.API_CONFIG.API_URL}cashier-clearance-reports`;
 
-/* ═══════════════════════════════════════════════════════════════
-   STATE
-   ═══════════════════════════════════════════════════════════════ */
 let isLoading         = false;
 let currentAbortCtrl  = null;
 let allRawData        = [];
@@ -532,181 +362,129 @@ const CACHE_KEY          = "cashierRawDataCache";
    ═══════════════════════════════════════════════════════════════ */
 
 function formatDate(d) {
-    const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, "0");
-    const dd   = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getDate()).padStart(2, "0");
 }
 
 function parseDateKey(value) {
     if (!value) return null;
-    const s = String(value);
-    const match = s.match(/^(\d{4}-\d{2}-\d{2})/);
-    return match ? match[1] : null;
+    var m = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
 }
 
 function getRecordDate(record) {
     return parseDateKey(
-        record.reportingDate ||
-        record.reportDate ||
-        record.salesDate ||
-        record.date ||
-        record.createdAt ||
-        record.updatedAt
+        record.reportingDate || record.reportDate || record.salesDate ||
+        record.date || record.createdAt || record.updatedAt
     );
 }
 
-function getToday() {
-    return new Date();
-}
+function getToday() { return new Date(); }
 
 function getFetchRange() {
-    const end   = getToday();
-    const start = new Date(end);
-    start.setDate(start.getDate() - DATA_LOOKBACK_DAYS + 1);
-    return { startDate: formatDate(start), endDate: formatDate(end) };
+    var e = getToday(), s = new Date(e);
+    s.setDate(s.getDate() - DATA_LOOKBACK_DAYS + 1);
+    return { startDate: formatDate(s), endDate: formatDate(e) };
 }
 
 function getDateRange() {
-    const preset  = document.getElementById("dateRangeSelect").value;
-    const today   = getToday();
-    const endDate = formatDate(today);
+    var p = document.getElementById("dateRangeSelect").value;
+    var t = getToday(), ed = formatDate(t);
 
-    if (preset === "custom") {
-        let startDate = document.getElementById("dateFrom").value || endDate;
-        let customEnd = document.getElementById("dateTo").value || endDate;
-        if (startDate > customEnd) [startDate, customEnd] = [customEnd, startDate];
-        return { startDate, endDate: customEnd };
+    if (p === "custom") {
+        var a = document.getElementById("dateFrom").value || ed;
+        var b = document.getElementById("dateTo").value || ed;
+        if (a > b) { var c = a; a = b; b = c; }
+        return { startDate: a, endDate: b };
     }
-
-    if (preset === "yesterday") {
-        const d = new Date(today);
-        d.setDate(d.getDate() - 1);
-        const day = formatDate(d);
+    if (p === "yesterday") {
+        var d = new Date(t); d.setDate(d.getDate() - 1); var day = formatDate(d);
         return { startDate: day, endDate: day };
     }
-
-    const daysMap = {
-        today:   1,
-        "7days":  7,
-        "30days": 30,
-        "60days": 60,
-        "90days": 90
-    };
-
-    const days  = daysMap[preset] || 1;
-    const start = new Date(today);
-    start.setDate(start.getDate() - days + 1);
-
-    return { startDate: formatDate(start), endDate };
+    var map = { today:1, "7days":7, "30days":30, "60days":60, "90days":90 };
+    var s = new Date(t); s.setDate(s.getDate() - (map[p] || 1) + 1);
+    return { startDate: formatDate(s), endDate: ed };
 }
 
-function syncDateInputsFromPreset(preset) {
-    const today    = getToday();
-    const todayStr = formatDate(today);
-    let fromStr    = todayStr;
-    let toStr      = todayStr;
-
-    switch (preset) {
-        case "today": break;
-        case "yesterday": {
-            const y = new Date(today);
-            y.setDate(y.getDate() - 1);
-            fromStr = toStr = formatDate(y);
-            break;
-        }
-        case "7days": {
-            const d = new Date(today);
-            d.setDate(d.getDate() - 6);
-            fromStr = formatDate(d);
-            break;
-        }
-        case "30days": {
-            const d = new Date(today);
-            d.setDate(d.getDate() - 29);
-            fromStr = formatDate(d);
-            break;
-        }
-        case "60days": {
-            const d = new Date(today);
-            d.setDate(d.getDate() - 59);
-            fromStr = formatDate(d);
-            break;
-        }
-        case "90days": {
-            const d = new Date(today);
-            d.setDate(d.getDate() - 89);
-            fromStr = formatDate(d);
-            break;
-        }
-        case "custom": return;
-    }
-
-    document.getElementById("dateFrom").value = fromStr;
-    document.getElementById("dateTo").value   = toStr;
+function syncDateInputsFromPreset(p) {
+    var t = getToday(), ts = formatDate(t), f = ts, tt = ts;
+    if (p === "yesterday") { var y = new Date(t); y.setDate(y.getDate()-1); f = tt = formatDate(y); }
+    else if (p === "7days")  { var d = new Date(t); d.setDate(d.getDate()-6);  f = formatDate(d); }
+    else if (p === "30days") { var d = new Date(t); d.setDate(d.getDate()-29); f = formatDate(d); }
+    else if (p === "60days") { var d = new Date(t); d.setDate(d.getDate()-59); f = formatDate(d); }
+    else if (p === "90days") { var d = new Date(t); d.setDate(d.getDate()-89); f = formatDate(d); }
+    else if (p === "custom") return;
+    document.getElementById("dateFrom").value = f;
+    document.getElementById("dateTo").value   = tt;
 }
 
 function toggleCustomDateRange(show) {
     document.getElementById("customRangeBar").classList.toggle("visible", show);
 }
 
-function isDateInRange(dateKey, startDate, endDate) {
-    return !!dateKey && dateKey >= startDate && dateKey <= endDate;
-}
+function isDateInRange(dk, s, e) { return !!dk && dk >= s && dk <= e; }
 
-function formatDisplayRange(range) {
-    if (!range.startDate || !range.endDate) return "Select dates";
-    if (range.startDate === range.endDate) {
-        const d = new Date(range.startDate + "T00:00:00");
-        return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-    }
-    const from = new Date(range.startDate + "T00:00:00");
-    const to   = new Date(range.endDate   + "T00:00:00");
-    const opts = { month: "short", day: "numeric" };
-    return from.toLocaleDateString(undefined, opts) + " – " +
-           to.toLocaleDateString(undefined, { ...opts, year: "numeric" });
+function formatDisplayRange(r) {
+    if (!r.startDate || !r.endDate) return "Select dates";
+    if (r.startDate === r.endDate)
+        return new Date(r.startDate+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+    var o = {month:"short",day:"numeric"};
+    return new Date(r.startDate+"T00:00:00").toLocaleDateString(undefined,o)+" – "+
+           new Date(r.endDate+"T00:00:00").toLocaleDateString(undefined,{...o,year:"numeric"});
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   EFFICIENCY SCORING — NORMALIZED BY CASHIER COUNT
+   SCORING — TWO-STEP RELATIVE SCALING
 
-   Old formula (unfair with many cashiers):
-     score = (cashier cleared / total cleared) × 100
-     → With 50 cashiers, the best might score 4%
+   STEP 1 — Raw efficiency (team-size aware)
+     expectedShare = 100 ÷ N
+     actualShare   = (cashier cleared ÷ total cleared) × 100
+     rawEfficiency = (actualShare ÷ expectedShare) × 100
 
-   New formula (fair regardless of team size):
-     expectedShare  = 100 / N          (what each cashier should handle)
-     actualShare    = (cashier cleared / total cleared) × 100
-     score          = (actualShare / expectedShare) × 100
+   STEP 2 — Scale against the best in this view
+     The highest raw efficiency becomes the 100% baseline.
+     Every other cashier is scored relative to that peak.
 
-   Examples:
-     10 cashiers, one handles 20% → score = (20/10)×100 = 200%
-     50 cashiers, one handles 4%  → score = (4/2)×100  = 200%
-     50 cashiers, one handles 1%  → score = (1/2)×100  =  50%
+     Example with 4 cashiers:
+       Raw:   180%   120%    90%    40%
+       Score: 100%   66.7%  50.0%  22.2%
 
-   Grading (same thresholds, now meaningful at any team size):
-     ≥ 80% of fair share → High   (green)
-     50–79% of fair share → Medium (yellow)
-     < 50% of fair share → Low    (red)
+     The top is always 100%. Switching branches or date ranges
+     recalculates the baseline so the score is always relative
+     to whoever leads in that specific view.
+
+   Grading:
+     ≥ 80% → High   (green)
+     50–79% → Medium (yellow)
+     < 50% → Low    (red)
    ═══════════════════════════════════════════════════════════════ */
 function calculateEfficiency(attendants) {
     if (!attendants.length) return;
 
-    const n            = attendants.length;
-    const totalCleared = attendants.reduce((s, a) => s + (a.clearedInvoices || 0), 0);
+    var n = attendants.length;
+    var totalCleared = attendants.reduce(function(s, a) { return s + (a.clearedInvoices || 0); }, 0);
 
-    // If only one cashier, they get 100% by definition
     if (n === 1) {
         attendants[0].performance = { score: 100, grade: "score-high" };
         return;
     }
 
-    const expectedShare = 100 / n;
+    var expectedShare = 100 / n;
 
-    attendants.forEach(a => {
-        const cleared     = a.clearedInvoices || 0;
-        const actualShare = totalCleared > 0 ? (cleared / totalCleared) * 100 : 0;
-        const score       = expectedShare > 0 ? (actualShare / expectedShare) * 100 : 0;
+    // Step 1: raw efficiency for each cashier
+    var rawScores = attendants.map(function(a) {
+        var cleared     = a.clearedInvoices || 0;
+        var actualShare = totalCleared > 0 ? (cleared / totalCleared) * 100 : 0;
+        return expectedShare > 0 ? (actualShare / expectedShare) * 100 : 0;
+    });
+
+    // Step 2: the highest raw score becomes the 100% baseline
+    var maxRaw = Math.max.apply(null, rawScores);
+    if (maxRaw <= 0) maxRaw = 1; // safety
+
+    attendants.forEach(function(a, i) {
+        var score = (rawScores[i] / maxRaw) * 100;
 
         a.performance = {
             score: score,
@@ -718,41 +496,26 @@ function calculateEfficiency(attendants) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FILTER & AGGREGATE  (client-side only)
+   FILTER & AGGREGATE
    ═══════════════════════════════════════════════════════════════ */
 function getFilteredAggregatedData() {
-    const branch = document.getElementById("branchFilter").value;
-    const range  = getDateRange();
+    var branch = document.getElementById("branchFilter").value;
+    var range  = getDateRange();
+    var filtered = allRawData;
 
-    let filtered = allRawData;
+    if (range.startDate && range.endDate)
+        filtered = filtered.filter(function(r) { return isDateInRange(getRecordDate(r), range.startDate, range.endDate); });
+    if (branch !== "ALL")
+        filtered = filtered.filter(function(r) { return r.orgBranchName === branch; });
 
-    if (range.startDate && range.endDate) {
-        filtered = filtered.filter(r =>
-            isDateInRange(getRecordDate(r), range.startDate, range.endDate)
-        );
-    }
-
-    if (branch !== "ALL") {
-        filtered = filtered.filter(r => r.orgBranchName === branch);
-    }
-
-    const map = {};
-    filtered.forEach(r => {
-        const name = r.cashierName;
+    var map = {};
+    filtered.forEach(function(r) {
+        var name = r.cashierName;
         if (!name) return;
-
-        if (!map[name]) {
-            map[name] = {
-                cashierName:           name,
-                orgBranchName:         r.orgBranchName || "—",
-                clearedInvoices:       0,
-                paidInvoices:          0,
-                creditInvoices:        0,
-                cancelledOrders:       0,
-                failedDeliveryOrders:  0
-            };
-        }
-
+        if (!map[name])
+            map[name] = { cashierName: name, orgBranchName: r.orgBranchName || "—",
+                          clearedInvoices: 0, paidInvoices: 0, creditInvoices: 0,
+                          cancelledOrders: 0, failedDeliveryOrders: 0 };
         map[name].clearedInvoices      += (r.clearedInvoices      || 0);
         map[name].paidInvoices         += (r.paidInvoices         || 0);
         map[name].creditInvoices       += (r.creditInvoices       || 0);
@@ -760,77 +523,69 @@ function getFilteredAggregatedData() {
         map[name].failedDeliveryOrders += (r.failedDeliveryOrders || 0);
     });
 
-    return Object.values(map);
+    var result = [];
+    for (var k in map) result.push(map[k]);
+    return result;
 }
 
-/** Lightweight count of active cashiers (avoids full aggregation) */
 function getActiveCashierCount() {
-    const branch = document.getElementById("branchFilter").value;
-    const range  = getDateRange();
-
-    let filtered = allRawData;
-    if (range.startDate && range.endDate) {
-        filtered = filtered.filter(r =>
-            isDateInRange(getRecordDate(r), range.startDate, range.endDate)
-        );
-    }
-    if (branch !== "ALL") {
-        filtered = filtered.filter(r => r.orgBranchName === branch);
-    }
-
-    return new Set(filtered.map(r => r.cashierName).filter(Boolean)).size;
+    var branch = document.getElementById("branchFilter").value;
+    var range  = getDateRange();
+    var filtered = allRawData;
+    if (range.startDate && range.endDate)
+        filtered = filtered.filter(function(r) { return isDateInRange(getRecordDate(r), range.startDate, range.endDate); });
+    if (branch !== "ALL")
+        filtered = filtered.filter(function(r) { return r.orgBranchName === branch; });
+    var seen = {};
+    var count = 0;
+    filtered.forEach(function(r) { if (r.cashierName && !seen[r.cashierName]) { seen[r.cashierName] = true; count++; } });
+    return count;
 }
 
 /* ═══════════════════════════════════════════════════════════════
    BRANCH FILTER
    ═══════════════════════════════════════════════════════════════ */
 function populateBranchFilter() {
-    const select   = document.getElementById("branchFilter");
-    const branches = [...new Set(allRawData.map(a => a.orgBranchName))].filter(Boolean).sort();
-    const prev     = select.value;
-
-    while (select.options.length > 1) select.remove(1);
-
-    branches.forEach(b => {
-        const opt = document.createElement("option");
-        opt.value = b;
-        opt.textContent = b;
-        select.appendChild(opt);
-    });
-
-    if ([...select.options].some(o => o.value === prev)) {
-        select.value = prev;
-    }
+    var sel = document.getElementById("branchFilter");
+    var seen = {}, branches = [];
+    allRawData.forEach(function(a) { if (a.orgBranchName && !seen[a.orgBranchName]) { seen[a.orgBranchName] = true; branches.push(a.orgBranchName); } });
+    branches.sort();
+    var prev = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    branches.forEach(function(b) { var o = document.createElement("option"); o.value = b; o.textContent = b; sel.appendChild(o); });
+    for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === prev) { sel.value = prev; break; } }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    STATS
    ═══════════════════════════════════════════════════════════════ */
 function updateStats(data) {
-    const count        = data.length;
-    const totalCleared = data.reduce((s, a) => s + (a.clearedInvoices || 0), 0);
-    const totalPaid    = data.reduce((s, a) => s + (a.paidInvoices || 0), 0);
-    const totalCancel  = data.reduce((s, a) => s + (a.cancelledOrders || 0), 0);
-    const totalFail    = data.reduce((s, a) => s + (a.failedDeliveryOrders || 0), 0);
-    const avgScore     = count > 0 ? data.reduce((s, a) => s + a.performance.score, 0) / count : 0;
-    const topScore     = count > 0 ? Math.max(...data.map(a => a.performance.score)) : 0;
-    const branches     = new Set(data.map(a => a.orgBranchName)).size;
-
-    document.getElementById("statTotal").textContent     = count;
+    var n = data.length;
+    var totalCleared = 0, totalPaid = 0, totalCancel = 0, totalFail = 0, scoreSum = 0, topScore = 0;
+    var branchSet = {};
+    data.forEach(function(a) {
+        totalCleared += (a.clearedInvoices || 0);
+        totalPaid    += (a.paidInvoices || 0);
+        totalCancel  += (a.cancelledOrders || 0);
+        totalFail    += (a.failedDeliveryOrders || 0);
+        if (a.performance) { scoreSum += a.performance.score; if (a.performance.score > topScore) topScore = a.performance.score; }
+        branchSet[a.orgBranchName] = true;
+    });
+    document.getElementById("statTotal").textContent     = n;
     document.getElementById("statOrders").textContent    = totalCleared.toLocaleString();
     document.getElementById("statAmount").textContent    = totalPaid.toLocaleString();
     document.getElementById("statCancelled").textContent = totalCancel.toLocaleString();
     document.getElementById("statFailed").textContent    = totalFail.toLocaleString();
-    document.getElementById("statAvgScore").textContent  = avgScore.toFixed(1) + "%";
+    document.getElementById("statAvgScore").textContent  = (n > 0 ? scoreSum / n : 0).toFixed(1) + "%";
     document.getElementById("statTopScore").textContent  = topScore.toFixed(1) + "%";
-    document.getElementById("statBranches").textContent  = branches;
+    document.getElementById("statBranches").textContent  = Object.keys(branchSet).length;
 }
 
 /* ═══════════════════════════════════════════════════════════════
    RENDER TABLE
    ═══════════════════════════════════════════════════════════════ */
 function renderTable(data) {
-    const tbody = document.getElementById("performanceBody");
+    var tbody = document.getElementById("performanceBody");
 
     if (!data.length) {
         tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No data found for the selected filters.</td></tr>';
@@ -838,83 +593,82 @@ function renderTable(data) {
     }
 
     calculateEfficiency(data);
-    data.sort((a, b) => b.performance.score - a.performance.score);
+    data.sort(function(a, b) { return b.performance.score - a.performance.score; });
 
-    const maxScore = Math.max(...data.map(a => a.performance.score), 1);
+    var html = '';
+    for (var i = 0; i < data.length; i++) {
+        var a = data[i];
+        var rank = i + 1;
+        var rc = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "rank-other";
+        var sc = a.performance.grade;
+        var score = a.performance.score;
+        // Score is already 0–100 — use directly as bar width
+        var barW = score.toFixed(1);
 
-    tbody.innerHTML = data.map((a, i) => {
-        const rank = i + 1;
-        const rc   = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "rank-other";
-        const sc   = a.performance.grade;
-        const barW = Math.min(((a.performance.score / maxScore) * 100), 100).toFixed(1);
-
-        let issuesHTML = "";
-        const cancelled = a.cancelledOrders || 0;
-        const failed    = a.failedDeliveryOrders || 0;
+        var issuesHTML = "";
+        var cancelled = a.cancelledOrders || 0;
+        var failed = a.failedDeliveryOrders || 0;
         if (cancelled > 0 || failed > 0) {
-            const tags = [];
+            var tags = [];
             if (cancelled > 0) tags.push('<span class="issue-tag tag-cancelled">' + cancelled + ' cancelled</span>');
-            if (failed > 0)    tags.push('<span class="issue-tag tag-failed">' + failed + ' failed</span>');
+            if (failed > 0) tags.push('<span class="issue-tag tag-failed">' + failed + ' failed</span>');
             issuesHTML = '<div class="issue-tags">' + tags.join("") + '</div>';
         }
 
-        return '<tr>' +
+        html += '<tr>' +
             '<td><span class="rank-badge ' + rc + '">' + rank + '</span></td>' +
             '<td class="attendant-name">' + (a.cashierName || "—") + '</td>' +
             '<td><span class="branch-tag" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || "—") + '</span></td>' +
             '<td><div class="cleared-cell"><span class="cleared-value">' + (a.clearedInvoices || 0).toLocaleString() + '</span>' + issuesHTML + '</div></td>' +
             '<td>' + (a.paidInvoices || 0).toLocaleString() + '</td>' +
             '<td>' + (a.creditInvoices || 0).toLocaleString() + '</td>' +
-            '<td><div class="score-cell ' + sc + '"><div class="score-bar-wrap"><div class="score-bar" style="width:' + barW + '%"></div></div><span class="score-text">' + a.performance.score.toFixed(1) + '%</span></div></td>' +
+            '<td><div class="score-cell ' + sc + '"><div class="score-bar-wrap"><div class="score-bar" style="width:' + barW + '%"></div></div><span class="score-text">' + score.toFixed(1) + '%</span></div></td>' +
             '</tr>';
-    }).join("");
+    }
+    tbody.innerHTML = html;
 }
 
 /* ═══════════════════════════════════════════════════════════════
    APPLY FILTERS
    ═══════════════════════════════════════════════════════════════ */
 function applyFilters() {
-    const data = getFilteredAggregatedData();
+    var data = getFilteredAggregatedData();
     renderTable(data);
     updateStats(data);
     updateRangeIndicator();
 }
 
 function updateRangeIndicator() {
-    const range     = getDateRange();
-    const n         = getActiveCashierCount();
-    const fairShare = n > 0 ? (100 / n).toFixed(1) : "—";
-
-    document.getElementById("rangeIndicator").innerHTML =
-        'Showing: <strong>' + formatDisplayRange(range) + '</strong>';
-    document.getElementById("fairShareBadge").textContent =
-        'Fair share: ' + fairShare + '%';
+    var range = getDateRange();
+    var n = getActiveCashierCount();
+    var fairShare = n > 0 ? (100 / n).toFixed(1) : "—";
+    document.getElementById("rangeIndicator").innerHTML = 'Showing: <strong>' + formatDisplayRange(range) + '</strong>';
+    document.getElementById("fairShareBadge").textContent = 'Fair share: ' + fairShare + '%';
 }
 
 /* ═══════════════════════════════════════════════════════════════
    EVENT HANDLERS
    ═══════════════════════════════════════════════════════════════ */
-
 document.getElementById("dateRangeSelect").addEventListener("change", function() {
-    const preset = this.value;
-    syncDateInputsFromPreset(preset);
-    toggleCustomDateRange(preset === "custom");
-    localStorage.setItem(STORAGE_KEY_RANGE, preset);
-    if (preset !== "custom") localStorage.removeItem(STORAGE_KEY_CUSTOM);
+    var p = this.value;
+    syncDateInputsFromPreset(p);
+    toggleCustomDateRange(p === "custom");
+    localStorage.setItem(STORAGE_KEY_RANGE, p);
+    if (p !== "custom") localStorage.removeItem(STORAGE_KEY_CUSTOM);
     applyFilters();
 });
 
 document.getElementById("applyCustom").addEventListener("click", function() {
-    const from = document.getElementById("dateFrom").value;
-    const to   = document.getElementById("dateTo").value;
-    if (!from || !to) return;
-    if (from > to) {
-        const bar = document.getElementById("customRangeBar");
+    var f = document.getElementById("dateFrom").value;
+    var t = document.getElementById("dateTo").value;
+    if (!f || !t) return;
+    if (f > t) {
+        var bar = document.getElementById("customRangeBar");
         bar.style.outline = "1px solid #e74c3c";
-        setTimeout(() => { bar.style.outline = ""; }, 1500);
+        setTimeout(function() { bar.style.outline = ""; }, 1500);
         return;
     }
-    localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify({ from, to }));
+    localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify({ from: f, to: t }));
     applyFilters();
 });
 
@@ -924,50 +678,35 @@ document.getElementById("branchFilter").addEventListener("change", function() {
 });
 
 /* ═══════════════════════════════════════════════════════════════
-   LOCALSTORAGE CACHE
+   CACHE
    ═══════════════════════════════════════════════════════════════ */
 function saveCache(data) {
-    try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-    } catch (e) {
-        console.warn("Cache write failed:", e.message);
-    }
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data })); } catch(e) {}
 }
-
 function loadCache() {
     try {
-        const raw = localStorage.getItem(CACHE_KEY);
+        var raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (Date.now() - parsed.ts < AUTO_REFRESH_MS) return parsed.data;
-    } catch (e) {}
+        var p = JSON.parse(raw);
+        if (Date.now() - p.ts < AUTO_REFRESH_MS) return p.data;
+    } catch(e) {}
     return null;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   DATA FETCHING — SINGLE REQUEST
+   FETCH — SINGLE REQUEST
    ═══════════════════════════════════════════════════════════════ */
 async function fetchAllData() {
     if (currentAbortCtrl) currentAbortCtrl.abort();
     currentAbortCtrl = new AbortController();
-    const signal = currentAbortCtrl.signal;
-
-    const range  = getFetchRange();
-    const params = new URLSearchParams({
-        startDate: range.startDate,
-        endDate:   range.endDate,
-        pageSize:  50000
-    });
-
-    const url      = API_URL + "?" + params.toString();
-    const response = await fetch(url, {
+    var r = getFetchRange();
+    var params = new URLSearchParams({ startDate: r.startDate, endDate: r.endDate, pageSize: 50000 });
+    var resp = await fetch(API_URL + "?" + params.toString(), {
         headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" },
-        signal
+        signal: currentAbortCtrl.signal
     });
-
-    if (!response.ok) throw new Error("HTTP " + response.status);
-
-    const json = await response.json();
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    var json = await resp.json();
     return Array.isArray(json.data) ? json.data : [];
 }
 
@@ -975,41 +714,30 @@ async function fetchAllData() {
    RESTORE FILTER STATE
    ═══════════════════════════════════════════════════════════════ */
 function restoreFilterState() {
-    const savedBranch = localStorage.getItem(STORAGE_KEY_BRANCH);
-    if (savedBranch) {
-        const sel = document.getElementById("branchFilter");
-        if ([...sel.options].some(o => o.value === savedBranch)) {
-            sel.value = savedBranch;
-        } else {
-            localStorage.removeItem(STORAGE_KEY_BRANCH);
-        }
+    var sb = localStorage.getItem(STORAGE_KEY_BRANCH);
+    if (sb) {
+        var sel = document.getElementById("branchFilter");
+        var found = false;
+        for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === sb) { found = true; break; } }
+        if (found) sel.value = sb; else localStorage.removeItem(STORAGE_KEY_BRANCH);
     }
-
-    const savedRange  = localStorage.getItem(STORAGE_KEY_RANGE);
-    const savedCustom = localStorage.getItem(STORAGE_KEY_CUSTOM);
-    const sel         = document.getElementById("dateRangeSelect");
-
-    if (savedRange === "custom" && savedCustom) {
+    var sr = localStorage.getItem(STORAGE_KEY_RANGE);
+    var sc = localStorage.getItem(STORAGE_KEY_CUSTOM);
+    var sel = document.getElementById("dateRangeSelect");
+    if (sr === "custom" && sc) {
         try {
-            const { from, to } = JSON.parse(savedCustom);
+            var obj = JSON.parse(sc);
             sel.value = "custom";
-            document.getElementById("dateFrom").value = from;
-            document.getElementById("dateTo").value   = to;
+            document.getElementById("dateFrom").value = obj.from;
+            document.getElementById("dateTo").value = obj.to;
             toggleCustomDateRange(true);
-        } catch {
-            fallbackToToday();
-        }
-    } else if (savedRange && savedRange !== "custom") {
-        if ([...sel.options].some(o => o.value === savedRange)) {
-            sel.value = savedRange;
-            syncDateInputsFromPreset(savedRange);
-            toggleCustomDateRange(false);
-        } else {
-            fallbackToToday();
-        }
-    } else {
-        fallbackToToday();
-    }
+        } catch(e) { fallbackToToday(); }
+    } else if (sr && sr !== "custom") {
+        var found = false;
+        for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === sr) { found = true; break; } }
+        if (found) { sel.value = sr; syncDateInputsFromPreset(sr); toggleCustomDateRange(false); }
+        else fallbackToToday();
+    } else fallbackToToday();
 }
 
 function fallbackToToday() {
@@ -1026,66 +754,43 @@ function fallbackToToday() {
 async function loadData() {
     if (isLoading) return;
     isLoading = true;
+    var tbody = document.getElementById("performanceBody");
 
-    const tbody = document.getElementById("performanceBody");
-
-    const cached = loadCache();
+    var cached = loadCache();
     if (cached && cached.length > 0) {
         allRawData = cached;
         document.getElementById("recordCount").textContent = allRawData.length.toLocaleString();
-        populateBranchFilter();
-        restoreFilterState();
-        applyFilters();
+        populateBranchFilter(); restoreFilterState(); applyFilters();
         document.getElementById("lastUpdated").textContent =
-            new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        isLoading = false;
-        return;
+            new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+        isLoading = false; return;
     }
 
     tbody.innerHTML = '<tr><td colspan="7" class="loading-msg"><span class="loading-spinner"></span>Fetching records...</td></tr>';
-
     try {
         allRawData = await fetchAllData();
-
         if (!allRawData.length) {
             tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No data returned for the last ' + DATA_LOOKBACK_DAYS + ' days.</td></tr>';
-            isLoading = false;
-            return;
+            isLoading = false; return;
         }
-
         saveCache(allRawData);
-
         document.getElementById("recordCount").textContent = allRawData.length.toLocaleString();
-        populateBranchFilter();
-        restoreFilterState();
-        applyFilters();
+        populateBranchFilter(); restoreFilterState(); applyFilters();
         document.getElementById("lastUpdated").textContent =
-            new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
-    } catch (e) {
+            new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+    } catch(e) {
         if (e.name === "AbortError") { isLoading = false; return; }
         console.error(e);
-
-        if (allRawData.length) {
-            populateBranchFilter();
-            restoreFilterState();
-            applyFilters();
-        } else {
-            tbody.innerHTML = '<tr><td colspan="7" class="error-msg">Error loading data: ' + e.message + '<br><br>Retrying in 10 minutes...</td></tr>';
-        }
+        if (allRawData.length) { populateBranchFilter(); restoreFilterState(); applyFilters(); }
+        else tbody.innerHTML = '<tr><td colspan="7" class="error-msg">Error loading data: ' + e.message + '<br><br>Retrying in 5 minutes...</td></tr>';
     }
-
     isLoading = false;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════════════════════ */
 loadData();
-
 if (refreshTimer) clearInterval(refreshTimer);
 refreshTimer = setInterval(function() {
-    try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
+    try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
     loadData();
 }, AUTO_REFRESH_MS);
 </script>
