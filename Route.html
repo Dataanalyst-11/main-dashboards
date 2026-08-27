@@ -8,36 +8,43 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: #0f172a;
     color: #e5e7eb;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Prevent body scroll, let inner containers scroll */
   }
 
   header {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     border-bottom: 3px solid #ba9305;
-    padding: 18px 32px;
+    padding: 10px 24px; /* Squeezed */
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
+    flex-shrink: 0;
   }
 
-  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
   .header-logo {
-    width: 44px; height: 44px; background: #ba9305; border-radius: 10px;
+    width: 38px; height: 38px; background: #ba9305; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 20px; color: #020617; flex-shrink: 0;
+    font-weight: 900; font-size: 18px; color: #020617; flex-shrink: 0;
   }
-  .header-title { font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
-  .header-subtitle { font-size: 12px; color: #64748b; font-weight: 400; margin-top: 2px; }
+  .header-title { font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
+  .header-subtitle { font-size: 11px; color: #64748b; font-weight: 400; margin-top: 1px; }
 
-  .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; position: relative; }
+  .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: relative; }
   .header-loading-overlay {
     position: absolute; inset: 0; background: rgba(15, 23, 42, 0.6); border-radius: 8px;
     display: flex; align-items: center; justify-content: center; z-index: 10;
@@ -45,107 +52,113 @@
   }
   .header-loading-overlay.active { opacity: 1; pointer-events: all; }
   .header-loading-overlay .mini-spinner {
-    width: 22px; height: 22px; border: 3px solid #334155; border-top-color: #ba9305;
+    width: 20px; height: 20px; border: 3px solid #334155; border-top-color: #ba9305;
     border-radius: 50%; animation: spin 0.7s linear infinite;
   }
 
   .filter-select { position: relative; }
   .filter-select select {
-    padding: 12px 42px 12px 16px; border-radius: 10px; border: 2px solid #334155;
-    background: #1e293b; color: #f1f5f9; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 8px 36px 8px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9; font-size: 13px; font-weight: 600; cursor: pointer;
     appearance: none; -webkit-appearance: none; transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s; outline: none;
   }
   .filter-select select:disabled { opacity: 0.5; cursor: not-allowed; }
   .filter-select select:hover:not(:disabled) { border-color: #ba9305; }
   .filter-select select:focus:not(:disabled) { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15); }
-  .filter-select::after { content: "\25BE"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #ba9305; font-size: 18px; pointer-events: none; }
+  .filter-select::after { content: "\25BE"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #ba9305; font-size: 16px; pointer-events: none; }
 
   .custom-date-range {
-    display: flex; align-items: center; gap: 0; border-radius: 10px; border: 2px solid #334155;
+    display: flex; align-items: center; gap: 0; border-radius: 8px; border: 2px solid #334155;
     background: #1e293b; overflow: hidden; max-width: 0; opacity: 0; padding: 0; border-color: transparent; pointer-events: none;
     transition: border-color 0.2s, box-shadow 0.2s, opacity 0.3s, max-width 0.4s ease, padding 0.4s ease;
   }
-  .custom-date-range.visible { max-width: 380px; opacity: 1; padding: 0; border-color: #334155; pointer-events: all; }
+  .custom-date-range.visible { max-width: 340px; opacity: 1; padding: 0; border-color: #334155; pointer-events: all; }
   .custom-date-range:focus-within:not(.disabled) { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15); }
-  .date-range-group { display: flex; align-items: center; gap: 0; padding: 4px 10px; position: relative; }
+  .date-range-group { display: flex; align-items: center; gap: 0; padding: 2px 8px; position: relative; }
   .date-range-group + .date-range-group { border-left: 1px solid #334155; }
-  .date-range-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #ba9305; margin-right: 8px; white-space: nowrap; user-select: none; }
+  .date-range-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #ba9305; margin-right: 6px; white-space: nowrap; user-select: none; }
   .date-range-input-wrap { position: relative; display: flex; align-items: center; }
   .date-range-input-wrap input[type="date"] {
-    padding: 8px 10px 8px 30px; border-radius: 7px; border: 1.5px solid #334155; background: #0f172a; color: #f1f5f9;
-    font-size: 13px; font-weight: 600; outline: none; width: 130px; font-family: 'Segoe UI', Arial, sans-serif; transition: border-color 0.2s;
+    padding: 6px 8px 6px 26px; border-radius: 6px; border: 1.5px solid #334155; background: #0f172a; color: #f1f5f9;
+    font-size: 12px; font-weight: 600; outline: none; width: 110px; font-family: 'Segoe UI', Arial, sans-serif; transition: border-color 0.2s;
   }
   .date-range-input-wrap input[type="date"]:disabled { opacity: 0.4; cursor: not-allowed; }
   .date-range-input-wrap input[type="date"]:hover:not(:disabled) { border-color: #475569; }
   .date-range-input-wrap input[type="date"]:focus:not(:disabled) { border-color: #ba9305; }
   .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg); cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-  .date-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; pointer-events: none; opacity: 0.5; }
+  .date-icon { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; pointer-events: none; opacity: 0.5; }
   .date-icon svg { width: 100%; height: 100%; fill: #64748b; }
 
-  .view-toggle { display: flex; background: #0f172a; border-radius: 10px; padding: 3px; border: 2px solid #334155; }
-  .view-toggle button { padding: 8px 22px; border: none; background: transparent; color: #64748b; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
+  .view-toggle { display: flex; background: #0f172a; border-radius: 8px; padding: 2px; border: 2px solid #334155; }
+  .view-toggle button { padding: 6px 18px; border: none; background: transparent; color: #64748b; font-weight: 700; font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
   .view-toggle button:hover:not(:disabled) { color: #94a3b8; }
   .view-toggle button.active { background: #ba9305; color: #020617; }
 
-  #routeView, #branchView { flex: 1; display: flex; flex-direction: column; }
+  #routeView, #branchView { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   #branchView { display: none; }
 
-  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
-  .branch-summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
-  .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 22px 24px; position: relative; overflow: hidden; transition: border-color 0.2s, transform:  0.15s; }
-  .stat-card:hover { border-color: #475569; transform: translateY(-2px); }
-  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
+  /* Squeezed Stats Row */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
+  .branch-summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
+  .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .stat-card:hover { border-color: #475569; }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 3px 0 0 3px; }
   .stat-card:nth-child(1)::before { background: #22c55e; }
   .stat-card:nth-child(2)::before { background: #38bdf8; }
   .stat-card:nth-child(3)::before { background: #ef4444; }
   .branch-summary-row .stat-card:nth-child(4)::before { background: #f97316; }
-  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #64748b; font-weight: 600; margin-bottom: 10px; }
-  .stat-value { font-size: 26px; font-weight: 800; color: #f8fafc; line-height: 1; }
-  .stat-sub { font-size: 13px; color: #94a3b8; margin-top: 6px; font-weight: 400; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 800; color: #f8fafc; line-height: 1; }
+  .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 400; }
   .perf-high { color: #22c55e !important; }
   .perf-medium { color: #facc15 !important; }
   .perf-low { color: #ef4444 !important; }
 
-  .branch-perf-section { padding: 20px 32px 0; }
-  .branch-perf-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 24px 28px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
-  .branch-perf-info { flex: 0 0 auto; min-width: 240px; }
-  .branch-perf-info .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #64748b; font-weight: 600; margin-bottom: 6px; }
-  .branch-perf-info .value { font-size: 42px; font-weight: 900; line-height: 1; }
-  .branch-perf-info .detail { font-size: 13px; color: #94a3b8; margin-top: 8px; line-height: 1.7; }
+  /* Squeezed Branch Performance Section */
+  .branch-perf-section { padding: 12px 24px 0; flex-shrink: 0; }
+  .branch-perf-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .branch-perf-info { flex: 0 0 auto; min-width: 200px; }
+  .branch-perf-info .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 600; margin-bottom: 2px; }
+  .branch-perf-info .value { font-size: 28px; font-weight: 900; line-height: 1; }
+  .branch-perf-info .detail { font-size: 12px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
   .branch-perf-info .detail .deficit { font-weight: 700; color: #ef4444; }
   .branch-perf-info .detail .surplus { font-weight: 700; color: #22c55e; }
-  .perf-bar-wrap { flex: 1; min-width: 200px; }
-  .perf-bar-track { width: 100%; height: 14px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+  .perf-bar-wrap { flex: 1; min-width: 150px; }
+  .perf-bar-track { width: 100%; height: 10px; background: #0f172a; border-radius: 99px; overflow: hidden; }
   .perf-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s; min-width: 0; }
-  .perf-bar-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: #475569; font-weight: 600; }
+  .perf-bar-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: #475569; font-weight: 600; }
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
-  .table-section { flex: 1; padding: 20px 32px 24px; display: flex; flex-direction: column; min-height: 0; }
-  .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
-  .table-title { font-size: 16px; font-weight: 700; color: #f1f5f9; }
-  .table-count { font-size: 13px; color: #64748b; background: #0f172a; padding: 5px 14px; border-radius: 99px; font-weight: 600; }
+  /* Table Section - Flex 1 to take remaining height */
+  .table-section { flex: 1; padding: 12px 24px 12px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
+  .table-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+  .table-count { font-size: 12px; color: #64748b; background: #0f172a; padding: 4px 12px; border-radius: 99px; font-weight: 600; }
   .search-box {
-    padding: 9px 16px 9px 38px; border-radius: 10px; border: 2px solid #334155; background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397, 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
-    color: #f1f5f9; font-size: 14px; width: 280px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 7px 14px 7px 32px; border-radius: 8px; border: 2px solid #334155; background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397, 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 12px center no-repeat;
+    color: #f1f5f9; font-size: 13px; width: 260px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
   .search-box::placeholder { color: #475569; }
   .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12); }
 
-  .table-wrap { flex: 1; overflow-y: auto; border-radius: 14px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  /* Table Wrap - The Scrollable Area */
+  .table-wrap { flex: 1; overflow-y: auto; border-radius: 10px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+  
+  /* Frozen Headers */
   thead th {
     position: sticky; top: 0; background: #1e293b; color: #94a3b8; text-transform: uppercase;
-    font-size: 11px; letter-spacing: 1px; font-weight: 700; z-index: 2; padding: 14px 14px;
+    font-size: 10px; letter-spacing: 0.8px; font-weight: 700; z-index: 2; padding: 10px 12px;
     border-bottom: 2px solid #334155; text-align: left; user-select: none; white-space: nowrap;
   }
   thead th.sortable { cursor: pointer; transition: color 0.2s, background 0.2s; }
   thead th.sortable:hover { color: #f1f5f9; background: #263348; }
   thead th.sortable.active-sort { color: #ba9305; }
-  .sort-icon { display: inline-block; margin-left: 5px; font-size: 9px; opacity: 0.35; vertical-align: middle; transition: opacity 0.2s, transform 0.25s; }
+  .sort-icon { display: inline-block; margin-left: 4px; font-size: 8px; opacity: 0.35; vertical-align: middle; transition: opacity 0.2s, transform 0.25s; }
   thead th.sortable:hover .sort-icon { opacity: 0.7; }
   thead th.sortable.active-sort .sort-icon { opacity: 1; }
   thead th.sortable.active-sort.sort-asc .sort-icon { transform: rotate(0deg); }
@@ -161,69 +174,67 @@
   th:nth-child(8), td:nth-child(8) { width: 8%; text-align: center; }
   th:nth-child(9), td:nth-child(9) { width: 8%; text-align: center; }
 
-  td { padding: 13px 14px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
+  /* Squeezed Table Cells */
+  td { padding: 8px 12px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
 
-  /* Standard Group Header (Sales Person within Branch) */
   tr.group-header td {
     background: #172033; color: #ba9305; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; padding: 14px 14px; border-top: 2px solid #334155; border-bottom: 1px solid #334155;
+    letter-spacing: 1px; padding: 10px 12px; border-top: 2px solid #334155; border-bottom: 1px solid #334155;
   }
   
-  /* Branch Name Header Row - Deep Blue */
   tr.group-header.branch-header td { 
     background: #1e3a8a; 
     color: #bfdbfe; 
-    font-size: 15px; 
+    font-size: 14px; 
     border-top: 3px solid #3b82f6; 
     border-bottom: 1px solid #1e40af; 
   }
   
   /* Total / Subtotal Row - Vibrant Fuchsia/Purple Gradient */
   tr.group-subtotal td {
-    background: linear-gradient(90deg, #db2777 0%, #9333ea 100%); /* Vibrant Pink to Purple */
+    background: linear-gradient(90deg, #db2777 0%, #9333ea 100%); 
     font-weight: 900; 
-    color: #ffffff; /* Pure White */
+    color: #ffffff; 
     border-top: 2px solid #ec4899;
     border-bottom: 2px solid #7e22ce; 
     text-transform: uppercase; 
     letter-spacing: 0.5px; 
-    font-size: 16px; /* INCREASED FURTHER from 15px to 16px */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.4); /* Stronger shadow for extra pop */
+    font-size: 14px; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4); 
   }
-  tr.group-subtotal .sp-name { color: #fde047; font-weight: 900; font-size: 17px; } /* Vibrant Yellow for SP Name */
+  tr.group-subtotal .sp-name { color: #fde047; font-weight: 900; font-size: 15px; } 
   
-  /* Adjusting Values & Badges inside the Total Row */
   tr.group-subtotal .value-cell { 
     color: #ffffff; 
-    font-weight: 900; /* Extra bold */
-    font-size: 17px; /* INCREASED FURTHER from 15px to 17px */
+    font-weight: 900; 
+    font-size: 15px; 
   }
   tr.group-subtotal .value-cell .kes { 
-    color: #fbcfe8; /* Light Pink for KES */
+    color: #fbcfe8; 
     font-weight: 800; 
-    font-size: 14px; /* Slightly smaller for KES tag */
+    font-size: 12px; 
   }
   tr.group-subtotal .pct-badge { 
     background: #0f172a; 
     color: #ffffff;
     font-weight: 900;
     border: 1px solid #ffffff;
-    font-size: 14px; /* Larger badge text */
-    padding: 5px 12px;
+    font-size: 12px; 
+    padding: 4px 10px;
   }
   tr.group-subtotal .pct-high { background: #0f172a; color: #4ade80; border: 1px solid #4ade80; }
   tr.group-subtotal .pct-medium { background: #0f172a; color: #facc15; border: 1px solid #facc15; }
   tr.group-subtotal .pct-low { background: #0f172a; color: #f87171; border: 1px solid #f87171; }
-  tr.group-subtotal .status-dot { color: #ffffff; font-size: 13px; font-weight: 800; }
+  tr.group-subtotal .status-dot { color: #ffffff; font-size: 12px; font-weight: 800; }
   tr.group-subtotal .status-on-track { color: #4ade80; }
   tr.group-subtotal .status-at-risk { color: #fde047; }
   tr.group-subtotal .status-below { color: #fca5a5; }
 
-  .route-name { font-weight: 700; color: #f1f5f9; font-size: 13px; }
-  .branch-cell { font-size: 12px; color: #94a3b8; }
-  .sp-cell { font-size: 12px; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .route-name { font-weight: 700; color: #f1f5f9; font-size: 12px; }
+  .branch-cell { font-size: 11px; color: #94a3b8; }
+  .sp-cell { font-size: 11px; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   
   .edit-sp-btn {
     background: none;
@@ -236,18 +247,18 @@
     transition: color 0.2s;
   }
   .edit-sp-btn:hover { color: #ba9305; }
-  .edit-sp-btn svg { width: 12px; height: 12px; pointer-events: none; }
+  .edit-sp-btn svg { width: 11px; height: 11px; pointer-events: none; }
 
-  .pct-badge { display: inline-block; padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 12px; min-width: 62px; text-align: center; }
+  .pct-badge { display: inline-block; padding: 3px 8px; border-radius: 99px; font-weight: 800; font-size: 11px; min-width: 50px; text-align: center; }
   .pct-high { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
   .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
   .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 
-  .value-cell { font-weight: 700; color: #e2e8f0; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
-  .value-cell .kes { font-weight: 400; color: #64748b; font-size: 11px; margin-right: 2px; }
+  .value-cell { font-weight: 700; color: #e2e8f0; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  .value-cell .kes { font-weight: 400; color: #64748b; font-size: 10px; margin-right: 2px; }
 
-  .status-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-  .status-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .status-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
   .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .status-on-track { color: #22c55e; }
   .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
@@ -255,19 +266,19 @@
   .status-below::before { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
   .status-below { color: #ef4444; }
 
-  .no-data-row td { text-align: center; padding: 60px 20px; color: #475569; font-size: 15px; }
-  .loading-row td { text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px; }
-  .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #334155; border-top-color: #ba9305; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 10px; }
+  .no-data-row td { text-align: center; padding: 40px 20px; color: #475569; font-size: 14px; }
+  .loading-row td { text-align: center; padding: 40px 20px; color: #64748b; font-size: 14px; }
+  .loading-spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid #334155; border-top-color: #ba9305; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .sort-hint { font-size: 11px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .sort-hint { font-size: 10px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
 
   .branch-grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
-  .branch-grid-wrap { flex: 1; padding: 0 32px 24px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  .branch-grid-wrap { flex: 1; padding: 0 24px 16px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
   .branch-grid-wrap::-webkit-scrollbar { width: 6px; }
   .branch-grid-wrap::-webkit-scrollbar-track { background: transparent; }
   .branch-grid-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
-  .branch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-  .b-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 20px 22px 26px; position: relative; overflow: hidden; transition: transform 0.15s, border-color 0.2s; }
+  .branch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .b-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px 18px 22px; position: relative; overflow: hidden; transition: transform 0.15s, border-color 0.2s; }
   .b-card:hover { transform: translateY(-2px); border-color: #475569; }
   .b-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
   .b-card.tier-high::before { background: #22c55e; }
@@ -275,19 +286,19 @@
   .b-card.tier-low::before { background: #ef4444; }
   .b-card.tier-none { opacity: 0.35; border-style: dashed; }
   .b-card.tier-none::before { background: #475569; }
-  .b-card-name { font-size: 16px; text-transform: uppercase; letter-spacing: 1.2px; color: #e2e8f0; font-weight: 800; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .b-card-pct { font-size: 32px; font-weight: 900; line-height: 1; color: #f8fafc; margin-bottom: 6px; }
-  .b-card-routes { font-size: 12px; color: #38bdf8; font-weight: 700; margin-bottom: 8px; }
-  .b-card-detail { font-size: 13px; color: #94a3b8; line-height: 1.4; }
+  .b-card-name { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; color: #e2e8f0; font-weight: 800; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .b-card-pct { font-size: 28px; font-weight: 900; line-height: 1; color: #f8fafc; margin-bottom: 4px; }
+  .b-card-routes { font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 6px; }
+  .b-card-detail { font-size: 12px; color: #94a3b8; line-height: 1.4; }
   .b-card-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: #0f172a; }
   .b-card-bar-fill { height: 100%; border-radius: 0 0 14px 0; transition: width 0.8s ease; }
   .bar-high { background: #22c55e; } .bar-medium { background: #facc15; } .bar-low { background: #ef4444; } .bar-none { background: #475569; }
   .b-card.hidden { display: none; }
-  .no-branch-data { text-align: center; padding: 60px 20px; color: #475569; font-size: 15px; grid-column: 1 / -1; }
+  .no-branch-data { text-align: center; padding: 40px 20px; color: #475569; font-size: 14px; grid-column: 1 / -1; }
 
-  footer { text-align: center; padding: 14px; font-size: 12px; background: #0f172a; color: #475569; border-top: 1px solid #1e293b; }
+  footer { text-align: center; padding: 8px; font-size: 11px; background: #0f172a; color: #475569; border-top: 1px solid #1e293b; flex-shrink: 0; }
   footer span.highlight { color: #ba9305; font-weight: 600; }
-  .toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; border: 1px solid #334155; border-left: 4px solid #ef4444; color: #f1f5f9; padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 999; transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); max-width: 380px; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: #1e293b; border: 1px solid #334155; border-left: 4px solid #ef4444; color: #f1f5f9; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 999; transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); max-width: 380px; }
   .toast.show { transform: translateX(0); }
   .toast.toast-warn { border-left-color: #f59e0b; }
   .toast.toast-retry { border-left-color: #38bdf8; }
@@ -301,27 +312,6 @@
   @media (max-width: 900px) {
     th:nth-child(4), td:nth-child(4) { display: none; }
     th:nth-child(9), td:nth-child(9) { display: none; }
-  }
-  @media (max-width: 600px) {
-    header { padding: 14px 18px; }
-    .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
-    .branch-summary-row { grid-template-columns: 1fr; padding: 16px 18px 0; }
-    .branch-perf-section { padding: 16px 18px 0; }
-    .table-section { padding: 16px 18px 18px; }
-    .branch-grid-wrap { padding: 0 18px 18px; }
-    .branch-grid { grid-template-columns: 1fr; }
-    .stat-value { font-size: 20px; }
-    .branch-perf-info .value { font-size: 32px; }
-    .branch-perf-info { min-width: 100%; }
-    .header-right { width: 100%; }
-    .filter-select { flex: 1; min-width: 0; }
-    .filter-select select { width: 100%; }
-    .view-toggle { flex: 1; }
-    .view-toggle button { flex: 1; text-align: center; }
-    .search-box { width: 100%; }
-    .custom-date-range.visible { max-width: 100%; flex-direction: column; border-radius: 10px; }
-    .date-range-group + .date-range-group { border-left: none; border-top: 1px solid #334155; }
-    .date-range-input-wrap input[type="date"] { width: 100%; }
   }
 </style>
 </head>
@@ -411,7 +401,7 @@
 
   <div class="table-section">
     <div class="table-header">
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <span class="table-title">Route Performance (Clustered by Sales Person)</span>
         <span class="table-count" id="tableCount">0 routes</span>
         <span class="sort-hint" id="sortHint">Click column headers to sort</span>
@@ -477,8 +467,8 @@
     "JOGOO ROAD": ["Jogoo Road","VIVIAN ACHIENG","HEAD OFFICE"], "DONHOLM": ["Donholm","VIVIAN ACHIENG","HEAD OFFICE"], "BURUBURU": ["Buruburu","VIVIAN ACHIENG","HEAD OFFICE"], "GIKOMBA": ["Gikomba","VIVIAN ACHIENG","HEAD OFFICE"], "SHAURI MOYO": ["Shauri Moyo","VIVIAN ACHIENG","HEAD OFFICE"], "UMOJA": ["UMOJA","YVONNE MUNYENJE","HEAD OFFICE"], "KARIOBANGI SOUTH": ["KARIOBANGI SOUTH","YVONNE MUNYENJE","HEAD OFFICE"], "MOWLEM - HEAD OFFICE": ["Mowlem","YVONNE MUNYENJE","HEAD OFFICE"], "KIAMBIO": ["KIAMBIO","YVONNE MUNYENJE","HEAD OFFICE"], "MATHARE": ["Mathare","EMMANUEL OBIRI","HEAD OFFICE"], "HURUMA - HEAD OFFICE": ["HURUMA","EMMANUEL OBIRI","HEAD OFFICE"], "KIAMAIKO": ["KIAMAIKO","EMMANUEL OBIRI","HEAD OFFICE"], "MACHAKOS - HEAD OFFICE": ["MACHAKOS","EVERLINE","HEAD OFFICE"], "KIKIMA - HEAD OFFICE": ["KIKIMA","EVERLINE","HEAD OFFICE"], "UTAWALA": ["Utawala","MAGDALENE MBETE","HEAD OFFICE"], "TASSIA": ["Tassia","MAGDALENE MBETE","HEAD OFFICE"], "EMBAKASI": ["Embakasi","MAGDALENE MBETE","HEAD OFFICE"], "FEDHA": ["Fedha","MAGDALENE MBETE","HEAD OFFICE"], "PIPELINE - HQ": ["Pipeline","LILIAN MUENI","HEAD OFFICE"], "IMARA DAIMA": ["Imara Daima","LILIAN MUENI","HEAD OFFICE"], "KWARE - HQ": ["Pipeline","LILIAN MUENI","HEAD OFFICE"], "SOUTH B": ["South B","JOASH KIAGE","HEAD OFFICE"], "REUBEN": ["Reuben","JOASH KIAGE","HEAD OFFICE"], "NJENGA": ["Njenga","JOASH KIAGE","HEAD OFFICE"], "LUNGALUNGA - HQ": ["Lunga Lunga","JOASH KIAGE","HEAD OFFICE"], "NAIROBI CBD": ["CBD","AMMEAL MICHEKA","HEAD OFFICE"], "WESTLANDS - HQ": ["WESTLANDS","AMMEAL MICHEKA","HEAD OFFICE"], "NGARA": ["Ngara","AMMEAL MICHEKA","HEAD OFFICE"], "PARKLANDS": ["Parklands","AMMEAL MICHEKA","HEAD OFFICE"], "EASTLEIGH": ["Eastleigh","AMMEAL MICHEKA","HEAD OFFICE"], "PANGANI": ["Pangani","AMMEAL MICHEKA","HEAD OFFICE"], "MLANGO KUBWA": ["Mlango Kubwa","AMMEAL MICHEKA","HEAD OFFICE"], "RUAI": ["Ruai","NANCY MAMBOLEO","HEAD OFFICE"], "KAMULU": ["Kamulu","NANCY MAMBOLEO","HEAD OFFICE"], "JOSKA": ["Joska","NANCY MAMBOLEO","HEAD OFFICE"], "TALA": ["Tala","NANCY MAMBOLEO","HEAD OFFICE"], "KANGUNDO": ["Kangundo","NANCY MAMBOLEO","HEAD OFFICE"], "MALAA": ["Malaa","NANCY MAMBOLEO","HEAD OFFICE"], "DANDORA": ["Dandora","DENNIS MUNGUTI","HEAD OFFICE"], "BABA DOGO": ["Baba Dogo","DENNIS MUNGUTI","HEAD OFFICE"], "LUCKY SUMMER": ["LuckY Summer","DENNIS MUNGUTI","HEAD OFFICE"], "KARIOBANGI NORTH": ["Kariobangi","DENNIS MUNGUTI","HEAD OFFICE"], "NGOMONGO - HQ": ["Ngomongo","DENNIS MUNGUTI","HEAD OFFICE"], "KAYOLE - HQ": ["Kayole","MARCARIOUS MAGETA","HEAD OFFICE"], "SOWETO - HQ": ["Soweto","MARCARIOUS MAGETA","HEAD OFFICE"], "BEE CENTER": ["Kayole","BERYL ONYAPIDI","HEAD OFFICE"], "KOMAROCKS": ["Komarocks","BERYL ONYAPIDI","HEAD OFFICE"], "SAIKA": ["Saika","BERYL ONYAPIDI","HEAD OFFICE"], "CHOKAA": ["Chokaa","BERYL ONYAPIDI","HEAD OFFICE"], "KAYOLE JUNCTION": ["Kayole","BERYL ONYAPIDI","HEAD OFFICE"], "OBAMA": ["Obama","BERYL ONYAPIDI","HEAD OFFICE"], "NJIRU": ["Njiru","BERYL ONYAPIDI","HEAD OFFICE"], "MATOPENI": ["Matopeni","BERYL ONYAPIDI","HEAD OFFICE"],
     "KIMILILI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHWELE": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAMKUYWA": ["KAMKUYWA","MARION NELIMA","BUNGOMA"], "KAPSOKWONY": ["KIMILILI","MARION NELIMA","BUNGOMA"], "SIRISIA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAPTAMA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KIPSIGON": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEPTAIS": ["KIMILILI","MARION NELIMA","BUNGOMA"], "NAMWELA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KOPSIRO": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KUYWA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAPKATENY": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LWAKHAKHA": ["LWAKHAKHA","MARION NELIMA","BUNGOMA"], "MISIKHU": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEPYUK": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEBUKUBE": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LUGULU": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KONGIT": ["KIMILILI","MARION NELIMA","BUNGOMA"], "WESTERN - BUNGOMA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LWANDANYI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEBUKWABI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "BUNGOMA CBD": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "WEBUYE": ["WEBUYE","TESLYNE SIMIYU","BUNGOMA"], "KANDUYI": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "BUKEMBE": ["WEBUYE","TESLYNE SIMIYU","BUNGOMA"], "HARAMBEE": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "KIBABII": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MUSAMBA": ["HARAMBEE","TESLYNE SIMIYU","BUNGOMA"], "BUMULA": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MAYANJA": ["KIMAETI","TESLYNE SIMIYU","BUNGOMA"], "NALONDO": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "KABULA": ["KABULA","TESLYNE SIMIYU","BUNGOMA"], "KABUCHAI": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MATEKA": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"],
     "BUSIA CBD": ["BUSIA","GIDEON RAGAMA","BUSIA"], "NAMBALE": ["NAMBALE","GIDEON RAGAMA","BUSIA"], "MUNDIKA": ["BUSIA","GIDEON RAGAMA","BUSIA"], "MUNGATSI": ["MATUNGU","GIDEON RAGAMA","BUSIA"], "ALUPE": ["LUKOLIS","GIDEON RAGAMA","BUSIA"], "MATAYOS": ["MATAYOS","GIDEON RAGAMA","BUSIA"], "MALANGA - BUSIA": ["BUSIA","GIDEON RAGAMA","BUSIA"], "BUHUI": ["BUSIA","GIDEON RAGAMA","BUSIA"], "LUBANGA": ["NAMBALE","GIDEON RAGAMA","BUSIA"], "PORT VICTORIA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "OGALO": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUDALANGI": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUTULA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUMALA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "FUNYULA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "SIO PORT": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUNYALA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "MULUKHONI": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "MALABA": ["MALABA CBD","AURA BRENDA AUMA","BUSIA"], "AMAGORO": ["MALABA CBD","AURA BRENDA AUMA","BUSIA"], "AMUKURA": ["AMUKURA","AURA BRENDA AUMA","BUSIA"], "KIMAETI": ["KIMAETI","AURA BRENDA AUMA","BUSIA"], "LUKOLIS": ["MALABA","AURA BRENDA AUMA","BUSIA"], "ANGURAI": ["ANGURAI","AURA BRENDA AUMA","BUSIA"], "UGUNJA": ["SIAYA","MERCY OYUGI","BUSIA"], "UKWALA": ["SIAYA","MERCY OYUGI","BUSIA"], "LIGEGA": ["SIAYA","MERCY OYUGI","BUSIA"], "SIDINDI": ["SIAYA","MERCY OYUGI","BUSIA"], "RWAMBWA": ["SIAYA","MERCY OYUGI","BUSIA"], "SEGA": ["SIAYA","MERCY OYUGI","BUSIA"], "RANGALA": ["SIAYA","MERCY OYUGI","BUSIA"], "RATADO SIAYA": ["SIAYA","MERCY OYUGI","BUSIA"],
-    "TURBO": ["turbo kipkaren","LEWIS KIPNGETICH","ELDORET"], "MATUNDA - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "SOY - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "PANPAPER": ["PANPAPER","LEWIS KIPNGETICH","ELDORET"], "MUSEMBE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "NANGILI": ["SOY","LEWIS KIPNGETICH","ELDORET"], "SANGO": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LIKUYANI": ["LIKUYANI","LEWIS KIPNGETICH","ELDORET"], "FUFARAL": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LUGARI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "LUMAKANDA": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MLIMANI - EDORET": ["PHILMED ELDORET","LEWIS KIPNGETICH","ELDORET"], "MUHONJE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "CHEKALINI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "KIPKAREN RIVER": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MAGUT": ["MAGUT","LEWIS KIPNGETICH","ELDORET"], "MWAMBA": ["MWAMBA","LEWIS KIPNGETICH","ELDORET"], "MOSORIOT": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "NDALAT": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "HURUMA - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BURNT FOREST": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KABIYET": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KAPSERET": ["kapsabet","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN": ["langas kapseret","SALOME CHEPKEEMOI","ELDORET"], "JUAKALI - ELDORET": ["TURBO","SALOME CHEPKEEMOI","ELDORET"], "KIPKENYO": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN ESTATE": ["ndalatselia","SALOME CHEPKEEMOI","ELDORET"], "KAIBOI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "KURGUNG": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "MAILI NNE - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "TIMBOROA": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "MATHARU": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BLOCK 4": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "KABISAGA": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "CHEPTERWAI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "HILL TEA": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "SEGUTON": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BAHARINI": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BAYETE": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "CHEREBER": ["CHEREBER","SALOME CHEPKEEMOI","ELDORET"], "LODWAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KAKUMA": ["kakuma","ISSAC SHAMOLA","ELDORET"], "LOKICHAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "LOKICHOGIO": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KANAAM": ["KANAAM","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSABET": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPTUMO": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NANDI HILLS": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "HIMAKI": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAMOBO": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "BARATON": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LESSOS - ELDORET": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIMWANI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NAMGOI": ["NAMGOI JUNCTION","MARTHA KOINANGE& FRED TANUI","ELDORET"], "YALA - ELDORET": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPTERIT": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KOBUJOI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TULON": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPSONOI": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIPSIGAK": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TINDERET": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSASUR": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LANGAS - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ROAD BLOCK": ["MAILI NNE","JEREMIAH MOMANYI","ELDORET"], "MUNYAKA - ELDORET": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "KESSES": ["kesses","JEREMIAH MOMANYI","ELDORET"], "CHEPTIRET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "KIPLOMBE": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "NGERIA": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "ANNEX": ["kesses","JEREMIAH MOMANYI","ELDORET"], "MOI - ELDORET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "JERUSALEM": ["JERUSALEM","JEREMIAH MOMANYI","ELDORET"], "MWANZO": ["MWANZO","JEREMIAH MOMANYI","ELDORET"], "KIMUMU": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TAIRI MBILI": ["TAIRI MBILI","JEREMIAH MOMANYI","ELDORET"], "KAPSOYA": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "SINAI - ELDORET": ["SINAI","JEREMIAH MOMANYI","ELDORET"], "HAWAII": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TELEVIEW": ["LANGAS","JEREMIAH MOMANYI","ELDORET"], "KISUMU NDOGO - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ELDORET CBD": ["Eldoret cbd","NANCY NDANU","ELDORET"], "PIONEER - ELDORET": ["CBD","NANCY NDANU","ELDORET"], "KABARNET": ["kabarnet","IRINE JEROP","ELDORET"], "ITEN": ["iten highway","IRINE JEROP","ELDORET"], "ZIWA - ELDORET": ["ziwa moiben","IRINE JEROP","ELDORET"], "KABARTONJO": ["iten highway","IRINE JEROP","ELDORET"], "BIRETWO": ["KABARNET","IRINE JEROP","ELDORET"], "MOIBEN": ["ZIWA","IRINE JEROP","ELDORET"], "FLAX": ["flax","IRINE JEROP","ELDORET"], "MEREWET": ["iten highway","IRINE JEROP","ELDORET"], "CHEPKOILEL": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPTONGEI": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KAPSOWAR": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KUINET": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPKANGA": ["ITEN","IRINE JEROP","ELDORET"], "KABENES": ["ZIWA","IRINE JEROP","ELDORET"], "KIPKORGOT": ["FLAX","IRINE JEROP","ELDORET"], "MARURA": ["MARURA","IRINE JEROP","ELDORET"], "KASOYO": ["KASOYO","IRINE JEROP","ELDORET"], "KATALEL": ["KATALEL","IRINE JEROP","ELDORET"], "NYARU": ["NYARU","IRINE JEROP","ELDORET"], "MARAKWET": ["MARAKWET","IRINE JEROP","ELDORET"],
-    "EMBU": ["EMBU","EDWARD MATHU","EMBU"], "MUTUNDURI": ["EMBU","EDWARD MATHU","EMBU"], "PI": ["MWEA","EDWARD MATHU","EMBU"], "MURURI": ["MWEA","EDWARD MATHU","EMBU"], "SIAKAGO": ["EMBU","ERIC KAVIU","EMBU"], "ISHIARA": ["EMBU","ERIC KAVIU","EMBU"], "KIRITIRI": ["EMBU","ERIC KAVIU","EMBU"], "MASINGA": ["EMBU","ERIC KAVIU","EMBU"], "BONDONI": ["EMBU","ERIC KAVIU","EMBU"], "MURARU": ["EMBU","ERIC KAVIU","EMBU"], "KANYUAMBORA": ["EMBU","ERIC KAVIU","EMBU"], "KAEWA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "KARURUMO": ["EMBU","ERIC KAVIU","EMBU"], "KAMUMU": ["EMBU","ERIC KAVIU","EMBU"], "KIVAA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "UGWERI": ["EMBU","ERIC KAVIU","EMBU"], "KIVAA": ["EMBU","ERIC KAVIU","EMBU"], "KIAMUTUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KIBUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KITHURE": ["MWEA","PAMELA KAGEMI","EMBU"], "MUTITHI": ["MWEA","PAMELA KAGEMI","EMBU"], "KIMBIMBI": ["MWEA","PAMELA KAGEMI","EMBU"], "MWEA": ["MWEA","PAMELA KAGEMI","EMBU"], "KIANJOKOMA": ["EMBU","PAMELA KAGEMI","EMBU"], "MANYATTA - EMBU": ["EMBU","PAMELA KAGEMI","EMBU"], "KITHIMU": ["EMBU","PAMELA KAGEMI","EMBU"], "KEVOTE": ["EMBU","PAMELA KAGEMI","EMBU"], "CHUKA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "CHOGORIA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "NDAGANI": ["CHUKA","STELLA NDWIGA","EMBU"], "KIGUMO": ["CHUKA","STELLA NDWIGA","EMBU"], "KATHAGERI": ["CHUKA","STELLA NDWIGA","EMBU"], "RUNYENJES": ["CHUKA","STELLA NDWIGA","EMBU"], "CHEERA": ["CHUKA","STELLA NDWIGA","EMBU"], "ENA": ["EMBU","STELLA NDWIGA","EMBU"],
+    "TURBO": ["turbo kipkaren","LEWIS KIPNGETICH","ELDORET"], "MATUNDA - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "SOY - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "PANPAPER": ["PANPAPER","LEWIS KIPNGETICH","ELDORET"], "MUSEMBE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "NANGILI": ["SOY","LEWIS KIPNGETICH","ELDORET"], "SANGO": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LIKUYANI": ["LIKUYANI","LEWIS KIPNGETICH","ELDORET"], "FUFARAL": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LUGARI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "LUMAKANDA": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MLIMANI - ELDORET": ["ELDORET","LEWIS KIPNGETICH","ELDORET"], "MUHONJE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "CHEKALINI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "KIPKAREN RIVER": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MAGUT": ["MAGUT","LEWIS KIPNGETICH","ELDORET"], "MWAMBA": ["MWAMBA","LEWIS KIPNGETICH","ELDORET"], "MOSORIOT": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "NDALAT": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "HURUMA - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BURNT FOREST": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KABIYET": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KAPSERET": ["kapsabet","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN": ["langas kapseret","SALOME CHEPKEEMOI","ELDORET"], "JUAKALI - ELDORET": ["TURBO","SALOME CHEPKEEMOI","ELDORET"], "KIPKENYO": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN ESTATE": ["ndalatselia","SALOME CHEPKEEMOI","ELDORET"], "KAIBOI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "KURGUNG": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "MAILI NNE - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "TIMBOROA": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "MATHARU": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BLOCK 4": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "KABISAGA": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "CHEPTERWAI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "HILL TEA": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "SEGUTON": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BAHARINI": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BAYETE": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "CHEREBER": ["CHEREBER","SALOME CHEPKEEMOI","ELDORET"], "LODWAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KAKUMA": ["kakuma","ISSAC SHAMOLA","ELDORET"], "LOKICHAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "LOKICHOGIO": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KANAAM": ["KANAAM","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSABET": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPTUMO": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NANDI HILLS": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "HIMAKI": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAMOBO": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "BARATON": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LESSOS - ELDORET": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIMWANI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NAMGOI": ["NAMGOI JUNCTION","MARTHA KOINANGE& FRED TANUI","ELDORET"], "YALA - ELDORET": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPTERIT": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KOBUJOI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TULON": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPSONOI": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIPSIGAK": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TINDERET": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSASUR": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LANGAS - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ROAD BLOCK": ["MAILI NNE","JEREMIAH MOMANYI","ELDORET"], "MUNYAKA - ELDORET": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "KESSES": ["kesses","JEREMIAH MOMANYI","ELDORET"], "CHEPTIRET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "KIPLOMBE": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "NGERIA": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "ANNEX": ["kesses","JEREMIAH MOMANYI","ELDORET"], "MOI - ELDORET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "JERUSALEM": ["JERUSALEM","JEREMIAH MOMANYI","ELDORET"], "MWANZO": ["MWANZO","JEREMIAH MOMANYI","ELDORET"], "KIMUMU": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TAIRI MBILI": ["TAIRI MBILI","JEREMIAH MOMANYI","ELDORET"], "KAPSOYA": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "SINAI - ELDORET": ["SINAI","JEREMIAH MOMANYI","ELDORET"], "HAWAII": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TELEVIEW": ["LANGAS","JEREMIAH MOMANYI","ELDORET"], "KISUMU NDOGO - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ELDORET CBD": ["Eldoret cbd","NANCY NDANU","ELDORET"], "PIONEER - ELDORET": ["CBD","NANCY NDANU","ELDORET"], "KABARNET": ["kabarnet","IRINE JEROP","ELDORET"], "ITEN": ["iten highway","IRINE JEROP","ELDORET"], "ZIWA - ELDORET": ["ziwa moiben","IRINE JEROP","ELDORET"], "KABARTONJO": ["iten highway","IRINE JEROP","ELDORET"], "BIRETWO": ["KABARNET","IRINE JEROP","ELDORET"], "MOIBEN": ["ZIWA","IRINE JEROP","ELDORET"], "FLAX": ["flax","IRINE JEROP","ELDORET"], "MEREWET": ["iten highway","IRINE JEROP","ELDORET"], "CHEPKOILEL": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPTONGEI": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KAPSOWAR": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KUINET": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPKANGA": ["ITEN","IRINE JEROP","ELDORET"], "KABENES": ["ZIWA","IRINE JEROP","ELDORET"], "KIPKORGOT": ["FLAX","IRINE JEROP","ELDORET"], "MARURA": ["MARURA","IRINE JEROP","ELDORET"], "KASOYO": ["KASOYO","IRINE JEROP","ELDORET"], "KATALEL": ["KATALEL","IRINE JEROP","ELDORET"], "NYARU": ["NYARU","IRINE JEROP","ELDORET"], "MARAKWET": ["MARAKWET","IRINE JEROP","ELDORET"],
+    "EMBU": ["EMBU","EDWARD MATHU","EMBU"], "MUTUNDURI": ["EMBU","EDWARD MATHU","EMBU"], "PI": ["MWEA","EDWARD MATHU","EMBU"], "MURURI": ["MWEA","EDWARD MATHU","EMBU"], "SIAKAGO": ["EMBU","ERIC KAVIU","EMBU"], "ISHIARA": ["EMBU","ERIC KAVIU","EMBU"], "KIRITIRI": ["EMBU","ERIC KAVIU","EMBU"], "MASINGA": ["EMBU","ERIC KAVIU","EMBU"], "BONDONI": ["EMBU","ERIC KAVIU","EMBU"], "MURARU": ["EMBU","ERIC KAVIU","EMBU"], "KANYUAMBORA": ["EMBU","ERIC KAVIU","EMBU"], "KAEWA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "KARURUMO": ["EMBU","ERIC KAVIU","EMBU"], "KAMUMU": ["EMBU","ERIC KAVIU","EMBU"], "KIVAA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "KIVAA": ["EMBU","ERIC KAVIU","EMBU"], "UGWERI": ["EMBU","ERIC KAVIU","EMBU"], "KIAMUTUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KIBUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KITHURE": ["MWEA","PAMELA KAGEMI","EMBU"], "MUTITHI": ["MWEA","PAMELA KAGEMI","EMBU"], "KIMBIMBI": ["MWEA","PAMELA KAGEMI","EMBU"], "MWEA": ["MWEA","PAMELA KAGEMI","EMBU"], "KIANJOKOMA": ["EMBU","PAMELA KAGEMI","EMBU"], "MANYATTA - EMBU": ["EMBU","PAMELA KAGEMI","EMBU"], "KITHIMU": ["EMBU","PAMELA KAGEMI","EMBU"], "KEVOTE": ["EMBU","PAMELA KAGEMI","EMBU"], "CHUKA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "CHOGORIA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "NDAGANI": ["CHUKA","STELLA NDWIGA","EMBU"], "KIGUMO": ["CHUKA","STELLA NDWIGA","EMBU"], "KATHAGERI": ["CHUKA","STELLA NDWIGA","EMBU"], "RUNYENJES": ["CHUKA","STELLA NDWIGA","EMBU"], "CHEERA": ["CHUKA","STELLA NDWIGA","EMBU"], "ENA": ["EMBU","STELLA NDWIGA","EMBU"],
     "KAHAWA WEST": ["KAHAWA WEST","KIRICHU MARY WANGECHI","GITHURAI"], "KASARANI": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "ZIMMERMAN": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "ROYSAMBU": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "MARURUI": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "MAZIWA": ["MAZIWA","KIRICHU MARY WANGECHI","GITHURAI"], "KENYATTA MARKET": ["KENYATTA MARKET","KIRICHU MARY WANGECHI","GITHURAI"], "ROASTERS": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "NGUMBA": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "NGOMONGO - GITHURAI": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "GITHURAI 45": ["GITHURAI 45","LILIAN KIRAGU WAWIRA","GITHURAI"], "MWIHOKO": ["MWIHOKO","LILIAN KIRAGU WAWIRA","GITHURAI"], "PROGRESSIVE": ["PROGRESSIVE","LILIAN KIRAGU WAWIRA","GITHURAI"], "EASTERN BYPASS": ["BYPASS","NO FCRO","GITHURAI"], "MATANGI": ["RUIRU","NO FCRO","GITHURAI"], "MURERA": ["MURERA","NO FCRO","GITHURAI"], "KIHUNGURO": ["BYPASS","NO FCRO","GITHURAI"], "KAMAKIS": ["KAMAKIS","NO FCRO","GITHURAI"], "MUMBI": ["MUMBI","NO FCRO","GITHURAI"], "KAHAWA WENDANI": ["KAHAWA WENDANI","NO FCRO","GITHURAI"], "KAHAWA SUKARI": ["KAHAWA SUKARI","NO FCRO","GITHURAI"], "KIAMBU": ["KIAMBU","PATRICK THIGA","GITHURAI"], "RUIRU TOWN": ["RUIRU","PATRICK THIGA","GITHURAI"], "GITHUNGURI": ["GITHUNGURI","PATRICK THIGA","GITHURAI"], "NDUMBERI": ["NDUMBERI","PATRICK THIGA","GITHURAI"], "KIRIGITI": ["KIRIGITI","PATRICK THIGA","GITHURAI"], "KWAMAIKO": ["KWAMAIKO","PATRICK THIGA","GITHURAI"], "KIBICHOI": ["KIBICHOI","PATRICK THIGA","GITHURAI"], "IKINU": ["IKINU","PATRICK THIGA","GITHURAI"], "GITHIGA": ["GITHIGA","PATRICK THIGA","GITHURAI"], "GITHOGORO": ["GITHOGORO","PATRICK THIGA","GITHURAI"], "TINGANGA": ["TINGANGA","PATRICK THIGA","GITHURAI"], "THINDIGUA": ["THINDIGUA","PATRICK THIGA","GITHURAI"], "GITHURAI 44": ["GITHURAI 44","JAMES MWANGI","GITHURAI"], "KIMBO": ["KIMBO","JAMES MWANGI","GITHURAI"], "MEMBLEY": ["MEMBLEY","JAMES MWANGI","GITHURAI"], "WATAALUM": ["WATAALUM","JAMES MWANGI","GITHURAI"], "PRISON": ["PRISON","JAMES MWANGI","GITHURAI"], "MWIKI": ["MWIKI","VICTOR MOGENDI","GITHURAI"], "MAJI MAZURI": ["MAJI MAZURI","VICTOR MOGENDI","GITHURAI"], "SUNTON": ["SUNTON","VICTOR MOGENDI","GITHURAI"], "HUNTERS": ["HUNTERS","VICTOR MOGENDI","GITHURAI"], "DELIVERANCE GITHURAI": ["DELIVERANCE","VICTOR MOGENDI","GITHURAI"],
     "KAGIO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "SAGANA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "MAKUTANO - KARATINA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIBINGOTI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "GATEGI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "PI KARABA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIBURU": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIVIRIGWI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KANDONGU": ["SAGANA","JOEL KIMEMIA","KARATINA"], "BARICHO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANIA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANGWACI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIMICHA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "CIAGINI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "NTHINGINI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIMUNYE": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAMUGUNDA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAMORO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KANGOCHO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAVUTI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANJEGE": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KARUMANDI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KARATINA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KERUGOYA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "MUKINDURI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KAGUMO": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGAI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIVINGO": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "GATHAMBI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KANGAITA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGUENYI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIRIAINI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "ITHARE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "GATWE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIAMWATHI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGOMBE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KAHARA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KARIA - KARATINA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANYAGA": ["MWEA","NJOROGE MARY WAIRIMU","KARATINA"], "KUTUS": ["MWEA","NJOROGE MARY WAIRIMU","KARATINA"], "NYERI": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "KIAWARA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MWEIGA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NGOBIT": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NDARAGWA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "JIKAZE": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NAIRUTIA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "GATITU": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "SKUTA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "KIANDU": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "WATUKA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NYARIBO": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "GICHIRA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MUTHINGA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "ENDARASHA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MURANG'A": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KANGEMA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MUKUYU": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MARAGWA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAHATIA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MURIRANJAS": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KANYENYAINI": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAHURO": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAGANDA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "RWATHIA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KABUTA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KARURI": ["GIAKANJA","ELIZABETH WANJIKU","KARATINA"], "KIHOYA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "GACHIRIRO": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAGAA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MATHIOYA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "SABASABA": ["KARATINA","ELIZABETH WANJIKU","KARATINA"], "MUKURWEINI": ["OTHAYA","RUTH WANGUI","KARATINA"], "GAKINDU": ["OTHAYA","RUTH WANGUI","KARATINA"], "TUMUTUMU": ["OTHAYA","RUTH WANGUI","KARATINA"], "MUTHUTHINI": ["OTHAYA","RUTH WANGUI","KARATINA"], "OTHAYA": ["OTHAYA","RUTH WANGUI","KARATINA"], "GIAKANJA": ["OTHAYA","RUTH WANGUI","KARATINA"], "MAHIGA": ["OTHAYA","RUTH WANGUI","KARATINA"], "KIAMARIGA": ["OTHAYA","RUTH WANGUI","KARATINA"], "WALAZO": ["OTHAYA","RUTH WANGUI","KARATINA"], "KIMAHURI": ["OTHAYA","RUTH WANGUI","KARATINA"], "CHAKA": ["OTHAYA","RUTH WANGUI","KARATINA"], "NARUMORU": ["OTHAYA","RUTH WANGUI","KARATINA"], "GIAKAIBEI": ["OTHAYA","RUTH WANGUI","KARATINA"], "KAIRUTHI": ["OTHAYA","RUTH WANGUI","KARATINA"],
     "GACHIE": ["GACHIE","LYDIA WANGUI","KAWANGWARE"], "RUAKA": ["RUAKA","LYDIA WANGUI","KAWANGWARE"], "WANGIGE": ["WANGIGE","LYDIA WANGUI","KAWANGWARE"], "BANANA": ["BANANA","LYDIA WANGUI","KAWANGWARE"], "NDENDERU": ["NDENDERU","LYDIA WANGUI","KAWANGWARE"], "LOWER KABETE": ["KABETE","LYDIA WANGUI","KAWANGWARE"], "MWIMUTO": ["MWIMUTO","LYDIA WANGUI","KAWANGWARE"], "MUCHATHA": ["RUAKA","LYDIA WANGUI","KAWANGWARE"], "KARURA": ["KARURA","LYDIA WANGUI","KAWANGWARE"], "NGECHA": ["NGECHA","LYDIA WANGUI","KAWANGWARE"], "GIKUNI": ["GIKUNI","LYDIA WANGUI","KAWANGWARE"], "KABETE": ["KABETE","LYDIA WANGUI","KAWANGWARE"], "GATHIGA": ["GATHIGA","LYDIA WANGUI","KAWANGWARE"], "GEKUNI": ["WANGIGE","LYDIA WANGUI","KAWANGWARE"], "KAMTUINI": ["KAMTUINI","LYDIA WANGUI","KAWANGWARE"], "UTHIRU": ["UTHIRU","NANCY KERORE","KAWANGWARE"], "NDUNYU": ["NDUNYU","NANCY KERORE","KAWANGWARE"], "WAITHAKA": ["WAITHAKA","NANCY KERORE","KAWANGWARE"], "ZAMBEZI": ["ZAMBEZI","NANCY KERORE","KAWANGWARE"], "THAMANDA": ["THAMANDA","NANCY KERORE","KAWANGWARE"], "REGEN": ["LIMURU","NANCY KERORE","KAWANGWARE"], "MUTHIGA": ["LIMURU","NANCY KERORE","KAWANGWARE"], "KAREN - KAWANGWARE": ["KAREN","NANCY KERORE","KAWANGWARE"], "NDERI": ["NDERI","NANCY KERORE","KAWANGWARE"], "LIMURU": ["LIMURU","AGRIPINA LIKHALE","KAWANGWARE"], "KIKUYU": ["KIKUYU","AGRIPINA LIKHALE","KAWANGWARE"], "GIKAMBURA": ["GIKAMBURA","AGRIPINA LIKHALE","KAWANGWARE"], "KINOO": ["KINOO","AGRIPINA LIKHALE","KAWANGWARE"], "KAMANGU": ["KAMANGU","AGRIPINA LIKHALE","KAWANGWARE"], "THOGOTO": ["THOGOTO","AGRIPINA LIKHALE","KAWANGWARE"], "KIAMBAA": ["KIAMBAA","AGRIPINA LIKHALE","KAWANGWARE"], "RUTHIGITI": ["RUTHIGITI","AGRIPINA LIKHALE","KAWANGWARE"], "GITARU": ["GITARU","AGRIPINA LIKHALE","KAWANGWARE"], "KWAMBERA": ["KWAMBIRA","AGRIPINA LIKHALE","KAWANGWARE"], "MBOROTI": ["MBOROTI","AGRIPINA LIKHALE","KAWANGWARE"], "NYAMBARI": ["NYAMBARI","AGRIPINA LIKHALE","KAWANGWARE"], "KABUKU": ["KABUKU","AGRIPINA LIKHALE","KAWANGWARE"], "NGARARIGA": ["NGARARIGA","AGRIPINA LIKHALE","KAWANGWARE"], "NDEIYA": ["NDEIYA","AGRIPINA LIKHALE","KAWANGWARE"], "RUSIGITI": ["RUTHIGITI","AGRIPINA LIKHALE","KAWANGWARE"], "KIBERA": ["KIBERA","NO FCRO","KAWANGWARE"], "HAYANI": ["KIBERA","NO FCRO","KAWANGWARE"], "JAMHURI": ["KIBERA","NO FCRO","KAWANGWARE"], "OLYMPIC": ["KIBERA","NO FCRO","KAWANGWARE"], "NGONG ROAD": ["NGONG RD","NO FCRO","KAWANGWARE"], "GATWEKERA": ["KIBERA","NO FCRO","KAWANGWARE"], "KATWEKERA": ["KIBERA","NO FCRO","KAWANGWARE"], "MAKINA": ["KIBERA","NO FCRO","KAWANGWARE"], "LINDI": ["KIBERA","NO FCRO","KAWANGWARE"], "MASHIMONI": ["KIBERA","NO FCRO","KAWANGWARE"], "LINE SABA": ["KIBERA","NO FCRO","KAWANGWARE"], "DARAJANI": ["KIBERA","NO FCRO","KAWANGWARE"], "NGUMO": ["KIBERA","NO FCRO","KAWANGWARE"], "SOWETO - KAWANGWARE": ["KIBERA","NO FCRO","KAWANGWARE"], "SILANGA": ["KIBERA","NO FCRO","KAWANGWARE"], "KAWANGWARE": ["KAWANGWARE","DAN MUTUNGA","KAWANGWARE"], "LAVINGTON": ["LAVINGTON","DAN MUTUNGA","KAWANGWARE"], "KANGEMI": ["KANGEMI","DAN MUTUNGA","KAWANGWARE"], "KILIMANI": ["KILIMANI","DAN MUTUNGA","KAWANGWARE"], "WESTLANDS - KAWANG": ["WESTLANDS","DAN MUTUNGA","KAWANGWARE"], "YAYA": ["YAYA","DAN MUTUNGA","KAWANGWARE"], "HURLIGHAM": ["HURLIGHAM","DAN MUTUNGA","KAWANGWARE"], "KILELESHWA": ["KILELESHWA","DAN MUTUNGA","KAWANGWARE"], "KABIRIA": ["KABIRIA","VALERIE AYIERA","KAWANGWARE"], "NAIVASHA ROAD": ["NAIVASHA RD","VALERIE AYIERA","KAWANGWARE"], "NGANDO": ["NGANDO","VALERIE AYIERA","KAWANGWARE"], "KINYANJUI": ["KINYANJUI","VALERIE AYIERA","KAWANGWARE"], "DAGORETTI": ["DAGORETTI","VALERIE AYIERA","KAWANGWARE"], "NGINA ROAD": ["NGINA ROAD","VALERIE AYIERA","KAWANGWARE"], "WANYEE": ["WANYEE","VALERIE AYIERA","KAWANGWARE"], "SATELLITE": ["SATELLITE","VALERIE AYIERA","KAWANGWARE"], "DELIVERANCE KAWANGWARE": ["DELIVERENCE","VALERIE AYIERA","KAWANGWARE"], "MUTHAMA": ["MUTHAMA","VALERIE AYIERA","KAWANGWARE"], "NDWARU": ["NDWARU","VALERIE AYIERA","KAWANGWARE"], "MTEGO": ["MTEGO","VALERIE AYIERA","KAWANGWARE"],
