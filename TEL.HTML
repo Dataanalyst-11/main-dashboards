@@ -2,577 +2,267 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Telesales Performance Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unified Performance Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: #0f172a;
     color: #e5e7eb;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    width: 100dvw;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   header {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     border-bottom: 3px solid #ba9305;
-    padding: 18px 32px;
+    padding: 10px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .header-logo {
-    width: 44px;
-    height: 44px;
-    background: #ba9305;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 20px;
-    color: #020617;
+    gap: 12px;
     flex-shrink: 0;
   }
 
-  .header-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #f8fafc;
-    letter-spacing: -0.3px;
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo {
+    width: 38px; height: 38px; background: #ba9305; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #020617; flex-shrink: 0;
   }
+  .header-title { font-size: 18px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
+  .header-subtitle { font-size: 11px; color: #64748b; font-weight: 400; margin-top: 1px; }
 
-  .header-subtitle {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 400;
-    margin-top: 2px;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    position: relative;
-  }
-
-  /* ── Loading overlay on header filters ─────────────────── */
+  .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: relative; }
   .header-loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
+    position: absolute; inset: 0; background: rgba(15, 23, 42, 0.6); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
   }
-
-  .header-loading-overlay.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-
+  .header-loading-overlay.active { opacity: 1; pointer-events: all; }
   .header-loading-overlay .mini-spinner {
-    width: 22px;
-    height: 22px;
-    border: 3px solid #334155;
-    border-top-color: #ba9305;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    width: 20px; height: 20px; border: 3px solid #334155; border-top-color: #ba9305;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
   }
 
-  /* ── Shared Select Style ────────────────────────────────── */
-  .filter-select {
-    position: relative;
-  }
-
+  .filter-select { position: relative; }
   .filter-select select {
-    padding: 12px 42px 12px 16px;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #1e293b;
-    color: #f1f5f9;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
-    outline: none;
+    padding: 8px 36px 8px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9; font-size: 13px; font-weight: 600; cursor: pointer;
+    appearance: none; -webkit-appearance: none; transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s; outline: none;
   }
-
-  .filter-select select:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
+  .filter-select select:disabled { opacity: 0.5; cursor: not-allowed; }
   .filter-select select:hover:not(:disabled) { border-color: #ba9305; }
-  .filter-select select:focus:not(:disabled) {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
-  }
+  .filter-select select:focus:not(:disabled) { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15); }
+  .filter-select::after { content: "\25BE"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #ba9305; font-size: 16px; pointer-events: none; }
 
-  .filter-select::after {
-    content: "\25BE";
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ba9305;
-    font-size: 18px;
-    pointer-events: none;
-  }
-
-  .date-selector select { min-width: 160px; }
-  .branch-selector select { min-width: 240px; }
-
-  /* ── Custom Date Range Picker ───────────────────────────── */
   .custom-date-range {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #1e293b;
-    overflow: hidden;
+    display: flex; align-items: center; gap: 0; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; overflow: hidden; max-width: 0; opacity: 0; padding: 0; border-color: transparent; pointer-events: none;
     transition: border-color 0.2s, box-shadow 0.2s, opacity 0.3s, max-width 0.4s ease, padding 0.4s ease;
-    max-width: 0;
-    opacity: 0;
-    padding: 0;
-    border-color: transparent;
-    pointer-events: none;
   }
-
-  .custom-date-range.visible {
-    max-width: 380px;
-    opacity: 1;
-    padding: 0;
-    border-color: #334155;
-    pointer-events: all;
-  }
-
-  .custom-date-range.disabled {
-    opacity: 0.4;
-    pointer-events: none;
-  }
-
-  .custom-date-range:focus-within:not(.disabled) {
-    border-color: #ba9305;
-    box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15);
-  }
-
-  .date-range-group {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 4px 10px;
-    position: relative;
-  }
-
-  .date-range-group + .date-range-group {
-    border-left: 1px solid #334155;
-  }
-
-  .date-range-label {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #ba9305;
-    margin-right: 8px;
-    white-space: nowrap;
-    user-select: none;
-  }
-
-  .date-range-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
+  .custom-date-range.visible { max-width: 340px; opacity: 1; padding: 0; border-color: #334155; pointer-events: all; }
+  .custom-date-range:focus-within:not(.disabled) { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.15); }
+  .date-range-group { display: flex; align-items: center; gap: 0; padding: 2px 8px; position: relative; }
+  .date-range-group + .date-range-group { border-left: 1px solid #334155; }
+  .date-range-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #ba9305; margin-right: 6px; white-space: nowrap; user-select: none; }
+  .date-range-input-wrap { position: relative; display: flex; align-items: center; }
   .date-range-input-wrap input[type="date"] {
-    padding: 8px 10px 8px 30px;
-    border-radius: 7px;
-    border: 1.5px solid #334155;
-    background: #0f172a;
-    color: #f1f5f9;
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-    width: 130px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    transition: border-color 0.2s;
+    padding: 6px 8px 6px 26px; border-radius: 6px; border: 1.5px solid #334155; background: #0f172a; color: #f1f5f9;
+    font-size: 12px; font-weight: 600; outline: none; width: 110px; font-family: 'Segoe UI', Arial, sans-serif; transition: border-color 0.2s;
   }
-
-  .date-range-input-wrap input[type="date"]:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
+  .date-range-input-wrap input[type="date"]:disabled { opacity: 0.4; cursor: not-allowed; }
   .date-range-input-wrap input[type="date"]:hover:not(:disabled) { border-color: #475569; }
   .date-range-input-wrap input[type="date"]:focus:not(:disabled) { border-color: #ba9305; }
+  .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg); cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+  .date-icon { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; pointer-events: none; opacity: 0.5; }
+  .date-icon svg { width: 100%; height: 100%; fill: #64748b; }
 
-  .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg);
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-
-  .date-range-input-wrap input[type="date"]:disabled::-webkit-calendar-picker-indicator {
-    cursor: not-allowed;
-  }
-
-  .date-range-input-wrap input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
-
-  .date-icon {
-    position: absolute;
-    left: 9px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 15px;
-    height: 15px;
-    pointer-events: none;
-    opacity: 0.5;
-  }
-
-  .date-icon svg {
-    width: 100%;
-    height: 100%;
-    fill: #64748b;
-  }
-
-  /* ── View Toggle ─────────────────────────────────────────── */
-  .view-toggle {
-    display: flex;
-    background: #0f172a;
-    border-radius: 10px;
-    padding: 3px;
-    border: 2px solid #334155;
-  }
-
-  .view-toggle button {
-    padding: 8px 22px;
-    border: none;
-    background: transparent;
-    color: #64748b;
-    font-weight: 700;
-    font-size: 13px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.25s;
-    white-space: nowrap;
-  }
-
+  .view-toggle { display: flex; background: #0f172a; border-radius: 8px; padding: 2px; border: 2px solid #334155; }
+  .view-toggle button { padding: 6px 18px; border: none; background: transparent; color: #64748b; font-weight: 700; font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
   .view-toggle button:hover:not(:disabled) { color: #94a3b8; }
   .view-toggle button.active { background: #ba9305; color: #020617; }
-  .view-toggle button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ── View Containers ─────────────────────────────────────── */
-  #telesalesView,
-  #branchView {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+  #telesalesView, #routeView, #branchView { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  #routeView, #branchView { display: none; }
 
-  #branchView { display: none; }
-
-  /* ── Stat Cards ─────────────────────────────────────────── */
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    padding: 24px 32px 0;
-  }
-
-  .branch-summary-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 16px;
-    padding: 24px 32px 0;
-  }
-
-  .stat-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 22px 24px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-
-  .stat-card:hover { border-color: #475569; transform: translateY(-2px); }
-
-  .stat-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 4px 0 0 4px;
-  }
-
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
+  .branch-summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
+  .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .stat-card:hover { border-color: #475569; }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 3px 0 0 3px; }
   .stat-card:nth-child(1)::before { background: #22c55e; }
   .stat-card:nth-child(2)::before { background: #38bdf8; }
   .stat-card:nth-child(3)::before { background: #ef4444; }
   .branch-summary-row .stat-card:nth-child(4)::before { background: #f97316; }
-
-  .stat-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #64748b;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  .stat-value {
-    font-size: 26px;
-    font-weight: 800;
-    color: #f8fafc;
-    line-height: 1;
-  }
-
-  .stat-sub {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-top: 6px;
-    font-weight: 400;
-  }
-
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 800; color: #f8fafc; line-height: 1; }
+  .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 400; }
   .perf-high { color: #22c55e !important; }
   .perf-medium { color: #facc15 !important; }
   .perf-low { color: #ef4444 !important; }
 
-  /* ── Telesales: Branch Perf Bar ──────────────────────────── */
-  .branch-perf-section { padding: 20px 32px 0; }
-
-  .branch-perf-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    flex-wrap: wrap;
-  }
-
-  .branch-perf-info { flex: 0 0 auto; min-width: 240px; }
-
-  .branch-perf-info .label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #64748b;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .branch-perf-info .value { font-size: 42px; font-weight: 900; line-height: 1; }
-
-  .branch-perf-info .detail { font-size: 13px; color: #94a3b8; margin-top: 8px; line-height: 1.7; }
+  .branch-perf-section { padding: 12px 24px 0; flex-shrink: 0; }
+  .branch-perf-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .branch-perf-info { flex: 0 0 auto; min-width: 200px; }
+  .branch-perf-info .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 600; margin-bottom: 2px; }
+  .branch-perf-info .value { font-size: 28px; font-weight: 900; line-height: 1; }
+  .branch-perf-info .detail { font-size: 12px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
   .branch-perf-info .detail .deficit { font-weight: 700; color: #ef4444; }
   .branch-perf-info .detail .surplus { font-weight: 700; color: #22c55e; }
-
-  .perf-bar-wrap { flex: 1; min-width: 200px; }
-
-  .perf-bar-track {
-    width: 100%;
-    height: 14px;
-    background: #0f172a;
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .perf-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s;
-    min-width: 0;
-  }
-
-  .perf-bar-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px;
-    color: #475569;
-    font-weight: 600;
-  }
-
+  .perf-bar-wrap { flex: 1; min-width: 150px; }
+  .perf-bar-track { width: 100%; height: 10px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+  .perf-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s; min-width: 0; }
+  .perf-bar-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: #475569; font-weight: 600; }
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
-  /* ── Telesales: Table ───────────────────────────────────── */
-  .table-section {
-    flex: 1;
-    padding: 20px 32px 24px;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .table-title { font-size: 16px; font-weight: 700; color: #f1f5f9; }
-
-  .table-count {
-    font-size: 13px;
-    color: #64748b;
-    background: #0f172a;
-    padding: 5px 14px;
-    border-radius: 99px;
-    font-weight: 600;
-  }
-
+  .table-section { flex: 1; padding: 12px 24px 12px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
+  .table-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+  .table-count { font-size: 12px; color: #64748b; background: #0f172a; padding: 4px 12px; border-radius: 99px; font-weight: 600; }
   .search-box {
-    padding: 9px 16px 9px 38px;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
-    color: #f1f5f9;
-    font-size: 14px;
-    width: 260px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 7px 14px 7px 32px; border-radius: 8px; border: 2px solid #334155; background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397, 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 12px center no-repeat;
+    color: #f1f5f9; font-size: 13px; width: 260px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
-
   .search-box::placeholder { color: #475569; }
   .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12); }
 
-  .table-wrap {
-    flex: 1;
-    overflow-y: auto;
-    border-radius: 14px;
-    border: 1px solid #334155;
-    background: #0f172a;
-    scrollbar-width: thin;
-    scrollbar-color: #334155 transparent;
-  }
-
+  .table-wrap { flex: 1; overflow-y: auto; border-radius: 10px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
 
   thead th {
-    position: sticky;
-    top: 0;
-    background: #1e293b;
-    color: #94a3b8;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: 700;
-    z-index: 2;
-    padding: 14px 14px;
-    border-bottom: 2px solid #334155;
-    text-align: left;
-    user-select: none;
-    white-space: nowrap;
+    position: sticky; top: 0; background: #1e293b; color: #94a3b8; text-transform: uppercase;
+    font-size: 10px; letter-spacing: 0.8px; font-weight: 700; z-index: 2; padding: 10px 12px;
+    border-bottom: 2px solid #334155; text-align: left; user-select: none; white-space: nowrap;
   }
-
   thead th.sortable { cursor: pointer; transition: color 0.2s, background 0.2s; }
   thead th.sortable:hover { color: #f1f5f9; background: #263348; }
   thead th.sortable.active-sort { color: #ba9305; }
-
-  .sort-icon {
-    display: inline-block;
-    margin-left: 5px;
-    font-size: 9px;
-    opacity: 0.35;
-    vertical-align: middle;
-    transition: opacity 0.2s, transform 0.25s;
-  }
-
+  .sort-icon { display: inline-block; margin-left: 4px; font-size: 8px; opacity: 0.35; vertical-align: middle; transition: opacity 0.2s, transform 0.25s; }
   thead th.sortable:hover .sort-icon { opacity: 0.7; }
   thead th.sortable.active-sort .sort-icon { opacity: 1; }
   thead th.sortable.active-sort.sort-asc .sort-icon { transform: rotate(0deg); }
   thead th.sortable.active-sort.sort-desc .sort-icon { transform: rotate(180deg); }
 
-  th:nth-child(1), td:nth-child(1) { width: 46px; text-align: center; }
-  th:nth-child(2), td:nth-child(2) { width: 20%; }
-  th:nth-child(3), td:nth-child(3) { width: 14%; }
-  th:nth-child(4), td:nth-child(4) { width: 12%; text-align: center; }
-  th:nth-child(5), td:nth-child(5) { width: 10%; text-align: center; }
-  th:nth-child(6), td:nth-child(6) { width: 16%; text-align: right; }
-  th:nth-child(7), td:nth-child(7) { width: 14%; text-align: center; }
+  /* Telesales Table Specific Widths */
+  #telesalesView th:nth-child(1), #telesalesView td:nth-child(1) { width: 46px; text-align: center; }
+  #telesalesView th:nth-child(2), #telesalesView td:nth-child(2) { width: 20%; }
+  #telesalesView th:nth-child(3), #telesalesView td:nth-child(3) { width: 14%; }
+  #telesalesView th:nth-child(4), #telesalesView td:nth-child(4) { width: 12%; text-align: center; }
+  #telesalesView th:nth-child(5), #telesalesView td:nth-child(5) { width: 10%; text-align: center; }
+  #telesalesView th:nth-child(6), #telesalesView td:nth-child(6) { width: 16%; text-align: right; }
+  #telesalesView th:nth-child(7), #telesalesView td:nth-child(7) { width: 14%; text-align: center; }
 
-  td { padding: 13px 14px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
+  /* Route Table Specific Widths */
+  #routeView th:nth-child(1), #routeView td:nth-child(1) { width: 15%; }
+  #routeView th:nth-child(2), #routeView td:nth-child(2) { width: 12%; }
+  #routeView th:nth-child(3), #routeView td:nth-child(3) { width: 15%; }
+  #routeView th:nth-child(4), #routeView td:nth-child(4) { width: 12%; text-align: right; }
+  #routeView th:nth-child(5), #routeView td:nth-child(5) { width: 10%; text-align: right; }
+  #routeView th:nth-child(6), #routeView td:nth-child(6) { width: 10%; text-align: right; }
+  #routeView th:nth-child(7), #routeView td:nth-child(7) { width: 10%; text-align: right; }
+  #routeView th:nth-child(8), #routeView td:nth-child(8) { width: 8%; text-align: center; }
+  #routeView th:nth-child(9), #routeView td:nth-child(9) { width: 8%; text-align: center; }
+
+  td { padding: 8px 12px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
+
+  tr.group-header td {
+    background: #172033; color: #ba9305; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; padding: 10px 12px; border-top: 2px solid #334155; border-bottom: 1px solid #334155;
+  }
+  tr.group-header.branch-header td {
+    background: #1e3a8a;
+    color: #bfdbfe;
+    font-size: 14px;
+    border-top: 3px solid #3b82f6;
+    border-bottom: 1px solid #1e40af;
+  }
+  tr.group-subtotal td {
+    background: linear-gradient(90deg, #db2777 0%, #9333ea 100%);
+    font-weight: 900;
+    color: #ffffff;
+    border-top: 2px solid #ec4899;
+    border-bottom: 2px solid #7e22ce;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+  }
+  tr.group-subtotal .sp-name { color: #fde047; font-weight: 900; font-size: 15px; }
+  tr.group-subtotal .value-cell {
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 15px;
+  }
+  tr.group-subtotal .value-cell .kes {
+    color: #fbcfe8;
+    font-weight: 800;
+    font-size: 12px;
+  }
+  tr.group-subtotal .pct-badge {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 900;
+    border: 1px solid #ffffff;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  tr.group-subtotal .pct-high { background: #0f172a; color: #4ade80; border: 1px solid #4ade80; }
+  tr.group-subtotal .pct-medium { background: #0f172a; color: #facc15; border: 1px solid #facc15; }
+  tr.group-subtotal .pct-low { background: #0f172a; color: #f87171; border: 1px solid #f87171; }
+  tr.group-subtotal .status-dot { color: #ffffff; font-size: 12px; font-weight: 800; }
+  tr.group-subtotal .status-on-track { color: #4ade80; }
+  tr.group-subtotal .status-at-risk { color: #fde047; }
+  tr.group-subtotal .status-below { color: #fca5a5; }
 
   .rank { color: #64748b; font-weight: 700; font-size: 13px; }
   .rank.top3 { color: #ba9305; font-size: 15px; }
   .sales-name { font-weight: 700; color: #f1f5f9; font-size: 13px; }
-  .branch-cell { font-size: 12px; color: #94a3b8; }
-
-  .pct-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 99px;
-    font-weight: 800;
-    font-size: 12px;
-    min-width: 62px;
-    text-align: center;
+  .branch-cell { font-size: 11px; color: #94a3b8; }
+  .route-name { font-weight: 700; color: #f1f5f9; font-size: 12px; }
+  
+  .sp-cell { font-size: 11px; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .edit-sp-btn {
+    background: none; border: none; color: #64748b; cursor: pointer; padding: 2px;
+    display: inline-flex; align-items: center; transition: color 0.2s;
   }
+  .edit-sp-btn:hover { color: #ba9305; }
+  .edit-sp-btn svg { width: 11px; height: 11px; pointer-events: none; }
 
+  .pct-badge { display: inline-block; padding: 3px 8px; border-radius: 99px; font-weight: 800; font-size: 11px; min-width: 50px; text-align: center; }
   .pct-high { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
   .pct-medium { background: rgba(250, 204, 21, 0.12); color: #facc15; }
   .pct-low { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 
   .orders-cell { font-weight: 700; color: #e2e8f0; font-size: 13px; }
 
-  .value-cell {
-    font-weight: 700;
-    color: #e2e8f0;
-    font-size: 13px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
+  .value-cell { font-weight: 700; color: #e2e8f0; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  .value-cell .kes { font-weight: 400; color: #64748b; font-size: 10px; margin-right: 2px; }
 
-  .value-cell .kes { font-weight: 400; color: #64748b; font-size: 11px; margin-right: 2px; }
-
-  .status-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .status-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
   .status-on-track::before { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .status-on-track { color: #22c55e; }
   .status-at-risk::before { background: #facc15; box-shadow: 0 0 6px #facc15; }
@@ -580,181 +270,72 @@
   .status-below::before { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
   .status-below { color: #ef4444; }
 
-  .no-data-row td { text-align: center; padding: 60px 20px; color: #475569; font-size: 15px; }
-  .loading-row td { text-align: center; padding: 60px 20px; color: #64748b; font-size: 15px; }
-
-  .loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #334155;
-    border-top-color: #ba9305;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 10px;
-  }
-
+  .no-data-row td { text-align: center; padding: 40px 20px; color: #475569; font-size: 14px; }
+  .loading-row td { text-align: center; padding: 40px 20px; color: #64748b; font-size: 14px; }
+  .loading-spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid #334155; border-top-color: #ba9305; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .sort-hint { font-size: 11px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .sort-hint { font-size: 10px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
 
-  /* ── Branch View: Grid ──────────────────────────────────── */
-  .branch-grid-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .branch-grid-wrap {
-    flex: 1;
-    padding: 0 32px 24px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #334155 transparent;
-  }
-
+  .branch-grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
+  .branch-grid-wrap { flex: 1; padding: 0 24px 16px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
   .branch-grid-wrap::-webkit-scrollbar { width: 6px; }
   .branch-grid-wrap::-webkit-scrollbar-track { background: transparent; }
   .branch-grid-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
-
-  .branch-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-  }
-
-  .b-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 20px 22px 26px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.15s, border-color 0.2s;
-  }
-
+  .branch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .b-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px 18px 22px; position: relative; overflow: hidden; transition: transform 0.15s, border-color 0.2s; }
   .b-card:hover { transform: translateY(-2px); border-color: #475569; }
-
-  .b-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 4px 0 0 4px;
-  }
-
+  .b-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
   .b-card.tier-high::before { background: #22c55e; }
   .b-card.tier-medium::before { background: #facc15; }
   .b-card.tier-low::before { background: #ef4444; }
   .b-card.tier-none { opacity: 0.35; border-style: dashed; }
   .b-card.tier-none::before { background: #475569; }
-
-  .b-card-name {
-    font-size: 16px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #e2e8f0;
-    font-weight: 800;
-    margin-bottom: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .b-card-pct {
-    font-size: 32px;
-    font-weight: 900;
-    line-height: 1;
-    color: #f8fafc;
-    margin-bottom: 10px;
-  }
-
-  .b-card-detail { font-size: 13px; color: #94a3b8; line-height: 1.4; }
-
-  .b-card-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: #0f172a;
-  }
-
-  .b-card-bar-fill {
-    height: 100%;
-    border-radius: 0 0 14px 0;
-    transition: width 0.8s ease;
-  }
-
-  .bar-high { background: #22c55e; }
-  .bar-medium { background: #facc15; }
-  .bar-low { background: #ef4444; }
-  .bar-none { background: #475569; }
+  .b-card-name { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; color: #e2e8f0; font-weight: 800; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .b-card-pct { font-size: 28px; font-weight: 900; line-height: 1; color: #f8fafc; margin-bottom: 4px; }
+  .b-card-routes { font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 6px; }
+  .b-card-detail { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+  .b-card-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: #0f172a; }
+  .b-card-bar-fill { height: 100%; border-radius: 0 0 14px 0; transition: width 0.8s ease; }
+  .bar-high { background: #22c55e; } .bar-medium { background: #facc15; } .bar-low { background: #ef4444; } .bar-none { background: #475569; }
   .b-card.hidden { display: none; }
+  .no-branch-data { text-align: center; padding: 40px 20px; color: #475569; font-size: 14px; grid-column: 1 / -1; }
 
-  .no-branch-data {
-    text-align: center;
-    padding: 60px 20px;
-    color: #475569;
-    font-size: 15px;
-    grid-column: 1 / -1;
-  }
-
-  /* ── Footer / Toast ─────────────────────────────────────── */
-  footer {
-    text-align: center;
-    padding: 14px;
-    font-size: 12px;
-    background: #0f172a;
-    color: #475569;
-    border-top: 1px solid #1e293b;
-  }
-
+  footer { text-align: center; padding: 8px; font-size: 11px; background: #0f172a; color: #475569; border-top: 1px solid #1e293b; flex-shrink: 0; }
   footer span.highlight { color: #ba9305; font-weight: 600; }
-
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-left: 4px solid #ef4444;
-    color: #f1f5f9;
-    padding: 16px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    z-index: 999;
-    transform: translateX(120%);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    max-width: 380px;
-  }
-
+  .toast { position: fixed; bottom: 20px; right: 20px; background: #1e293b; border: 1px solid #334155; border-left: 4px solid #ef4444; color: #f1f5f9; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 999; transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); max-width: 380px; }
   .toast.show { transform: translateX(0); }
   .toast.toast-warn { border-left-color: #f59e0b; }
   .toast.toast-retry { border-left-color: #38bdf8; }
 
-  /* ── Responsive ──────────────────────────────────────────── */
   @media (max-width: 1100px) {
     .branch-summary-row { grid-template-columns: 1fr 1fr; }
+    
+    #routeView th:nth-child(2), #routeView td:nth-child(2) { display: none; }
+    #routeView th:nth-child(5), #routeView td:nth-child(5) { display: none; }
+    #routeView th:nth-child(6), #routeView td:nth-child(6) { display: none; }
+    #routeView th:nth-child(1), #routeView td:nth-child(1) { width: 22%; }
+    #routeView th:nth-child(3), #routeView td:nth-child(3) { width: 22%; }
+    #routeView th:nth-child(4), #routeView td:nth-child(4) { width: 18%; }
+    #routeView th:nth-child(7), #routeView td:nth-child(7) { width: 18%; }
+    #routeView th:nth-child(8), #routeView td:nth-child(8) { width: 10%; }
+    #routeView th:nth-child(9), #routeView td:nth-child(9) { width: 10%; }
   }
-
   @media (max-width: 900px) {
-    th:nth-child(7), td:nth-child(7) { display: none; }
-    th:nth-child(3), td:nth-child(3) { display: none; }
-    th:nth-child(2), td:nth-child(2) { width: 30%; }
-    th:nth-child(4), td:nth-child(4) { width: 16%; }
-    th:nth-child(5), td:nth-child(5) { width: 14%; }
-    th:nth-child(6), td:nth-child(6) { width: 22%; text-align: center; }
-    .value-cell { text-align: center; }
-  }
+    #routeView th:nth-child(4), #routeView td:nth-child(4) { display: none; }
+    #routeView th:nth-child(9), #routeView td:nth-child(9) { display: none; }
+    #routeView th:nth-child(1), #routeView td:nth-child(1) { width: 28%; }
+    #routeView th:nth-child(3), #routeView td:nth-child(3) { width: 28%; }
+    #routeView th:nth-child(7), #routeView td:nth-child(7) { width: 24%; }
+    #routeView th:nth-child(8), #routeView td:nth-child(8) { width: 20%; }
 
+    #telesalesView th:nth-child(7), #telesalesView td:nth-child(7) { display: none; }
+    #telesalesView th:nth-child(3), #telesalesView td:nth-child(3) { display: none; }
+    #telesalesView th:nth-child(2), #telesalesView td:nth-child(2) { width: 30%; }
+    #telesalesView th:nth-child(4), #telesalesView td:nth-child(4) { width: 16%; }
+    #telesalesView th:nth-child(5), #telesalesView td:nth-child(5) { width: 14%; }
+    #telesalesView th:nth-child(6), #telesalesView td:nth-child(6) { width: 22%; text-align: center; }
+    #telesalesView .value-cell { text-align: center; }
+  }
   @media (max-width: 600px) {
     header { padding: 14px 18px; }
     .stats-row { grid-template-columns: 1fr; padding: 16px 18px 0; gap: 12px; }
@@ -772,10 +353,12 @@
     .view-toggle { flex: 1; }
     .view-toggle button { flex: 1; text-align: center; }
     .search-box { width: 100%; }
-    th:nth-child(6), td:nth-child(6) { display: none; }
-    th:nth-child(2), td:nth-child(2) { width: 40%; }
-    th:nth-child(4), td:nth-child(4) { width: 22%; }
-    th:nth-child(5), td:nth-child(5) { width: 20%; }
+    
+    #telesalesView th:nth-child(6), #telesalesView td:nth-child(6) { display: none; }
+    #telesalesView th:nth-child(2), #telesalesView td:nth-child(2) { width: 40%; }
+    #telesalesView th:nth-child(4), #telesalesView td:nth-child(4) { width: 22%; }
+    #telesalesView th:nth-child(5), #telesalesView td:nth-child(5) { width: 20%; }
+
     .custom-date-range.visible {
       max-width: 100%;
       flex-direction: column;
@@ -801,9 +384,7 @@
     </div>
   </div>
   <div class="header-right" id="headerRight">
-    <div class="header-loading-overlay" id="headerLoading">
-      <div class="mini-spinner"></div>
-    </div>
+    <div class="header-loading-overlay" id="headerLoading"><div class="mini-spinner"></div></div>
     <div class="filter-select date-selector">
       <select id="dateSelect">
         <option value="today" selected>Today</option>
@@ -818,18 +399,14 @@
       <div class="date-range-group">
         <span class="date-range-label">From</span>
         <div class="date-range-input-wrap">
-          <span class="date-icon">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
-          </span>
+          <span class="date-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></span>
           <input type="date" id="dateFrom">
         </div>
       </div>
       <div class="date-range-group">
         <span class="date-range-label">To</span>
         <div class="date-range-input-wrap">
-          <span class="date-icon">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
-          </span>
+          <span class="date-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg></span>
           <input type="date" id="dateTo">
         </div>
       </div>
@@ -837,33 +414,31 @@
     <div class="view-toggle">
       <button id="btnTelesales" class="active" onclick="switchView('telesales')">Telesales</button>
       <button id="btnBranches" onclick="switchView('branches')">Branches</button>
+      <button id="btnRoutes" onclick="switchView('routes')">Routes</button>
     </div>
     <div class="filter-select branch-selector" id="branchSelectorWrap">
-      <select id="branchSelect">
-        <option value="">All Branches</option>
-      </select>
+      <select id="branchSelect"><option value="">All Branches</option></select>
     </div>
   </div>
 </header>
 
 <!-- ═══════════════ TELESALES VIEW ═══════════════ -->
 <div id="telesalesView">
-
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">Total Customer Orders</div>
-      <div class="stat-value" id="statOrders">—</div>
-      <div class="stat-sub" id="statOrdersSub">across all telesales</div>
+      <div class="stat-value" id="ts_statOrders">—</div>
+      <div class="stat-sub" id="ts_statOrdersSub">across all telesales</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Telesales</div>
-      <div class="stat-value" id="statActive">—</div>
-      <div class="stat-sub" id="statActiveSub">with recorded sales</div>
+      <div class="stat-value" id="ts_statActive">—</div>
+      <div class="stat-sub" id="ts_statActiveSub">with recorded sales</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label" id="deficitLabel">Sales Deficit</div>
-      <div class="stat-value" id="statDeficit">—</div>
-      <div class="stat-sub" id="statDeficitSub">vs branch target</div>
+      <div class="stat-label" id="ts_deficitLabel">Sales Deficit</div>
+      <div class="stat-value" id="ts_statDeficit">—</div>
+      <div class="stat-sub" id="ts_statDeficitSub">vs branch target</div>
     </div>
   </div>
 
@@ -871,18 +446,13 @@
     <div class="branch-perf-card">
       <div class="branch-perf-info">
         <div class="label">Branch Performance vs Target</div>
-        <div class="value" id="branchPerfValue">—</div>
-        <div class="detail" id="branchPerfDetail">loading...</div>
+        <div class="value" id="ts_branchPerfValue">—</div>
+        <div class="detail" id="ts_branchPerfDetail">loading...</div>
       </div>
       <div class="perf-bar-wrap">
-        <div class="perf-bar-track">
-          <div class="perf-bar-fill" id="branchPerfBar" style="width:0%;"></div>
-        </div>
+        <div class="perf-bar-track"><div class="perf-bar-fill" id="ts_branchPerfBar" style="width:0%;"></div></div>
         <div class="perf-bar-labels">
-          <span>0%</span>
-          <span id="marker50" class="">50%</span>
-          <span>80%</span>
-          <span>100%</span>
+          <span>0%</span><span id="ts_marker50" class="">50%</span><span>80%</span><span>100%</span>
         </div>
       </div>
     </div>
@@ -890,14 +460,14 @@
 
   <div class="table-section">
     <div class="table-header">
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <span class="table-title">Telesales Ranking</span>
-        <span class="table-count" id="tableCount">0 people</span>
-        <span class="sort-hint" id="sortHint">Click column headers to sort</span>
+        <span class="table-count" id="ts_tableCount">0 people</span>
+        <span class="sort-hint" id="ts_sortHint">Click column headers to sort</span>
       </div>
-      <input type="text" class="search-box" id="searchBox" placeholder="Search by name or branch...">
+      <input type="text" class="search-box" id="ts_searchBox" placeholder="Search by name or branch...">
     </div>
-    <div class="table-wrap" id="tableWrap">
+    <div class="table-wrap">
       <table>
         <thead>
           <tr>
@@ -910,46 +480,22 @@
             <th>Status</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
-          <tr class="loading-row">
-            <td colspan="7">
-              <span class="loading-spinner"></span>
-              Loading sales data...
-            </td>
-          </tr>
+        <tbody id="ts_tableBody">
+          <tr class="loading-row"><td colspan="7"><span class="loading-spinner"></span> Loading sales data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
-
 </div>
 
-<!-- ═══════════════ BRANCH PERFORMANCE VIEW ═══════════════ -->
+<!-- ═══════════════ BRANCH VIEW ═══════════════ -->
 <div id="branchView">
-
   <div class="branch-summary-row">
-    <div class="stat-card">
-      <div class="stat-label">Overall Performance</div>
-      <div class="stat-value" id="bsOverallPct">—</div>
-      <div class="stat-sub">aggregated all branches</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Net Sales</div>
-      <div class="stat-value" id="bsTotalSales">—</div>
-      <div class="stat-sub">across all branches</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Branches Achieved</div>
-      <div class="stat-value perf-high" id="bsOnTrack">—</div>
-      <div class="stat-sub" id="bsOnTrackSub">at 80% or above</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Branches Below Target</div>
-      <div class="stat-value perf-low" id="bsAtRisk">—</div>
-      <div class="stat-sub" id="bsAtRiskSub">below 80% threshold</div>
-    </div>
+    <div class="stat-card"><div class="stat-label">Overall Performance</div><div class="stat-value" id="bsOverallPct">—</div><div class="stat-sub">aggregated all branches</div></div>
+    <div class="stat-card"><div class="stat-label">Total Net Sales</div><div class="stat-value" id="bsTotalSales">—</div><div class="stat-sub">across all branches</div></div>
+    <div class="stat-card"><div class="stat-label">Branches Achieved</div><div class="stat-value perf-high" id="bsOnTrack">—</div><div class="stat-sub" id="bsOnTrackSub">at 80% or above</div></div>
+    <div class="stat-card"><div class="stat-label">Branches Below Target</div><div class="stat-value perf-low" id="bsAtRisk">—</div><div class="stat-sub" id="bsAtRiskSub">below 80% threshold</div></div>
   </div>
-
   <div class="branch-grid-wrap">
     <div class="branch-grid-header">
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -958,11 +504,76 @@
       </div>
       <input type="text" class="search-box" id="branchSearchBox" placeholder="Search branch...">
     </div>
-    <div class="branch-grid" id="branchGrid">
-      <div class="no-branch-data">Loading branch data...</div>
+    <div class="branch-grid" id="branchGrid"><div class="no-branch-data">Loading branch data...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ROUTE VIEW ═══════════════ -->
+<div id="routeView">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Customer Orders</div>
+      <div class="stat-value" id="rw_statOrders">—</div>
+      <div class="stat-sub" id="rw_statOrdersSub">across all routes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Routes</div>
+      <div class="stat-value" id="rw_statActive">—</div>
+      <div class="stat-sub" id="rw_statActiveSub">including zero sales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="rw_deficitLabel">Sales Deficit</div>
+      <div class="stat-value" id="rw_statDeficit">—</div>
+      <div class="stat-sub" id="rw_statDeficitSub">vs branch target</div>
     </div>
   </div>
 
+  <div class="branch-perf-section">
+    <div class="branch-perf-card">
+      <div class="branch-perf-info">
+        <div class="label">Branch Performance vs Target</div>
+        <div class="value" id="rw_branchPerfValue">—</div>
+        <div class="detail" id="rw_branchPerfDetail">loading...</div>
+      </div>
+      <div class="perf-bar-wrap">
+        <div class="perf-bar-track"><div class="perf-bar-fill" id="rw_branchPerfBar" style="width:0%;"></div></div>
+        <div class="perf-bar-labels">
+          <span>0%</span><span id="rw_marker50" class="">50%</span><span>80%</span><span>100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-header">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span class="table-title">Route Performance (Clustered by Sales Person)</span>
+        <span class="table-count" id="rw_tableCount">0 routes</span>
+        <span class="sort-hint" id="rw_sortHint">Click column headers to sort</span>
+      </div>
+      <input type="text" class="search-box" id="rw_searchBox" placeholder="Search route, branch, or sales person...">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="name">SALES ROUTES <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="branch">MAIN ROUTE <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="sp">SALES PERSON <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="target" style="text-align:right;"><span id="rw_thTargetLabel">RANGE TARGET</span> <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="weekly" style="text-align:right;">WEEKLY SALES <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="daily" style="text-align:right;">DAILY TARGET <span class="sort-icon">▲</span></th>
+            <th class="sortable active-sort sort-desc" data-sort="actual" style="text-align:right;">ACTUAL SALES <span class="sort-icon">▲</span></th>
+            <th class="sortable" data-sort="score" style="text-align:center;">% ACHIEVEMENT <span class="sort-icon">▲</span></th>
+            <th style="text-align:center;">STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="rw_tableBody">
+          <tr class="loading-row"><td colspan="9"><span class="loading-spinner"></span> Loading route data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -970,45 +581,64 @@
   Auto-refreshes every 10 mins &nbsp;|&nbsp;
   Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-
 <script>
   /* ============================================================
-     DATA ENGINE
-     ============================================================
-     IMPORTANT:
-     - Exactly TWO API requests per refresh cycle:
-         1) sales-person-performance
-         2) branch-sales-performance-reports
-     - No pagination.
-     - Both requests are made in parallel.
-     - Data is pulled once every 2 minutes.
-     - Date and branch filters are CLIENT-SIDE only.
-     - Performance for a date range is:
-         SUM(net sales for selected days)
-         -------------------------------- × 100
-         SUM(target for selected days)
+     MASTER WEEKLY TEMPLATE — FULLY HARD-CODED
      ============================================================ */
+  const masterTemplate = {
+    "TAVETA": ["TAVETA","ONESMUS KIOKO","VOI"], "MWATATE": ["MWATATE","ONESMUS KIOKO","VOI"], "NJUKINI": ["TAVETA","ONESMUS KIOKO","VOI"], "WUNDANYI": ["WUNDANYI","ONESMUS KIOKO","VOI"], "BURA - VOI": ["BURA","ONESMUS KIOKO","VOI"], "VOI CBD": ["VOI","CECILIA KIOKO","VOI"], "MACKINON": ["VOI","CECILIA KIOKO","VOI"], "MAUNGU": ["VOI","CECILIA KIOKO","VOI"], "SAMBURU": ["SAMBURU","CECILIA KIOKO","VOI"], "TARU": ["SAMBURU","CECILIA KIOKO","VOI"],
+    "JOGOO ROAD": ["Jogoo Road","VIVIAN ACHIENG","HEAD OFFICE"], "DONHOLM": ["Donholm","VIVIAN ACHIENG","HEAD OFFICE"], "BURUBURU": ["Buruburu","VIVIAN ACHIENG","HEAD OFFICE"], "GIKOMBA": ["Gikomba","VIVIAN ACHIENG","HEAD OFFICE"], "SHAURI MOYO": ["Shauri Moyo","VIVIAN ACHIENG","HEAD OFFICE"], "UMOJA": ["UMOJA","YVONNE MUNYENJE","HEAD OFFICE"], "KARIOBANGI SOUTH": ["KARIOBANGI SOUTH","YVONNE MUNYENJE","HEAD OFFICE"], "MOWLEM - HEAD OFFICE": ["Mowlem","YVONNE MUNYENJE","HEAD OFFICE"], "KIAMBIO": ["KIAMBIO","YVONNE MUNYENJE","HEAD OFFICE"], "MATHARE": ["Mathare","EMMANUEL OBIRI","HEAD OFFICE"], "HURUMA - HEAD OFFICE": ["HURUMA","EMMANUEL OBIRI","HEAD OFFICE"], "KIAMAIKO": ["KIAMAIKO","EMMANUEL OBIRI","HEAD OFFICE"], "MACHAKOS - HEAD OFFICE": ["MACHAKOS","EVERLINE","HEAD OFFICE"], "KIKIMA - HEAD OFFICE": ["KIKIMA","EVERLINE","HEAD OFFICE"], "UTAWALA": ["Utawala","MAGDALENE MBETE","HEAD OFFICE"], "TASSIA": ["Tassia","MAGDALENE MBETE","HEAD OFFICE"], "EMBAKASI": ["Embakasi","MAGDALENE MBETE","HEAD OFFICE"], "FEDHA": ["Fedha","MAGDALENE MBETE","HEAD OFFICE"], "PIPELINE - HQ": ["Pipeline","LILIAN MUENI","HEAD OFFICE"], "IMARA DAIMA": ["Imara Daima","LILIAN MUENI","HEAD OFFICE"], "KWARE - HQ": ["Pipeline","LILIAN MUENI","HEAD OFFICE"], "SOUTH B": ["South B","JOASH KIAGE","HEAD OFFICE"], "REUBEN": ["Reuben","JOASH KIAGE","HEAD OFFICE"], "NJENGA": ["Njenga","JOASH KIAGE","HEAD OFFICE"], "LUNGALUNGA - HQ": ["Lunga Lunga","JOASH KIAGE","HEAD OFFICE"], "NAIROBI CBD": ["CBD","AMMEAL MICHEKA","HEAD OFFICE"], "WESTLANDS - HQ": ["WESTLANDS","AMMEAL MICHEKA","HEAD OFFICE"], "NGARA": ["Ngara","AMMEAL MICHEKA","HEAD OFFICE"], "PARKLANDS": ["Parklands","AMMEAL MICHEKA","HEAD OFFICE"], "EASTLEIGH": ["Eastleigh","AMMEAL MICHEKA","HEAD OFFICE"], "PANGANI": ["Pangani","AMMEAL MICHEKA","HEAD OFFICE"], "MLANGO KUBWA": ["Mlango Kubwa","AMMEAL MICHEKA","HEAD OFFICE"], "RUAI": ["Ruai","NANCY MAMBOLEO","HEAD OFFICE"], "KAMULU": ["Kamulu","NANCY MAMBOLEO","HEAD OFFICE"], "JOSKA": ["Joska","NANCY MAMBOLEO","HEAD OFFICE"], "TALA": ["Tala","NANCY MAMBOLEO","HEAD OFFICE"], "KANGUNDO": ["Kangundo","NANCY MAMBOLEO","HEAD OFFICE"], "MALAA": ["Malaa","NANCY MAMBOLEO","HEAD OFFICE"], "DANDORA": ["Dandora","DENNIS MUNGUTI","HEAD OFFICE"], "BABA DOGO": ["Baba Dogo","DENNIS MUNGUTI","HEAD OFFICE"], "LUCKY SUMMER": ["LuckY Summer","DENNIS MUNGUTI","HEAD OFFICE"], "KARIOBANGI NORTH": ["Kariobangi","DENNIS MUNGUTI","HEAD OFFICE"], "NGOMONGO - HQ": ["Ngomongo","DENNIS MUNGUTI","HEAD OFFICE"], "KAYOLE - HQ": ["Kayole","MARCARIOUS MAGETA","HEAD OFFICE"], "SOWETO - HQ": ["Soweto","MARCARIOUS MAGETA","HEAD OFFICE"], "BEE CENTER": ["Kayole","BERYL ONYAPIDI","HEAD OFFICE"], "KOMAROCKS": ["Komarocks","BERYL ONYAPIDI","HEAD OFFICE"], "SAIKA": ["Saika","BERYL ONYAPIDI","HEAD OFFICE"], "CHOKAA": ["Chokaa","BERYL ONYAPIDI","HEAD OFFICE"], "KAYOLE JUNCTION": ["Kayole","BERYL ONYAPIDI","HEAD OFFICE"], "OBAMA": ["Obama","BERYL ONYAPIDI","HEAD OFFICE"], "NJIRU": ["Njiru","BERYL ONYAPIDI","HEAD OFFICE"], "MATOPENI": ["Matopeni","BERYL ONYAPIDI","HEAD OFFICE"],
+    "KIMILILI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHWELE": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAMKUYWA": ["KAMKUYWA","MARION NELIMA","BUNGOMA"], "KAPSOKWONY": ["KIMILILI","MARION NELIMA","BUNGOMA"], "SIRISIA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAPTAMA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KIPSIGON": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEPTAIS": ["KIMILILI","MARION NELIMA","BUNGOMA"], "NAMWELA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KOPSIRO": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KUYWA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KAPKATENY": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LWAKHAKHA": ["LWAKHAKHA","MARION NELIMA","BUNGOMA"], "MISIKHU": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEPYUK": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEBUKUBE": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LUGULU": ["KIMILILI","MARION NELIMA","BUNGOMA"], "KONGIT": ["KIMILILI","MARION NELIMA","BUNGOMA"], "WESTERN - BUNGOMA": ["KIMILILI","MARION NELIMA","BUNGOMA"], "LWANDANYI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "CHEBUKWABI": ["KIMILILI","MARION NELIMA","BUNGOMA"], "BUNGOMA CBD": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "WEBUYE": ["WEBUYE","TESLYNE SIMIYU","BUNGOMA"], "KANDUYI": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "BUKEMBE": ["WEBUYE","TESLYNE SIMIYU","BUNGOMA"], "HARAMBEE": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "KIBABII": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MUSAMBA": ["HARAMBEE","TESLYNE SIMIYU","BUNGOMA"], "BUMULA": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MAYANJA": ["KIMAETI","TESLYNE SIMIYU","BUNGOMA"], "NALONDO": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "KABULA": ["KABULA","TESLYNE SIMIYU","BUNGOMA"], "KABUCHAI": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"], "MATEKA": ["BUNGOMA","TESLYNE SIMIYU","BUNGOMA"],
+    "BUSIA CBD": ["BUSIA","GIDEON RAGAMA","BUSIA"], "NAMBALE": ["NAMBALE","GIDEON RAGAMA","BUSIA"], "MUNDIKA": ["BUSIA","GIDEON RAGAMA","BUSIA"], "MUNGATSI": ["MATUNGU","GIDEON RAGAMA","BUSIA"], "ALUPE": ["LUKOLIS","GIDEON RAGAMA","BUSIA"], "MATAYOS": ["MATAYOS","GIDEON RAGAMA","BUSIA"], "MALANGA - BUSIA": ["BUSIA","GIDEON RAGAMA","BUSIA"], "BUHUI": ["BUSIA","GIDEON RAGAMA","BUSIA"], "LUBANGA": ["NAMBALE","GIDEON RAGAMA","BUSIA"], "PORT VICTORIA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "OGALO": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUDALANGI": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUTULA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUMALA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "FUNYULA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "SIO PORT": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "BUNYALA": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "MULUKHONI": ["PORT VICTORIA","AARON OMONG'IN","BUSIA"], "MALABA": ["MALABA CBD","AURA BRENDA AUMA","BUSIA"], "AMAGORO": ["MALABA CBD","AURA BRENDA AUMA","BUSIA"], "AMUKURA": ["AMUKURA","AURA BRENDA AUMA","BUSIA"], "KIMAETI": ["KIMAETI","AURA BRENDA AUMA","BUSIA"], "LUKOLIS": ["MALABA","AURA BRENDA AUMA","BUSIA"], "ANGURAI": ["ANGURAI","AURA BRENDA AUMA","BUSIA"], "UGUNJA": ["SIAYA","MERCY OYUGI","BUSIA"], "UKWALA": ["SIAYA","MERCY OYUGI","BUSIA"], "LIGEGA": ["SIAYA","MERCY OYUGI","BUSIA"], "SIDINDI": ["SIAYA","MERCY OYUGI","BUSIA"], "RWAMBWA": ["SIAYA","MERCY OYUGI","BUSIA"], "SEGA": ["SIAYA","MERCY OYUGI","BUSIA"], "RANGALA": ["SIAYA","MERCY OYUGI","BUSIA"], "RATADO SIAYA": ["SIAYA","MERCY OYUGI","BUSIA"],
+    "TURBO": ["turbo kipkaren","LEWIS KIPNGETICH","ELDORET"], "MATUNDA - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "SOY - ELDORET": ["soy matunda","LEWIS KIPNGETICH","ELDORET"], "PANPAPER": ["PANPAPER","LEWIS KIPNGETICH","ELDORET"], "MUSEMBE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "NANGILI": ["SOY","LEWIS KIPNGETICH","ELDORET"], "SANGO": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LIKUYANI": ["LIKUYANI","LEWIS KIPNGETICH","ELDORET"], "FUFARAL": ["SOY","LEWIS KIPNGETICH","ELDORET"], "LUGARI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "LUMAKANDA": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MLIMANI - ELDORET": ["ELDORET","LEWIS KIPNGETICH","ELDORET"], "MUHONJE": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "CHEKALINI": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "KIPKAREN RIVER": ["TURBO","LEWIS KIPNGETICH","ELDORET"], "MAGUT": ["MAGUT","LEWIS KIPNGETICH","ELDORET"], "MWAMBA": ["MWAMBA","LEWIS KIPNGETICH","ELDORET"], "MOSORIOT": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "NDALAT": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "HURUMA - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BURNT FOREST": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KABIYET": ["burnt forest","SALOME CHEPKEEMOI","ELDORET"], "KAPSERET": ["kapsabet","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN": ["langas kapseret","SALOME CHEPKEEMOI","ELDORET"], "JUAKALI - ELDORET": ["TURBO","SALOME CHEPKEEMOI","ELDORET"], "KIPKENYO": ["ndalat selia","SALOME CHEPKEEMOI","ELDORET"], "KIPKAREN ESTATE": ["ndalatselia","SALOME CHEPKEEMOI","ELDORET"], "KAIBOI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "KURGUNG": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "MAILI NNE - ELDORET": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "TIMBOROA": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "MATHARU": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BLOCK 4": ["mosoriot kurgung","SALOME CHEPKEEMOI","ELDORET"], "KABISAGA": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "CHEPTERWAI": ["NDALAT","SALOME CHEPKEEMOI","ELDORET"], "HILL TEA": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "SEGUTON": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "BAHARINI": ["huruma maili nne","SALOME CHEPKEEMOI","ELDORET"], "BAYETE": ["BURNT FOREST","SALOME CHEPKEEMOI","ELDORET"], "CHEREBER": ["CHEREBER","SALOME CHEPKEEMOI","ELDORET"], "LODWAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KAKUMA": ["kakuma","ISSAC SHAMOLA","ELDORET"], "LOKICHAR": ["lodwar","ISSAC SHAMOLA","ELDORET"], "LOKICHOGIO": ["lodwar","ISSAC SHAMOLA","ELDORET"], "KANAAM": ["KANAAM","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSABET": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPTUMO": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NANDI HILLS": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "HIMAKI": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAMOBO": ["kapsabet","MARTHA KOINANGE& FRED TANUI","ELDORET"], "BARATON": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LESSOS - ELDORET": ["LESSOS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIMWANI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "NAMGOI": ["NAMGOI JUNCTION","MARTHA KOINANGE& FRED TANUI","ELDORET"], "YALA - ELDORET": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPTERIT": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KOBUJOI": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TULON": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "CHEPSONOI": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KIPSIGAK": ["NANDI HILLS","MARTHA KOINANGE& FRED TANUI","ELDORET"], "TINDERET": ["Nandihills","MARTHA KOINANGE& FRED TANUI","ELDORET"], "KAPSASUR": ["KAPSABET","MARTHA KOINANGE& FRED TANUI","ELDORET"], "LANGAS - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ROAD BLOCK": ["MAILI NNE","JEREMIAH MOMANYI","ELDORET"], "MUNYAKA - ELDORET": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "KESSES": ["kesses","JEREMIAH MOMANYI","ELDORET"], "CHEPTIRET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "KIPLOMBE": ["KIMUMU","JEREMIAH MOMANYI","ELDORET"], "NGERIA": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "ANNEX": ["kesses","JEREMIAH MOMANYI","ELDORET"], "MOI - ELDORET": ["KESSES","JEREMIAH MOMANYI","ELDORET"], "JERUSALEM": ["JERUSALEM","JEREMIAH MOMANYI","ELDORET"], "MWANZO": ["MWANZO","JEREMIAH MOMANYI","ELDORET"], "KIMUMU": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TAIRI MBILI": ["TAIRI MBILI","JEREMIAH MOMANYI","ELDORET"], "KAPSOYA": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "SINAI - ELDORET": ["SINAI","JEREMIAH MOMANYI","ELDORET"], "HAWAII": ["kimumu","JEREMIAH MOMANYI","ELDORET"], "TELEVIEW": ["LANGAS","JEREMIAH MOMANYI","ELDORET"], "KISUMU NDOGO - ELDORET": ["langas kapseret","JEREMIAH MOMANYI","ELDORET"], "ELDORET CBD": ["Eldoret cbd","NANCY NDANU","ELDORET"], "PIONEER - ELDORET": ["CBD","NANCY NDANU","ELDORET"], "KABARNET": ["kabarnet","IRINE JEROP","ELDORET"], "ITEN": ["iten highway","IRINE JEROP","ELDORET"], "ZIWA - ELDORET": ["ziwa moiben","IRINE JEROP","ELDORET"], "KABARTONJO": ["iten highway","IRINE JEROP","ELDORET"], "BIRETWO": ["KABARNET","IRINE JEROP","ELDORET"], "MOIBEN": ["ZIWA","IRINE JEROP","ELDORET"], "FLAX": ["flax","IRINE JEROP","ELDORET"], "MEREWET": ["iten highway","IRINE JEROP","ELDORET"], "CHEPKOILEL": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPTONGEI": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KAPSOWAR": ["KAPSOWAR","IRINE JEROP","ELDORET"], "KUINET": ["ZIWA","IRINE JEROP","ELDORET"], "CHEPKANGA": ["ITEN","IRINE JEROP","ELDORET"], "KABENES": ["ZIWA","IRINE JEROP","ELDORET"], "KIPKORGOT": ["FLAX","IRINE JEROP","ELDORET"], "MARURA": ["MARURA","IRINE JEROP","ELDORET"], "KASOYO": ["KASOYO","IRINE JEROP","ELDORET"], "KATALEL": ["KATALEL","IRINE JEROP","ELDORET"], "NYARU": ["NYARU","IRINE JEROP","ELDORET"], "MARAKWET": ["MARAKWET","IRINE JEROP","ELDORET"],
+    "EMBU": ["EMBU","EDWARD MATHU","EMBU"], "MUTUNDURI": ["EMBU","EDWARD MATHU","EMBU"], "PI": ["MWEA","EDWARD MATHU","EMBU"], "MURURI": ["MWEA","EDWARD MATHU","EMBU"], "SIAKAGO": ["EMBU","ERIC KAVIU","EMBU"], "ISHIARA": ["EMBU","ERIC KAVIU","EMBU"], "KIRITIRI": ["EMBU","ERIC KAVIU","EMBU"], "MASINGA": ["EMBU","ERIC KAVIU","EMBU"], "BONDONI": ["EMBU","ERIC KAVIU","EMBU"], "MURARU": ["EMBU","ERIC KAVIU","EMBU"], "KANYUAMBORA": ["EMBU","ERIC KAVIU","EMBU"], "KAEWA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "KARURUMO": ["EMBU","ERIC KAVIU","EMBU"], "KAMUMU": ["EMBU","ERIC KAVIU","EMBU"], "KIVAA - EMBU": ["EMBU","ERIC KAVIU","EMBU"], "UGWERI": ["EMBU","ERIC KAVIU","EMBU"], "KIAMUTUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KIBUGU": ["MWEA","PAMELA KAGEMI","EMBU"], "KITHURE": ["MWEA","PAMELA KAGEMI","EMBU"], "MUTITHI": ["MWEA","PAMELA KAGEMI","EMBU"], "KIMBIMBI": ["MWEA","PAMELA KAGEMI","EMBU"], "MWEA": ["MWEA","PAMELA KAGEMI","EMBU"], "KIANJOKOMA": ["EMBU","PAMELA KAGEMI","EMBU"], "MANYATTA - EMBU": ["EMBU","PAMELA KAGEMI","EMBU"], "KITHIMU": ["EMBU","PAMELA KAGEMI","EMBU"], "KEVOTE": ["EMBU","PAMELA KAGEMI","EMBU"], "CHUKA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "CHOGORIA": ["CHUKA ROUTE","STELLA NDWIGA","EMBU"], "NDAGANI": ["CHUKA","STELLA NDWIGA","EMBU"], "KIGUMO": ["CHUKA","STELLA NDWIGA","EMBU"], "KATHAGERI": ["CHUKA","STELLA NDWIGA","EMBU"], "RUNYENJES": ["CHUKA","STELLA NDWIGA","EMBU"], "CHEERA": ["CHUKA","STELLA NDWIGA","EMBU"], "ENA": ["EMBU","STELLA NDWIGA","EMBU"],
+    "KAHAWA WEST": ["KAHAWA WEST","KIRICHU MARY WANGECHI","GITHURAI"], "KASARANI": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "ZIMMERMAN": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "ROYSAMBU": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "MARURUI": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "MAZIWA": ["MAZIWA","KIRICHU MARY WANGECHI","GITHURAI"], "KENYATTA MARKET": ["KENYATTA MARKET","KIRICHU MARY WANGECHI","GITHURAI"], "ROASTERS": ["KASARANI","KIRICHU MARY WANGECHI","GITHURAI"], "NGUMBA": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "NGOMONGO - GITHURAI": ["ZIMMERMAN","KIRICHU MARY WANGECHI","GITHURAI"], "GITHURAI 45": ["GITHURAI 45","LILIAN KIRAGU WAWIRA","GITHURAI"], "MWIHOKO": ["MWIHOKO","LILIAN KIRAGU WAWIRA","GITHURAI"], "PROGRESSIVE": ["PROGRESSIVE","LILIAN KIRAGU WAWIRA","GITHURAI"], "EASTERN BYPASS": ["BYPASS","NO FCRO","GITHURAI"], "MATANGI": ["RUIRU","NO FCRO","GITHURAI"], "MURERA": ["MURERA","NO FCRO","GITHURAI"], "KIHUNGURO": ["BYPASS","NO FCRO","GITHURAI"], "KAMAKIS": ["KAMAKIS","NO FCRO","GITHURAI"], "MUMBI": ["MUMBI","NO FCRO","GITHURAI"], "KAHAWA WENDANI": ["KAHAWA WENDANI","NO FCRO","GITHURAI"], "KAHAWA SUKARI": ["KAHAWA SUKARI","NO FCRO","GITHURAI"], "KIAMBU": ["KIAMBU","PATRICK THIGA","GITHURAI"], "RUIRU TOWN": ["RUIRU","PATRICK THIGA","GITHURAI"], "GITHUNGURI": ["GITHUNGURI","PATRICK THIGA","GITHURAI"], "NDUMBERI": ["NDUMBERI","PATRICK THIGA","GITHURAI"], "KIRIGITI": ["KIRIGITI","PATRICK THIGA","GITHURAI"], "KWAMAIKO": ["KWAMAIKO","PATRICK THIGA","GITHURAI"], "KIBICHOI": ["KIBICHOI","PATRICK THIGA","GITHURAI"], "IKINU": ["IKINU","PATRICK THIGA","GITHURAI"], "GITHIGA": ["GITHIGA","PATRICK THIGA","GITHURAI"], "GITHOGORO": ["GITHOGORO","PATRICK THIGA","GITHURAI"], "TINGANGA": ["TINGANGA","PATRICK THIGA","GITHURAI"], "THINDIGUA": ["THINDIGUA","PATRICK THIGA","GITHURAI"], "GITHURAI 44": ["GITHURAI 44","JAMES MWANGI","GITHURAI"], "KIMBO": ["KIMBO","JAMES MWANGI","GITHURAI"], "MEMBLEY": ["MEMBLEY","JAMES MWANGI","GITHURAI"], "WATAALUM": ["WATAALUM","JAMES MWANGI","GITHURAI"], "PRISON": ["PRISON","JAMES MWANGI","GITHURAI"], "MWIKI": ["MWIKI","VICTOR MOGENDI","GITHURAI"], "MAJI MAZURI": ["MAJI MAZURI","VICTOR MOGENDI","GITHURAI"], "SUNTON": ["SUNTON","VICTOR MOGENDI","GITHURAI"], "HUNTERS": ["HUNTERS","VICTOR MOGENDI","GITHURAI"], "DELIVERANCE GITHURAI": ["DELIVERANCE","VICTOR MOGENDI","GITHURAI"],
+    "KAGIO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "SAGANA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "MAKUTANO - KARATINA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIBINGOTI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "GATEGI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "PI KARABA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIBURU": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIVIRIGWI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KANDONGU": ["SAGANA","JOEL KIMEMIA","KARATINA"], "BARICHO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANIA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANGWACI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIMICHA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "CIAGINI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "NTHINGINI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIMUNYE": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAMUGUNDA": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAMORO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KANGOCHO": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KAVUTI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KIANJEGE": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KARUMANDI": ["SAGANA","JOEL KIMEMIA","KARATINA"], "KARATINA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KERUGOYA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "MUKINDURI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KAGUMO": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGAI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIVINGO": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "GATHAMBI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KANGAITA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGUENYI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIRIAINI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "ITHARE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "GATWE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIAMWATHI": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANGOMBE": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KAHARA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KARIA - KARATINA": ["KARATINA","NJOROGE MARY WAIRIMU","KARATINA"], "KIANYAGA": ["MWEA","NJOROGE MARY WAIRIMU","KARATINA"], "KUTUS": ["MWEA","NJOROGE MARY WAIRIMU","KARATINA"], "NYERI": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "KIAWARA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MWEIGA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NGOBIT": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NDARAGWA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "JIKAZE": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NAIRUTIA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "GATITU": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "SKUTA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "KIANDU": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "WATUKA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "NYARIBO": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "GICHIRA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MUTHINGA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "ENDARASHA": ["NYERI","MWAURA MOSES KARIUKI","KARATINA"], "MURANG'A": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KANGEMA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MUKUYU": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MARAGWA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAHATIA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MURIRANJAS": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KANYENYAINI": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAHURO": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAGANDA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "RWATHIA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KABUTA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KARURI": ["GIAKANJA","ELIZABETH WANJIKU","KARATINA"], "KIHOYA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "GACHIRIRO": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "KAGAA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "MATHIOYA": ["MURANGA","ELIZABETH WANJIKU","KARATINA"], "SABASABA": ["KARATINA","ELIZABETH WANJIKU","KARATINA"], "MUKURWEINI": ["OTHAYA","RUTH WANGUI","KARATINA"], "GAKINDU": ["OTHAYA","RUTH WANGUI","KARATINA"], "TUMUTUMU": ["OTHAYA","RUTH WANGUI","KARATINA"], "MUTHUTHINI": ["OTHAYA","RUTH WANGUI","KARATINA"], "OTHAYA": ["OTHAYA","RUTH WANGUI","KARATINA"], "GIAKANJA": ["OTHAYA","RUTH WANGUI","KARATINA"], "MAHIGA": ["OTHAYA","RUTH WANGUI","KARATINA"], "KIAMARIGA": ["OTHAYA","RUTH WANGUI","KARATINA"], "WALAZO": ["OTHAYA","RUTH WANGUI","KARATINA"], "KIMAHURI": ["OTHAYA","RUTH WANGUI","KARATINA"], "CHAKA": ["OTHAYA","RUTH WANGUI","KARATINA"], "NARUMORU": ["OTHAYA","RUTH WANGUI","KARATINA"], "GIAKAIBEI": ["OTHAYA","RUTH WANGUI","KARATINA"], "KAIRUTHI": ["OTHAYA","RUTH WANGUI","KARATINA"],
+    "GACHIE": ["GACHIE","LYDIA WANGUI","KAWANGWARE"], "RUAKA": ["RUAKA","LYDIA WANGUI","KAWANGWARE"], "WANGIGE": ["WANGIGE","LYDIA WANGUI","KAWANGWARE"], "BANANA": ["BANANA","LYDIA WANGUI","KAWANGWARE"], "NDENDERU": ["NDENDERU","LYDIA WANGUI","KAWANGWARE"], "LOWER KABETE": ["KABETE","LYDIA WANGUI","KAWANGWARE"], "MWIMUTO": ["MWIMUTO","LYDIA WANGUI","KAWANGWARE"], "MUCHATHA": ["RUAKA","LYDIA WANGUI","KAWANGWARE"], "KARURA": ["KARURA","LYDIA WANGUI","KAWANGWARE"], "NGECHA": ["NGECHA","LYDIA WANGUI","KAWANGWARE"], "GIKUNI": ["GIKUNI","LYDIA WANGUI","KAWANGWARE"], "KABETE": ["KABETE","LYDIA WANGUI","KAWANGWARE"], "GATHIGA": ["GATHIGA","LYDIA WANGUI","KAWANGWARE"], "GEKUNI": ["WANGIGE","LYDIA WANGUI","KAWANGWARE"], "KAMTUINI": ["KAMTUINI","LYDIA WANGUI","KAWANGWARE"], "UTHIRU": ["UTHIRU","NANCY KERORE","KAWANGWARE"], "NDUNYU": ["NDUNYU","NANCY KERORE","KAWANGWARE"], "WAITHAKA": ["WAITHAKA","NANCY KERORE","KAWANGWARE"], "ZAMBEZI": ["ZAMBEZI","NANCY KERORE","KAWANGWARE"], "THAMANDA": ["THAMANDA","NANCY KERORE","KAWANGWARE"], "REGEN": ["LIMURU","NANCY KERORE","KAWANGWARE"], "MUTHIGA": ["LIMURU","NANCY KERORE","KAWANGWARE"], "KAREN - KAWANGWARE": ["KAREN","NANCY KERORE","KAWANGWARE"], "NDERI": ["NDERI","NANCY KERORE","KAWANGWARE"], "LIMURU": ["LIMURU","AGRIPINA LIKHALE","KAWANGWARE"], "KIKUYU": ["KIKUYU","AGRIPINA LIKHALE","KAWANGWARE"], "GIKAMBURA": ["GIKAMBURA","AGRIPINA LIKHALE","KAWANGWARE"], "KINOO": ["KINOO","AGRIPINA LIKHALE","KAWANGWARE"], "KAMANGU": ["KAMANGU","AGRIPINA LIKHALE","KAWANGWARE"], "THOGOTO": ["THOGOTO","AGRIPINA LIKHALE","KAWANGWARE"], "KIAMBAA": ["KIAMBAA","AGRIPINA LIKHALE","KAWANGWARE"], "RUTHIGITI": ["RUTHIGITI","AGRIPINA LIKHALE","KAWANGWARE"], "GITARU": ["GITARU","AGRIPINA LIKHALE","KAWANGWARE"], "KWAMBERA": ["KWAMBIRA","AGRIPINA LIKHALE","KAWANGWARE"], "MBOROTI": ["MBOROTI","AGRIPINA LIKHALE","KAWANGWARE"], "NYAMBARI": ["NYAMBARI","AGRIPINA LIKHALE","KAWANGWARE"], "KABUKU": ["KABUKU","AGRIPINA LIKHALE","KAWANGWARE"], "NGARARIGA": ["NGARARIGA","AGRIPINA LIKHALE","KAWANGWARE"], "NDEIYA": ["NDEIYA","AGRIPINA LIKHALE","KAWANGWARE"], "RUSIGITI": ["RUTHIGITI","AGRIPINA LIKHALE","KAWANGWARE"], "KIBERA": ["KIBERA","NO FCRO","KAWANGWARE"], "HAYANI": ["KIBERA","NO FCRO","KAWANGWARE"], "JAMHURI": ["KIBERA","NO FCRO","KAWANGWARE"], "OLYMPIC": ["KIBERA","NO FCRO","KAWANGWARE"], "NGONG ROAD": ["NGONG RD","NO FCRO","KAWANGWARE"], "GATWEKERA": ["KIBERA","NO FCRO","KAWANGWARE"], "KATWEKERA": ["KIBERA","NO FCRO","KAWANGWARE"], "MAKINA": ["KIBERA","NO FCRO","KAWANGWARE"], "LINDI": ["KIBERA","NO FCRO","KAWANGWARE"], "MASHIMONI": ["KIBERA","NO FCRO","KAWANGWARE"], "LINE SABA": ["KIBERA","NO FCRO","KAWANGWARE"], "DARAJANI": ["KIBERA","NO FCRO","KAWANGWARE"], "NGUMO": ["KIBERA","NO FCRO","KAWANGWARE"], "SOWETO - KAWANGWARE": ["KIBERA","NO FCRO","KAWANGWARE"], "SILANGA": ["KIBERA","NO FCRO","KAWANGWARE"], "KAWANGWARE": ["KAWANGWARE","DAN MUTUNGA","KAWANGWARE"], "LAVINGTON": ["LAVINGTON","DAN MUTUNGA","KAWANGWARE"], "KANGEMI": ["KANGEMI","DAN MUTUNGA","KAWANGWARE"], "KILIMANI": ["KILIMANI","DAN MUTUNGA","KAWANGWARE"], "WESTLANDS - KAWANG": ["WESTLANDS","DAN MUTUNGA","KAWANGWARE"], "YAYA": ["YAYA","DAN MUTUNGA","KAWANGWARE"], "HURLIGHAM": ["HURLIGHAM","DAN MUTUNGA","KAWANGWARE"], "KILELESHWA": ["KILELESHWA","DAN MUTUNGA","KAWANGWARE"], "KABIRIA": ["KABIRIA","VALERIE AYIERA","KAWANGWARE"], "NAIVASHA ROAD": ["NAIVASHA RD","VALERIE AYIERA","KAWANGWARE"], "NGANDO": ["NGANDO","VALERIE AYIERA","KAWANGWARE"], "KINYANJUI": ["KINYANJUI","VALERIE AYIERA","KAWANGWARE"], "DAGORETTI": ["DAGORETTI","VALERIE AYIERA","KAWANGWARE"], "NGINA ROAD": ["NGINA ROAD","VALERIE AYIERA","KAWANGWARE"], "WANYEE": ["WANYEE","VALERIE AYIERA","KAWANGWARE"], "SATELLITE": ["SATELLITE","VALERIE AYIERA","KAWANGWARE"], "DELIVERANCE KAWANGWARE": ["DELIVERENCE","VALERIE AYIERA","KAWANGWARE"], "MUTHAMA": ["MUTHAMA","VALERIE AYIERA","KAWANGWARE"], "NDWARU": ["NDWARU","VALERIE AYIERA","KAWANGWARE"], "MTEGO": ["MTEGO","VALERIE AYIERA","KAWANGWARE"],
+    "MBALE": ["MBALE","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "CHEPTULU": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "VIHIGA": ["VIHIGA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MAJENGO - KAKAMEGA": ["HAMISI","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "CHAVAKALI": ["MBALE","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "SEREM": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "HAMISI": ["HAMISI","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MAGO": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MUDETE": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "EREGI": ["MBALE CBD","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "SHAMAKHOKHO": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MAHANGA": ["EMUHAYA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "JEBROK": ["HAMISI","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "KILINGILI": ["KHOMUSALABA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "VUYALO": ["KHOMUSALABA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "ESHIBANGA": ["EMUHAYA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "ESIBUYE": ["EMUHAYA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "ESIRULO": ["KHOMUSALABA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "VOKOLI": ["CHEPTULU","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "GISAMBAI": ["HAMISI","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MAGADA": ["EMUHAYA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "KEGONDI": ["EMUHAYA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "KAIMOSI": ["KAIMOSI","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "KHUMSALABA": ["KHUMSALABA","ONGAKI GODFREY & BRIDGIT YVETTE LUNGWE","KAKAMEGA"], "MUMIAS CBD": ["MUMIAS","LILIAN MWANJE","KAKAMEGA"], "BUTERE": ["BUTERE","LILIAN MWANJE","KAKAMEGA"], "SHIANDA": ["SHIANDA","LILIAN MWANJE","KAKAMEGA"], "MATUNGU": ["MATUNGU","LILIAN MWANJE","KAKAMEGA"], "BUKURA": ["BUKURA","LILIAN MWANJE","KAKAMEGA"], "MUSANDA": ["MUSANDA","LILIAN MWANJE","KAKAMEGA"], "SHIBALE": ["MUMIAS","LILIAN MWANJE","KAKAMEGA"], "BUHURU": ["MUSANDA","LILIAN MWANJE","KAKAMEGA"], "MAONDO": ["SHINYALU","LILIAN MWANJE","KAKAMEGA"], "EKERO": ["MUMIAS","LILIAN MWANJE","KAKAMEGA"], "MANYULIA": ["BUTERE","LILIAN MWANJE","KAKAMEGA"], "KAMASHIA": ["BUKURA","LILIAN MWANJE","KAKAMEGA"], "LUNZA": ["BUKURA","LILIAN MWANJE","KAKAMEGA"], "SHIATSALA": ["BUTERE","LILIAN MWANJE","KAKAMEGA"], "KOYONZO": ["MATUNGU","LILIAN MWANJE","KAKAMEGA"], "INAYA": ["MATUNGU","LILIAN MWANJE","KAKAMEGA"], "MAYONI": ["MUMIAS","LILIAN MWANJE","KAKAMEGA"], "MANYALA": ["BUTERE","LILIAN MWANJE","KAKAMEGA"], "IMANGA": ["MUSANDA","LILIAN MWANJE","KAKAMEGA"], "SABATIA BUTERE": ["BUTERE","LILIAN MWANJE","KAKAMEGA"], "KAKAMEGA CBD": ["KAKAMEGA CBD","MWANJE MOURINE SHITANDI","KAKAMEGA"], "AMALEMBA": ["KHAYEGA","MWANJE MOURINE SHITANDI","KAKAMEGA"], "KAMBI YA MWANZA": ["WEST KENYA","MWANJE MOURINE SHITANDI","KAKAMEGA"], "MALAVA": ["MALAVA","MWANJE MOURINE SHITANDI","KAKAMEGA"], "ESHISIRU": ["LURAMBI","MWANJE MOURINE SHITANDI","KAKAMEGA"], "KHAYEGA": ["KHAYEGA","MWANJE MOURINE SHITANDI","KAKAMEGA"], "LURAMBI": ["KAKAMEGA CBD","MWANJE MOURINE SHITANDI","KAKAMEGA"], "MAKUNGA - KAKAMEGA": ["SHIANDA","MWANJE MOURINE SHITANDI","KAKAMEGA"], "SHIBULI": ["SHIBULI","MWANJE MOURINE SHITANDI","KAKAMEGA"], "NAVAKHOLO": ["NAMBACHA","REUBEN SAKALA","KAKAMEGA"], "MATETE": ["WEBUYE","REUBEN SAKALA","KAKAMEGA"], "SHINYALU": ["SHINYALU","REUBEN SAKALA","KAKAMEGA"], "MUSOLI": ["MUSOLI","REUBEN SAKALA","KAKAMEGA"], "MALAHA": ["SHIANDA","REUBEN SAKALA","KAKAMEGA"], "KHWISERO": ["MUSOLI","REUBEN SAKALA","KAKAMEGA"], "MALINYA": ["MUSOLI","REUBEN SAKALA","KAKAMEGA"],
+    "BOMET CBD": ["BOMET","LISBON KIMUTAI","KERICHO"], "SILBWET": ["SILIBWET","LISBON KIMUTAI","KERICHO"], "SOTIK": ["SOTIK","LISBON KIMUTAI","KERICHO"], "CHEBUNYO": ["CHEBUNYO","LISBON KIMUTAI","KERICHO"], "DIKIR - KERICHO": ["BOMET","LISBON KIMUTAI","KERICHO"], "NDANAI": ["SOTIK","LISBON KIMUTAI","KERICHO"], "MAKIMENY": ["CHEBUNYO","LISBON KIMUTAI","KERICHO"], "KAPKWEN": ["KAPLONG","LISBON KIMUTAI","KERICHO"], "KAPLONG": ["KAPLONG","LISBON KIMUTAI","KERICHO"], "CHEBOLE": ["KAPLONG","LISBON KIMUTAI","KERICHO"], "KAMUREITO": ["KAPLONG","LISBON KIMUTAI","KERICHO"], "TEMBWO": ["SOTIK","LISBON KIMUTAI","KERICHO"], "SIONGIROI": ["CHEBUNYO","LISBON KIMUTAI","KERICHO"], "LONGISA": ["LONGISA","COLLINS KETER","KERICHO"], "MULOT": ["MULOT","COLLINS KETER","KERICHO"], "SIGOR - KERICHO": ["SIGOR","COLLINS KETER","KERICHO"], "SUNSET": ["MULOT","COLLINS KETER","KERICHO"], "MERIGI": ["MERIGI","COLLINS KETER","KERICHO"], "KEMBU": ["LONGISA","COLLINS KETER","KERICHO"], "YOUTH FARMERS": ["MERIGI","COLLINS KETER","KERICHO"], "SOGOO": ["SOGOO","COLLINS KETER","KERICHO"], "CHEMANER": ["LONGISA","COLLINS KETER","KERICHO"], "OLBUTYO": ["SIGOR","COLLINS KETER","KERICHO"], "BAKOYOT": ["SOGOO","COLLINS KETER","KERICHO"], "KIPSUTER": ["SIGOR","COLLINS KETER","KERICHO"], "KABOSON": ["SIGOR","COLLINS KETER","KERICHO"], "KIMOGORO": ["SOGOO","COLLINS KETER","KERICHO"], "KAPKOMBUN": ["MERIGI","COLLINS KETER","KERICHO"], "KISITO": ["SIGOR","COLLINS KETER","KERICHO"], "LITEIN": ["LITEIN","DENNIS KIBET","KERICHO"], "MOGOGOSIEK": ["KOIWA","DENNIS KIBET","KERICHO"], "CHEBORGEY": ["LITEIN","DENNIS KIBET","KERICHO"], "KOIWA": ["KOIWA","DENNIS KIBET","KERICHO"], "KAPKATET": ["KAPKATET","DENNIS KIBET","KERICHO"], "SIGOWET": ["RORET","DENNIS KIBET","KERICHO"], "NGOINA RD": ["RORET","DENNIS KIBET","KERICHO"], "KAPGWEN": ["KAPSET","DENNIS KIBET","KERICHO"], "RORET": ["RORET","DENNIS KIBET","KERICHO"], "KAPSET": ["KAPSET","DENNIS KIBET","KERICHO"], "CHEBOIN": ["LITEIN","DENNIS KIBET","KERICHO"], "BOITO": ["KOIWA","DENNIS KIBET","KERICHO"], "KERICHO CBD": ["KERICHO","Gideon Kibett","KERICHO"], "KAPSOIT": ["KAPSOIT","Gideon Kibett","KERICHO"], "KIPSITET": ["KIPSITET","Gideon Kibett","KERICHO"], "BROOKE": ["BROOKE","Gideon Kibett","KERICHO"], "CHEPNYOGAA": ["KAPSOIT","Gideon Kibett","KERICHO"], "KURESOI - KERICHO": ["KURESOI","Gideon Kibett","KERICHO"], "LONDIANI": ["KURESOI","Gideon Kibett","KERICHO"], "FORT TENAN": ["KIPSITET","Gideon Kibett","KERICHO"], "KIPKELION": ["KURESOI","Gideon Kibett","KERICHO"], "KABIANGA": ["KAPSOIT","Gideon Kibett","KERICHO"], "KIPTERE": ["KAPSOIT","Gideon Kibett","KERICHO"], "AINAMOI": ["BROOKE","Gideon Kibett","KERICHO"], "CHEPSEON": ["KURESOI","Gideon Kibett","KERICHO"], "KIPSOLU": ["KAPSOIT","Gideon Kibett","KERICHO"], "SOSIOT": ["KAPSOIT","Gideon Kibett","KERICHO"],
+    "GARISSA CBD": ["CBD","PETER KIMANZI","KENDIA"], "MADOGO": ["MADOGO","PETER KIMANZI","KENDIA"], "BANGAL": ["BANGAL","PETER KIMANZI","KENDIA"], "BURA - KENDIA": ["MADOGO","PETER KIMANZI","KENDIA"], "HABASWENI": ["HABASWEIN","OSMAN","KENDIA"], "MADOGASHE": ["MADOGASHE","OSMAN","KENDIA"], "MASALANI": ["MASALANI","OSMAN","KENDIA"], "IJARA": ["IJARA","OSMAN","KENDIA"], "SANGAILU": ["SANGAILU","OSMAN","KENDIA"], "ABAKORE": ["ABAKORE","OSMAN","KENDIA"], "DAGAHLEY": ["DAGAHLEY","SAMIR","KENDIA"], "IFO": ["IFO","SAMIR","KENDIA"], "HAGARDERA": ["HAGARDERA","SAMIR","KENDIA"], "DADAAB": ["DADAAB","SAMIR","KENDIA"], "DOBLEY": ["DOBLEY","SAMIR","KENDIA"], "MANDERA": ["MANDERA","NO CRO","KENDIA"], "WAJIR": ["WAJIR","ABDIFATAR","KENDIA"], "Bula Ifftin": ["KENDIA","PETER KIMANZI","KENDIA"],
+    "MLOLONGO": ["MLOLONGO","NO FCRO","KITENGELA"], "SYOKIMAU": ["SYOKIMAU","NO FCRO","KITENGELA"], "KATANI": ["KATANI","NO FCRO","KITENGELA"], "KITENGELA MAIN STAGE": ["KITENGELA","TITUS TAUTA","KITENGELA"], "KIMALAT": ["KIMALAT","TITUS TAUTA","KITENGELA"], "DELIVERANCE KITENGELA": ["DELIVERANCE","TITUS TAUTA","KITENGELA"], "MACHAKOS - KITENGELA": ["MACHAKOS","EVERLINE","KITENGELA"], "MALILI": ["MALILI","EVERLINE","KITENGELA"], "KATHIANI": ["KATHIANI","EVERLINE","KITENGELA"], "WETAA MARKET": ["WETAA MARKET","EVERLINE","KITENGELA"], "KAJIADO": ["KAJIADO","TITUS TAUTA","KITENGELA"], "ISINYA": ["ISINYA","TITUS TAUTA","KITENGELA"], "NAMANGA": ["NAMANGA","TITUS TAUTA","KITENGELA"], "BISIL": ["BISIL","TITUS TAUTA","KITENGELA"], "OLTOROTO": ["OLTOROTO","TITUS TAUTA","KITENGELA"], "NGATATEK": ["NGATATEK","TITUS TAUTA","KITENGELA"], "KISAJU": ["KISAJU","TITUS TAUTA","KITENGELA"], "KOROMPOI": ["KOROMPOI","TITUS TAUTA","KITENGELA"], "KUMPA": ["KUMPA","TITUS TAUTA","KITENGELA"], "SABAKI - KITENGELA": ["SABAKI","DANIEL WAMBUA","KITENGELA"], "TUFFOAM": ["TUFFOAM","DANIEL WAMBUA","KITENGELA"], "ATHI RIVER": ["ATHI RIVER","DANIEL WAMBUA","KITENGELA"], "TEXAS": ["TEXAS","DANIEL WAMBUA","KITENGELA"],
+    "KITUI CBD": ["CBD","FAITH MWANGANGI","KITUI"], "KABATI - KITUI": ["KABATI","FAITH MWANGANGI","KITUI"], "MUTOMO": ["MUTUMO","FAITH MWANGANGI","KITUI"], "WAMUNYU": ["WAMUNYU","FAITH MWANGANGI","KITUI"], "KWA VONZA": ["WAMUNYU","FAITH MWANGANGI","KITUI"], "ZOMBE": ["ZOMBE","FAITH MWANGANGI","KITUI"], "MBITINI": ["MBITINI","FAITH MWANGANGI","KITUI"], "KALUNDU": ["CBD","FAITH MWANGANGI","KITUI"], "IKUTHA": ["IKUTHA","FAITH MWANGANGI","KITUI"], "KAVISUNI": ["KAVISUNI","FAITH MWANGANGI","KITUI"], "KATANGI": ["WAMUNYU","FAITH MWANGANGI","KITUI"], "KUNDAKINDU": ["CBD","FAITH MWANGANGI","KITUI"], "IKANGA": ["MUTOMO","FAITH MWANGANGI","KITUI"], "ENDAU": ["ZOMBE","FAITH MWANGANGI","KITUI"], "KISASI": ["MUTOMO","FAITH MWANGANGI","KITUI"], "MUTITO": ["MUTITO","FAITH MWANGANGI","KITUI"], "MIAMBANI": ["MIAMBANI","FAITH MWANGANGI","KITUI"], "MUTHALE": ["KABATI","FAITH MWANGANGI","KITUI"], "MUTHA": ["MBITINI","FAITH MWANGANGI","KITUI"], "KATULANI": ["CBD","FAITH MWANGANGI","KITUI"], "MULUTU": ["CBD","FAITH MWANGANGI","KITUI"], "MWALA": ["MWALA","FAITH MWANGANGI","KITUI"], "KAKEANI": ["KABATI","FAITH MWANGANGI","KITUI"], "KAEWA - KITUI": ["KITUI","DANFUS MULEI","KITUI"], "MWINGI": ["MWINGI","DANFUS MUTISYA","KITUI"], "MATUU": ["MATUU","DANFUS MUTISYA","KITUI"], "EKALAKALA": ["MATUU","DANFUS MUTISYA","KITUI"], "MIGWANI": ["MIGWANI","DANFUS MUTISYA","KITUI"], "NUU": ["MWINGI","DANFUS MUTISYA","KITUI"], "KISIIKI": ["MATUU","DANFUS MUTISYA","KITUI"], "KITHYOKO": ["MWINGI","DANFUS MUTISYA","KITUI"], "KANYONYOO": ["MATUU","DANFUS MUTISYA","KITUI"], "IIANI": ["KIVAA/CBD","DANFUS MUTISYA","KITUI"], "KIKUUMINI": ["KIVAA","DANFUS MUTISYA","KITUI"],
+    "NYAMIRA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MARANI": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MOSOBETI": ["NYAMIRA","JOSHUA MAGETO","KISII"], "KEMERA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MIRUKA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "KEGOGI": ["NYAMIRA","JOSHUA MAGETO","KISII"], "TINGA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "EKERENYO": ["NYAMIRA","JOSHUA MAGETO","KISII"], "GESIMA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "NYAMUSI": ["NYAMIRA","JOSHUA MAGETO","KISII"], "KEBIRIGO": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MOKOMONI": ["NYAMIRA","JOSHUA MAGETO","KISII"], "RIOMA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MANGA": ["NYAMIRA","JOSHUA MAGETO","KISII"], "IKONGE": ["NYAMIRA","JOSHUA MAGETO","KISII"], "TOMBE": ["NYAMIRA","JOSHUA MAGETO","KISII"], "OMOGONCHORO": ["NYAMIRA","JOSHUA MAGETO","KISII"], "ITIBO": ["NYAMIRA","JOSHUA MAGETO","KISII"], "BONYUNYU": ["NYAMIRA","JOSHUA MAGETO","KISII"], "MIGORI": ["MIGORI","NICHOLAS OGALO","KISII"], "KEHANCHA": ["MIGORI","NICHOLAS OGALO","KISII"], "MABERA": ["SIRARE","NICHOLAS OGALO","KISII"], "KEGONGA": ["MIGORI","NICHOLAS OGALO","KISII"], "SIRARE": ["SIRARE","NICHOLAS OGALO","KISII"], "MASARA": ["MASARA","NICHOLAS OGALO","KISII"], "MUHURU": ["MOGORI","NICHOLAS OGALO","KISII"], "NYAKWERI": ["MOGORI","NICHOLAS OGALO","KISII"], "OSIRI": ["MOGORI","NICHOLAS OGALO","KISII"], "ONGER": ["MOGORI","NICHOLAS OGALO","KISII"], "NYATIKE": ["MUHURU","NICHOLAS OGALO","KISII"], "OTHOO": ["MOGORI","NICHOLAS OGALO","KISII"], "URIRI": ["URIRI","NICHOLAS OGALO","KISII"], "MIKEI": ["MOGORI","NICHOLAS OGALO","KISII"], "GIRIBE": ["GIRIBE MIGORI","NICHOLAS OGALO","KISII"], "NTIMARU": ["NTIMARU","NICHOLAS OGALO","KISII"], "MASABA": ["MASABA","NICHOLAS OGALO","KISII"], "BONDO": ["MASARA","NICHOLAS OGALO","KISII"], "ORUBA": ["MIGORI","NICHOLAS OGALO","KISII"], "NAMBA": ["NAMBA","NICHOLAS OGALO","KISII"], "KISII CBD": ["KISII CBD","ABEDNEGO & KEVIN","KISII"], "OGEMBO": ["OGEMBO","ABEDNEGO & KEVIN","KISII"], "SUNEKA": ["SUNEKA","ABEDNEGO & KEVIN","KISII"], "NYANCHWA": ["NYANCHWA","ABEDNEGO & KEVIN","KISII"], "NYAKOE": ["NYAKOE","ABEDNEGO & KEVIN","KISII"], "MAGENA": ["NYANGUSU","ABEDNEGO & KEVIN","KISII"], "MOSOCHO": ["MOSOCHO","ABEDNEGO & KEVIN","KISII"], "NYANGUSU": ["NYANGUSU","ABEDNEGO & KEVIN","KISII"], "MOGONGA": ["MOGONGA","ABEDNEGO & KEVIN","KISII"], "MWEMBE": ["MWEMBE","ABEDNEGO & KEVIN","KISII"], "NYAMATARO": ["NYAMATARO","ABEDNEGO & KEVIN","KISII"], "MENYINKWA": ["KISII CBD","ABEDNEGO & KEVIN","KISII"], "RIANA": ["SUNEKA","ABEDNEGO & KEVIN","KISII"], "ITUMBE": ["OGEMBO","ABEDNEGO & KEVIN","KISII"], "GETARE": ["KISII CBD","ABEDNEGO & KEVIN","KISII"], "SAMETA": ["OGEMBO","ABEDNEGO & KEVIN","KISII"], "KIOGORO": ["OGEMBO","ABEDNEGO & KEVIN","KISII"], "NYABIOTO": ["NYAMIRA/KISII CBD","ABEDNEGO & KEVIN","KISII"], "EKERORANO": ["SUNEKA","ABEDNEGO & KEVIN","KISII"], "IGONGA": ["SUNEKA","ABEDNEGO & KEVIN","KISII"], "IYABE": ["SUNEKA","ABEDNEGO & KEVIN","KISII"], "KEROKA": ["KEROKA","KEFA AKUORO","KISII"], "NYAMACHE": ["NYAMACHE","KEFA AKUORO","KISII"], "MASIMBA - KISII": ["MASIMBA","KEFA AKUORO","KISII"], "CHEPILAT": ["KEROKA","KEFA AKUORO","KISII"], "KIJAURI": ["KEROKA","KEFA AKUORO","KISII"], "IGARE": ["KEROKA","KEFA AKUORO","KISII"], "GESUSU": ["KEROKA","KEFA AKUORO","KISII"], "KEUMBU": ["KEROKA","KEFA AKUORO","KISII"], "NYACHEKI": ["NYACHEKI","KEFA AKUORO","KISII"], "BIRONGO": ["KEROKA","KEFA AKUORO","KISII"], "NYABISABO": ["KEROKA","KEFA AKUORO","KISII"], "IBACHO": ["KEROKA","KEFA AKUORO","KISII"], "KIAMOKAMA": ["KEROKA","KEFA AKUORO","KISII"], "KEGATI": ["KEROKA","KEFA AKUORO","KISII"], "HOMABAY": ["HOMABAY","SILAS OTIENO","KISII"], "NYANDIWA": ["HOMABAY","SILAS OTIENO","KISII"], "SORI": ["HOMABAY","SILAS OTIENO","KISII"], "SINDO": ["SINDO","SILAS OTIENO","KISII"], "NDHIWA": ["HOMABAY","SILAS OTIENO","KISII"], "MAGUNGA": ["HOMABAY","SILAS OTIENO","KISII"], "KENDUBAY": ["KENDUBAY","SILAS OTIENO","KISII"], "RODI": ["RODI","SILAS OTIENO","KISII"], "MBITA": ["MBITA","SILAS OTIENO","KISII"], "RUSINGA": ["MBITA","SILAS OTIENO","KISII"], "PALA": ["PALA","SILAS OTIENO","KISII"], "KOBODO": ["HOMABAY","SILAS OTIENO","KISII"], "MFANGANO": ["RUSINGA","SILAS OTIENO","KISII"], "KOYANI": ["HOMABAY","SILAS OTIENO","KISII"], "RIAT - KISII": ["RODI","SILAS OTIENO","KISII"], "ADIEDO": ["KENDUBAY","SILAS OTIENO","KISII"], "KIABUYA": ["HOMABAY","SILAS OTIENO","KISII"], "LWANDA MAGWAR": ["HOMABAY","SILAS OTIENO","KISII"], "MIROGI": ["HOMABAY","SILAS OTIENO","KISII"], "KABUOCHI": ["HOMABAY","SILAS OTIENO","KISII"], "NYADENDA": ["SINDO","SILAS OTIENO","KISII"], "DHOK MIT": ["HOMABAY","SILAS OTIENO","KISII"], "OTARO": ["KENDUBAY","SILAS OTIENO","KISII"], "Konyango": ["KISII","SILAS OTIENO","KISII"], "OYUGIS": ["OYUGIS","LAVENDER AKOTH","KISII"], "NDIRU": ["NDIRU","LAVENDER AKOTH","KISII"], "SONDU": ["SONDU","LAVENDER AKOTH","KISII"], "MAWEGO": ["MAGEGO","LAVENDER AKOTH","KISII"], "RANDUNG": ["RANDUNG","LAVENDER AKOTH","KISII"], "MISAMBI": ["MISAMBI","LAVENDER AKOTH","KISII"], "CHABERA": ["SONDU","LAVENDER AKOTH","KISII"], "OBOKE": ["RANDUNG","LAVENDER AKOTH","KISII"], "CHIRO KOWUOR": ["OYUGIS","LAVENDER AKOTH","KISII"], "SIKRI": ["SIKRI","LAVENDER AKOTH","KISII"], "RAMBA": ["RAMBA","LAVENDER AKOTH","KISII"], "ONJINYO": ["OYUGIS","LAVENDER AKOTH","KISII"], "RANGWE": ["OYUGIS","LAVENDER AKOTH","KISII"], "RONGO": ["RONGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "AWENDO": ["AWENDO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "TABAKA": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "RAPOGI": ["RAPOGI","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KENYENYA": ["KENYENYA","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "RANEN": ["AWENDO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "OGWEDHI": ["OGWEDHI","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KANGA": ["RONGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "IKOBA": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYAKURU": ["NYAKURU","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYAMARAMBE": ["NYAMARAMBE","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYATAMBE": ["AWENDO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "ULANDA": ["AWENDO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYAKEMBENE": ["NYAKEMBENE","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "RIOKINDO": ["ENOOSAEN","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYABIORE": ["NYANGUSU","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "SUGUTA": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYABITUNWA": ["NYANGUSU","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "ETAGO": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "EKONA": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KAMAGAMBO": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "NYACHENGE": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "OYANI": ["OYANI","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KITERE": ["RONGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "MAGENCHE": ["NYANGUSU","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "MOCHENGO": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "SENGERA": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "ETONO": ["NGARARO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "RIOSIRI": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KOBADO": ["RONGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "SIBUOCHE": ["RAPOGI","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "EBEREGE": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "IBENCHO": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "DEDE": ["NYAKURU","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "OPAPO": ["OPAPO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "RAKWARO": ["RONGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "BARANNE": ["SOUTH MUGIRANGO","WILSON MONYENYE & PATRICK OKEMWA","KISII"], "KILGORIS": ["KILGORIS","DUKE NGOKO","KISII"], "LOLGORIAN": ["LOLGORIAN","DUKE NGOKO","KISII"], "ENOOSAEN": ["LOLGORIAN","DUKE NGOKO","KISII"], "OLDONYOROK": ["LOLGORIAN","DUKE NGOKO","KISII"], "MURGAN": ["MURGAN","DUKE NGOKO","KISII"], "ANGATA": ["LOLGORIAN","DUKE NGOKO","KISII"], "ENGARARO": ["NGARARO","DUKE NGOKO","KISII"], "ESOKONI": ["LOLGORIAN","DUKE NGOKO","KISII"], "MUTENKUAR": ["MUTENKUAR","DUKE NGOKO","KISII"], "KIANGO": ["LOLGORIAN","DUKE NGOKO","KISII"], "DIKIR - KISII": ["NCHIPSHIP","DUKE NGOKO","KISII"], "KONTAMET": ["LOLGORIAN","DUKE NGOKO","KISII"], "KONA": ["LOLGORIAN","DUKE NGOKO","KISII"],
+    "KATITO": ["AHERO","Julius Odhiambo","KISUMU"], "AHERO - KISUMU": ["AHERO","Julius Odhiambo","KISUMU"], "AWASI": ["AHERO","Julius Odhiambo","KISUMU"], "MUHORONI": ["AHERO","Julius Odhiambo","KISUMU"], "BUOYE": ["AHERO","Julius Odhiambo","KISUMU"], "CHEMELIL": ["AHERO","Julius Odhiambo","KISUMU"], "NYAMASARIA": ["AHERO","Julius Odhiambo","KISUMU"], "RABUOR": ["AHERO","Julius Odhiambo","KISUMU"], "MIWANI": ["AHERO","Julius Odhiambo","KISUMU"], "MOWLEM - KISUMU": ["AHERO","Julius Odhiambo","KISUMU"], "MASOGO": ["AHERO","Julius Odhiambo","KISUMU"], "KISUMU CBD": ["KISUMU CBD","NO FCRO","KISUMU"], "KIBUYE": ["KISUMU CBD","NO FCRO","KISUMU"], "NYALENDA": ["KISUMU CBD","NO FCRO","KISUMU"], "KONDELE": ["KISUMU CBD","NO FCRO","KISUMU"], "MANYATTA - KISUMU": ["KISUMU CBD","NO FCRO","KISUMU"], "JUBILEE MARKET": ["KISUMU CBD","NO FCRO","KISUMU"], "CHIGA": ["KISUMU CBD","NO FCRO","KISUMU"], "KIBOS": ["KISUMU CBD","NO FCRO","KISUMU"], "KASAWINO": ["KISUMU CBD","NO FCRO","KISUMU"], "KALOLENI - KISUMU": ["KISUMU CBD","NO FCRO","KISUMU"], "KONALEGIO": ["KISUMU CBD","NO FCRO","KISUMU"], "OGANGO": ["KISUMU CBD","NO FCRO","KISUMU"], "BONDO": ["BONDO","WINNIE AKOTH","KISUMU"], "USENGE": ["BONDO","WINNIE AKOTH","KISUMU"], "NDORI": ["BONDO","WINNIE AKOTH","KISUMU"], "RERU": ["BONDO","WINNIE AKOTH","KISUMU"], "LWAK": ["BONDO","WINNIE AKOTH","KISUMU"], "AKALA": ["BONDO","WINNIE AKOTH","KISUMU"], "UHANYA": ["BONDO","WINNIE AKOTH","KISUMU"], "NANGO BONDO": ["BONDO","WINNIE AKOTH","KISUMU"], "BOYA MKT": ["BONDO","WINNIE AKOTH","KISUMU"], "KAMBARE": ["BONDO","WINNIE AKOTH","KISUMU"], "MIGINGO": ["BONDO","WINNIE AKOTH","KISUMU"], "RERA": ["BONDO","WINNIE AKOTH","KISUMU"], "ARAM MARKET": ["BONDO","WINNIE AKOTH","KISUMU"], "MANYWANDA MKT": ["BONDO","WINNIE AKOTH","KISUMU"], "RAGEGNE BONDO": ["BONDO","WINNIE AKOTH","KISUMU"], "KOLENYO": ["BONDO","WINNIE AKOTH","KISUMU"], "MAHAYA": ["BONDO","WINNIE AKOTH","KISUMU"], "MAMBOLEO": ["MASENO","MERCY RAJULA","KISUMU"], "MASENO": ["MASENO","MERCY RAJULA","KISUMU"], "LUANDA": ["MASENO","MERCY RAJULA","KISUMU"], "OBUNGA": ["MASENO","MERCY RAJULA","KISUMU"], "KIBOSWA": ["MASENO","MERCY RAJULA","KISUMU"], "KOMBEDU": ["MASENO","MERCY RAJULA","KISUMU"], "AIRPORT": ["MASENO","MERCY RAJULA","KISUMU"], "MIGOSI": ["MASENO","MERCY RAJULA","KISUMU"], "KOMBEWA": ["MASENO","MERCY RAJULA","KISUMU"], "OBAMBO": ["MASENO","MERCY RAJULA","KISUMU"], "HOLO": ["MASENO","MERCY RAJULA","KISUMU"], "LOLWE": ["MASENO","MERCY RAJULA","KISUMU"], "DAGO": ["MASENO","MERCY RAJULA","KISUMU"], "DARAJA MBILI": ["MASENO","MERCY RAJULA","KISUMU"], "EKWANDA": ["MASENO","MERCY RAJULA","KISUMU"], "KISIAN": ["MASENO","MERCY RAJULA","KISUMU"], "BANDANI": ["MASENO","MERCY RAJULA","KISUMU"], "RAUNDA MKT": ["MASENO","MERCY RAJULA","KISUMU"], "LELA": ["MASENO","MERCY RAJULA","KISUMU"], "OTONGLO": ["MASENO","MERCY RAJULA","KISUMU"], "WATHOREGO": ["MASENO","MERCY RAJULA","KISUMU"], "RIAT - KISUMU": ["MASENO","MERCY RAJULA","KISUMU"], "SIAYA CBD": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "NGIYA": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "KODIAGA": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "YALA - KISUMU": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "SEGERE": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "NYANGONDO": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "WAGAI": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "MUTUMBU": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "NYANGOMA": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "NYANGWESO": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "NYANDORERA": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "KARAPUL, KOBAI": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "KAREMO": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "URANGA": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "MWER": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "AWELO": ["SIAYA","IRINE ADHIAMBO","KISUMU"], "DUDI": ["SIAYA","IRINE ADHIAMBO","KISUMU"],
+    "MTITO ANDEI": ["Mtito Andei","NICHOLAS MUMO","MAKINDU"], "KIBWEZI": ["KIBWEZI","NICHOLAS MUMO","MAKINDU"], "LOITOKTOK": ["LOITOKTOK","NICHOLAS MUMO","MAKINDU"], "KAMBU": ["KAMBU","NICHOLAS MUMO","MAKINDU"], "MACHINERY": ["MACHINERY","NICHOLAS MUMO","MAKINDU"], "KIMANA": ["LOITOKTOK","NICHOLAS MUMO","MAKINDU"], "ILLASIT": ["LOITOKTOK","NICHOLAS MUMO","MAKINDU"], "ISINET": ["LOITOKTOK","NICHOLAS MUMO","MAKINDU"], "ROMBO": ["LOITOKTOK","NICHOLAS MUMO","MAKINDU"], "KIUNDWANI": ["KIUNDWANI","NICHOLAS MUMO","MAKINDU"], "MASIMBA - MAKINDU": ["MASIMBA","NICHOLAS MUMO","MAKINDU"], "WOTE": ["WOTE","BONFACE KWEYU","MAKINDU"], "MAKINDU": ["MAKINDU","BONFACE KWEYU","MAKINDU"], "SULTAN HAMUD": ["Sultan Hamud","BONFACE KWEYU","MAKINDU"], "EMALI": ["EMALI","BONFACE KWEYU","MAKINDU"], "KATHONZWENI": ["Mombasa Road","BONFACE KWEYU","MAKINDU"], "NUNGUNI": ["NUNGUNI","BONFACE KWEYU","MAKINDU"], "KASIKEU": ["Mombasa Road","BONFACE KWEYU","MAKINDU"],
+    "MALINDI CBD": ["GARSEN","BENARD MOKHAMBA","MALINDI"], "WATAMU": ["WATAMU","BENARD MOKHAMBA","MALINDI"], "TANA RIVER": ["TANA RIVER","BENARD MOKHAMBA","MALINDI"], "GARSEN": ["GARSEN","BENARD MOKHAMBA","MALINDI"], "MINJILA": ["MINJILA","BENARD MOKHAMBA","MALINDI"], "GEDE": ["GEDE","BENARD MOKHAMBA","MALINDI"], "KWA CHOCHA": ["MALINDI CBD","BENARD MOKHAMBA","MALINDI"], "MAWENI - MALINDI": ["MALINDI CBD","BENARD MOKHAMBA","MALINDI"], "PB": ["MALINDI CBD","BENARD MOKHAMBA","MALINDI"], "MSABAHA": ["MALINDI CBD","BENARD MOKHAMBA","MALINDI"], "MPEKETONI": ["MPEKETONI","JOHN MIGUI","MALINDI"], "LAMU": ["LAMU","JOHN MIGUI","MALINDI"], "GONGONI": ["GONGONI","JOHN MIGUI","MALINDI"], "WITU": ["WITU","JOHN MIGUI","MALINDI"], "MAJENGO - MALINDI": ["MALINDI CBD","JOHN MIGUI","MALINDI"], "MARERENI": ["MARERENI","JOHN MIGUI","MALINDI"], "HINDI": ["LAMU","JOHN MIGUI","MALINDI"], "MJANAHERI": ["GONGONI","JOHN MIGUI","MALINDI"], "MOKOWE": ["LAMU","JOHN MIGUI","MALINDI"], "FURUNZI": ["Kisumundogo","JOHN MIGUI","MALINDI"], "METRO": ["CBD","JOHN MIGUI","MALINDI"], "KAKONENI": ["kakoneni","JOHN MIGUI","MALINDI"], "SHAKAHOLA": ["Langombaya","JOHN MIGUI","MALINDI"], "MARAFA": ["Marereni","JOHN MIGUI","MALINDI"], "MALANGA - MALINDI": ["Malanga","JOHN MIGUI","MALINDI"], "BAOLALA": ["BAOLALA","JOHN MIGUI","MALINDI"], "LANGOMBAYA": ["Langombaya","JOHN MIGUI","MALINDI"], "KIRAHO": ["Kisumundogo","JOHN MIGUI","MALINDI"], "KOSOVO": ["MALINDI CBD","JOHN MIGUI","MALINDI"], "KIJIWETANGA": ["KIJIWETANGA","JOHN MIGUI","MALINDI"], "MATSANGONI": ["MATSANGONI","SETH BREEN","MALINDI"], "KISUMU NDOGO - MALINDI": ["CBD","SETH BREEN","MALINDI"], "KWA NDOMO": ["KWA NDOMO","SETH BREEN","MALINDI"], "TEZO": ["TEZO","SETH BREEN","MALINDI"], "KAKUYUNI": ["Kakuyuni","SETH BREEN","MALINDI"], "GANDA": ["Kakuyuni","SETH BREEN","MALINDI"], "SABAKI - MALINDI": ["GONGONI","SETH BREEN","MALINDI"], "SOWETO - MALINDI": ["CBD","SETH BREEN","MALINDI"], "MAMBURUI": ["Gongoni","SETH BREEN","MALINDI"], "MTONDIA": ["MTONDIA","SETH BREEN","MALINDI"], "KASUFINI": ["KASUFINI","SETH BREEN","MALINDI"], "MUYEYE": ["CBD","SETH BREEN","MALINDI"], "TAKAYE": ["CBD","SETH BREEN","MALINDI"], "CHUMANI": ["CHUMANI","SETH BREEN","MALINDI"],
+    "MAUA": ["MAUA ROUTE","CHRISTINE NKIROTE","MERU"], "LAARE": ["MAUA ROUTE","CHRISTINE NKIROTE","MERU"], "KIENGU": ["MAUA ROUTE","CHRISTINE NKIROTE","MERU"], "MIKINDURI": ["MERU CBD ROUTE","WILLIAM LEKUKU","MERU"], "MUGAE": ["ISIOLO ROUTE","WILLIAM LEKUKU","MERU"], "KIANJAI": ["MAUA ROUTE","WILLIAM LEKUKU","MERU"], "KANGETA": ["MAUA ROUTE","WILLIAM LEKUKU","MERU"], "ISIOLO": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "MARSABIT": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "MOYALE": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "SOLOLO": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "KULAMAWE": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "WAMBA": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "ARCHERS": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "LAISAMIS": ["ISIOLO ROUTE","GEORGE THURANI","MERU"], "MERU CBD": ["MERU CBD ROUTE","EMILLY KINYA","MERU"], "MAKUTANO - MERU": ["MERU CBD ROUTE","EMILLY KINYA","MERU"], "MARIMANTI": ["MERU CBD ROUTE","EMILLY KINYA","MERU"], "GITHONGO": ["MERU CBD ROUTE","EMILLY KINYA","MERU"], "NANYUKI": ["NANYUKI ROUTE","STELLA KINYA","MERU"], "TIMAU": ["NANYUKI ROUTE","STELLA KINYA","MERU"], "KIBIRICHIA": ["NANYUKI ROUTE","STELLA KINYA","MERU"], "MATANYA": ["NANYUKI ROUTE","STELLA KINYA","MERU"], "NKUBU": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "MITUNGUU": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "IGOJI": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "KIONYO": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "KINORO": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "EQUATOR - MERU": ["NKUBU ROUTE","DENNIS MAKORI","MERU"], "KEERIA": ["NKUBU ROUTE","DENNIS MAKORI","MERU"],
+    "KILIFI": ["KILIFI","MWANGANGI MAINGI","MOMBASA"], "MTWAPA": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "SHANZU": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "KANAMAI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "VIPINGO": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "KIKAMBALA": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MAJAONI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MAVUENI": ["KILIFI","MWANGANGI MAINGI","MOMBASA"], "SHARIANI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MSHOMORONI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "KIEMBENI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "JUNDA": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "MTOPANGA": ["BAMBURI","PHILISTER KENYATTA","MOMBASA"], "KWA BULO": ["KWA BULO","PHILISTER KENYATTA","MOMBASA"], "VIKWATANI": ["VIKWATANI","PHILISTER KENYATTA","MOMBASA"], "MWAKIRUNGE": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "VIRUNGANI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "KAJIWENI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "MOMBASA CBD": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "TUDOR": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "MAJENGO - MOMBASA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "KINGORANI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "GANJONI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "OLD TOWN": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "BONDENI - MOMBASA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "SPARKI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "MAKUPA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "TONONOKA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "LEBANON": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "LIKONI": ["LIKONI","SAMUEL JEFWA","MOMBASA"], "LUNGALUNGA - MOMBASA": ["LUNGA LUNGA","JOHN OGOLA","MOMBASA"], "MTONGWE": ["LIKONI","JOHN OGOLA","MOMBASA"], "SHIMONI": ["SHIMONI","JOHN OGOLA","MOMBASA"], "SHIMBAHILLS": ["SIMBA HILLS","JOHN OGOLA","MOMBASA"], "PERANI": ["LUNGA LUNGA","JOHN OGOLA","MOMBASA"], "UJAMAA": ["UKUNDA","JOHN OGOLA","MOMBASA"], "BAMBURI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "KISAUNI": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "FISHERIES": ["FISHERIES","DAVID OMOLLO","MOMBASA"], "MWEMBENI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "BAKARANI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "UTANGE": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "MLALEO": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "LAKE VIEW ESTATE": ["LAKE VIEW ESTATE","DAVID OMOLLO","MOMBASA"], "MTAMBO": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "MWANDONI": ["MWANDONI","DAVID OMOLLO","MOMBASA"], "BARSHEBA": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "BOMBOLULU": ["BOMBOLULU","GEORGE CLINTON MASIWO","MOMBASA"], "NYALI": ["NYALI","GEORGE CLINTON MASIWO","MOMBASA"], "KONGOWEA": ["KONGOWEA","GEORGE CLINTON MASIWO","MOMBASA"], "MAWENI - MOMBASA": ["MAWENI","GEORGE CLINTON MASIWO","MOMBASA"], "KARAMA": ["KONGOWEA","GEORGE CLINTON MASIWO","MOMBASA"], "VOK": ["VOK","GEORGE CLINTON MASIWO","MOMBASA"], "KISIMANI": ["BOMBOLULU","GEORGE CLINTON MASIWO","MOMBASA"], "UKUNDA": ["UKUNDA","MILICA MBEKE","MOMBASA"], "MSAMBWENI": ["LUNGA LUNGA","MILICA MBEKE","MOMBASA"], "KOMBANI": ["UKUNDA","MILICA MBEKE","MOMBASA"], "KWALE": ["KWALE","MILICA MBEKE","MOMBASA"], "KINANGO": ["KINANGO","MILICA MBEKE","MOMBASA"], "TIRIBE": ["KWALE","MILICA MBEKE","MOMBASA"], "DIANI": ["UKUNDA","MILICA MBEKE","MOMBASA"], "MAGONGO": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MIRITINI": ["MIRITINI","SAMUEL MBATHA","MOMBASA"], "MIKINDANI": ["MIKINDANI","SAMUEL MBATHA","MOMBASA"], "JOMVU": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MIGADINI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "CHANGAMWE": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "ALDINA": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "CHAANI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "VIKOBANI": ["VIKOBANI","SAMUEL MBATHA","MOMBASA"], "JITONI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MARIAKANI - MOMBASA": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "KALOLENI - MOMBASA": ["KALOLENI","JOSEPH BOB KAYAGO","MOMBASA"], "MAZERAS": ["MAZERAS","JOSEPH BOB KAYAGO","MOMBASA"], "BAMBA": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "MATANO MANNE": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "CHASIMBA": ["CHASIMBA","JOSEPH BOB KAYAGO","MOMBASA"], "KOKOTONI": ["UKUNDA","JOSEPH BOB KAYAGO","MOMBASA"], "GANZE": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "RABAI": ["RABAI","JOSEPH BOB KAYAGO","MOMBASA"], "VITENGENI": ["MSHOMORONI","JOSEPH BOB KAYAGO","MOMBASA"],
+    "ENGINEER": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NDUNYU NJERU": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "KIMENDE": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NJAMBINI": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "FLYOVER": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "MWENDANDU": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "KWA HARAKA": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "RWANYAMBO": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "GWAKANYWA": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NAIVASHA": ["Naivasha CBD","STEPHEN MUWIMA","NAIVASHA"], "GILGIL": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "KIKOPEY": ["KIKOPEY","STEPHEN MUWIMA","NAIVASHA"], "MIHARATI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "RIRONI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "BUSH": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "WANJOHI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "MAAI MAHIU": ["MAAI MAHIU","GEORGE NJUGUNA","NAIVASHA"], "KAYOLE - NAIVASHA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "SUSWA": ["SUSWA ROUTE","GEORGE NJUGUNA","NAIVASHA"], "KINANGOP": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "KARAGITA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "KINAMBA - NAIVASHA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "DUKA MOJA": ["SUSWA ROUTE","GEORGE NJUGUNA","NAIVASHA"], "KAMERE": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"],
+    "NAKURU CBD": ["NAKURU CBD","ERICK NYAMWEYA","NAKURU"], "WHITE HOUSE": ["HESHIMA ROUTE","ERICK NYAMWEYA","NAKURU"], "LONDON": ["SHOWGROUND ROUTE","ERICK NYAMWEYA","NAKURU"], "KITI": ["KITI","ERICK NYAMWEYA","NAKURU"], "KIRATINA": ["LANET ROUTE","ERICK NYAMWEYA","NAKURU"], "KIAMUNYI": ["KIAMUNYI/KABARAK ROUTE","ERICK NYAMWEYA","NAKURU"], "HESHIMA": ["HESHIMA/BAHATI","ERICK NYAMWEYA","NAKURU"], "FREE AREA": ["PIPELINE ROUTE","ERICK NYAMWEYA","NAKURU"], "RAVINE": ["EDAMARAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "MOGOTIO CENTRE": ["RAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "KABARAK": ["KABARAK/KAMPI MOTO ROUTE","ERICK NYAMWEYA","NAKURU"], "EMINING": ["MARIGAT ROUTE","ERICK NYAMWEYA","NAKURU"], "MARIGAT": ["MARIGAT ROUTE","ERICK NYAMWEYA","NAKURU"], "KAMBI YA MOTO": ["RAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "MANGU": ["MANGU/KABARAK","ERICK NYAMWEYA","NAKURU"], "RAFIKI - NAKURU": ["KABARAK KAMPI MOTO ROUTE","ERICK NYAMWEYA","NAKURU"], "KABIMOI": ["KABIMOI","ERICK NYAMWEYA","NAKURU"], "MILE SITA": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "SOLAI CENTER": ["SOLAI ROUTE","FAITH MBINYA","NAKURU"], "MAILI KUMI": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "MAWANGA": ["HESHIMA ROUTE","FAITH MBINYA","NAKURU"], "MARIAKANI - NAKURU": ["HESHIMA ROUTE","FAITH MBINYA","NAKURU"], "KWA AMOS": ["KWA AMOS","FAITH MBINYA","NAKURU"], "WANYORORO": ["SOLAI ROUTE","FAITH MBINYA","NAKURU"], "KABATINI": ["HESHIMA/BAHATI ROUTE","FAITH MBINYA","NAKURU"], "AHERO - NAKURU": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "NAROK CBD": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "OLOLUNGA": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "NTULELE": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "NAROOSURA": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "OLEKIRKIRAI": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "MONGARE": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "MOLO CENTRE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "NJORO CENTRE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "KERINGET": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "OLENGURUONE": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "SALGAA CENTRE": ["SALGAA ROUTE","MOLINTA ONYANGO","NAKURU"], "MAU NAROK": ["MAU NAROK","MOLINTA ONYANGO","NAKURU"], "KIHINGO": ["MOLO","MOLINTA ONYANGO","NAKURU"], "TIPIS": ["TIPIS","MOLINTA ONYANGO","NAKURU"], "SEKUTON": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "MAUCHE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "EGERTON-KIINGO": ["MOLO","MOLINTA ONYANGO","NAKURU"], "KIPTAGICH": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "SOBEA": ["SALGAA ROUTE","MOLINTA ONYANGO","NAKURU"], "ELBURGON": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "MATHANGAUTA": ["MATHANGAUTA","MOLINTA ONYANGO","NAKURU"], "MAKUTANO - NAKURU": ["TOTAL ROUTE","MOLINTA ONYANGO","NAKURU"], "LIKIA": ["LIKIA","MOLINTA ONYANGO","NAKURU"], "KURESOI - NAKURU": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "TURI": ["TURI","MOLINTA ONYANGO","NAKURU"], "NESSUIT": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "SACHORA": ["SACHORA","MOLINTA ONYANGO","NAKURU"], "RONGAI - NAKURU": ["RONGAI","MOLINTA ONYANGO","NAKURU"], "MWISHO WA LAMI": ["MAU NAROK ROUTE","MOLINTA ONYANGO","NAKURU"], "KAPTEMBWA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NGAMBO": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "SHARBAB": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "LANGALANGA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NGATA": ["NGATA ROUTE","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "RHONDA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KENLANDS": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "BONDENI - NAKURU": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "MANYANI": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "BANGLADESH": ["KABARAK ROUTE","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "WEAVERS": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "PONDAMALI": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KOLEN": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KIPANGA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "SEWAGE": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "RACE COURSE": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NYAHURURU CBD": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "MARALAL CENTRE": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "KINAMBA - NAKURU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "SUBUKIA": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "RUMURUTI": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "MAILI NNE - NAKURU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "OLJORO-OROK": ["OLJORO-OROK ROUTE","ROSE CHEPKORIR","NAKURU"], "KABAZI": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "SIPILI": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "RURII": ["RURII","ROSE CHEPKORIR","NAKURU"], "KANYOTU": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "KWA KUNGU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "KIVORONJO": ["KIVORONJO","ROSE CHEPKORIR","NAKURU"], "OLKALOU CENTRE": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "DONDORI": ["OLKALAU ROUTE","SYLVIA LASOI","NAKURU"], "NDUNDORI": ["LANET ROUTES","SYLVIA LASOI","NAKURU"], "GWAKIONGO": ["BAHATI ROUTE","SYLVIA LASOI","NAKURU"], "PASSENGA": ["PASSENGA","SYLVIA LASOI","NAKURU"], "KIONDO": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "LANET": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "PIPELINE - NAKURU": ["WANYANA ROUTE","SYLVIA LASOI","NAKURU"], "BARNABAS": ["PIPELINE ROUTE","SYLVIA LASOI","NAKURU"], "KIPTANGWANY": ["NAKURU CBD","SYLVIA LASOI","NAKURU"], "WANYAMA CENTER": ["WANYANA ROUTE","SYLVIA LASOI","NAKURU"], "KONGASIS": ["NAKURU CBD","SYLVIA LASOI","NAKURU"], "TEE": ["NAKURU CBD","SYLVIA LASOI","NAKURU"],
+    "KITALE CBD": ["KITALE CBD","JOHN MWAI","PHILTON"], "KIMININI": ["KIMININI","JOHN MWAI","PHILTON"], "KIBOMET": ["KITALE CBD","JOHN MWAI","PHILTON"], "SIKHENDU": ["KIMININI","JOHN MWAI","PHILTON"], "KIUNGANI": ["KIMININI","JOHN MWAI","PHILTON"], "MALIKI": ["KIMININI","JOHN MWAI","PHILTON"], "BIG TREE": ["KIMININI","JOHN MWAI","PHILTON"], "MUCHARAGE": ["KIMININI","JOHN MWAI","PHILTON"], "CHALICHA": ["KIMININI","JOHN MWAI","PHILTON"], "NOREK": ["KITALE CBD","JOHN MWAI","PHILTON"], "MAKUNGA - PHILTON": ["KITALE CBD","JOHN MWAI","PHILTON"], "BARBATON": ["KIMININI","JOHN MWAI","PHILTON"], "KAPCHEROP": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "SIBANGA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MAILI SABA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPSARA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MARAKWET - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPLAMAI": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KIPSAINA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "TUIGOIN": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "CHEBARUS": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPYEGO": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "ZIWA - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KOLONGOLO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "ENDEBESS": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MATISI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "VETERINARY": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KAPKOI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KWANZA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "CHEPCHOINA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "SABOTI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BIRUNDA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BONDENI - KITALE": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KIPSONGO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "GITWAMBA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "TUWAN": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MUROKI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MOLEM": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LESSOS - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LUKHOME": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "RAFIKI - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MAKUTANO - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ORTUM": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KACHELIBA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "SIGOR - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "UGANDA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "LOMUT": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "BENDERA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "CHEPARERIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KASEI": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ALALE": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KAPENGURIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KONYAO": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "MOIS BRIDGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NAITIRI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BRIGADIER": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDALU": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "PWANI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KONA MBAYA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "TONGAREN": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BIKEKE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "SIRENDE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MUKUYUNI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "GATUA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NYANGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MATUNDA - PHILTON": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KARIMA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDIVISI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"],
+    "KISERIAN": ["kiserian","GLORIA KITIABI","RONGAI"], "NGONG - RONGAI WHOLESALE": ["NGONG","GLORIA KITIABI","RONGAI"], "KWARE - RONGAI": ["NGONG","GLORIA KITIABI","RONGAI"], "EMBULBUL": ["kiserian","GLORIA KITIABI","RONGAI"], "GATAKA": ["rongai","GLORIA KITIABI","RONGAI"], "RONGAI - RONGAI WHOLESALE": ["rongai","VIVIAN AKIRU","RONGAI"], "LANGATA": ["langata","VIVIAN AKIRU","RONGAI"], "SOUTH C": ["south c","VIVIAN AKIRU","RONGAI"], "TWALA": ["rongai","VIVIAN AKIRU","RONGAI"], "OLEKASASI": ["rongai","VIVIAN AKIRU","RONGAI"], "KAREN - RONGAI": ["karen","VIVIAN AKIRU","RONGAI"], "MAASAI LODGE": ["rongai","VIVIAN AKIRU","RONGAI"], "NAIROBI WEST": ["nairobi west","VIVIAN AKIRU","RONGAI"],
+    "MAKONGENI": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KIGANJO - THIKA": ["THIKA ROUTE","ELIZABETH WANJOGU","THIKA"], "MUGUGA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "KISII - THIKA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "LANDLESS": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "NDITHINI": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "ITHANGA": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "NGOLIBA": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "OLDONYO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KILIMAMBOGO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MAKUYU": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KANGARI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAYOLE - THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUNUNGA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAMAHUHA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUTHITHI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KIRERE": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GACHOCHO": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MANANJA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KINYONA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GATUNDU": ["GATUNDU","NO FCRO","THIKA"], "JUJA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENYATTA ROAD": ["KENYATTA ROAD","NO FCRO","THIKA"], "GATUKUYU": ["JUJA ROUTE","NO FCRO","THIKA"], "GACHORORO": ["JUJA ROUTE","NO FCRO","THIKA"], "KAMWANGI": ["JUJA ROUTE","NO FCRO","THIKA"], "MANG'U - THIKA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENOL": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "WITEITHIE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "GITHUMU": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KANDARA": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KABATI - THIKA": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "GATURA": ["KENOL ROUTE","LINET MORAA","THIKA"], "GACHARAGE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"]
+  };
 
-  const AUTO_REFRESH_MS = 600000;//10 minutes
-  const DATA_LOOKBACK_DAYS = 365; // One API pull covers the client-side date filters.
+  let spOverrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
+  for (const k in spOverrides) {
+    if (masterTemplate[k]) {
+      masterTemplate[k][1] = spOverrides[k];
+    }
+  }
+
+  const AUTO_REFRESH_MS = 600000;
+  const DATA_LOOKBACK_DAYS = 365;
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
-  let currentSort = { key: "score", dir: "desc" };
+  let telesalesSort = { key: "score", dir: "desc" };
+  let routeSort = { key: "actual", dir: "desc" };
   let currentView = "telesales";
   let isLoading = false;
   let currentAbortCtrl = null;
 
-  let allRawData = [];
+  let telesalesRawData = [];
+  let routeRawData = [];
   let branchPerfData = [];
-  let filteredData = [];
-  let displayedData = [];
+  let telesalesFilteredData = [];
+  let routeFilteredData = [];
   let lastDataFetchAt = null;
-
-  /* ── Date helpers ────────────────────────────────────────── */
 
   function formatDate(d) {
     const yyyy = d.getFullYear();
@@ -1016,135 +646,66 @@
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }
-
   function parseDateKey(value) {
     if (!value) return null;
     const s = String(value);
     const match = s.match(/^(\d{4}-\d{2}-\d{2})/);
     return match ? match[1] : null;
   }
-
   function getRecordDate(record) {
-    return parseDateKey(
-      record.reportingDate ||
-      record.reportDate ||
-      record.salesDate ||
-      record.date ||
-      record.createdAt ||
-      record.updatedAt
-    );
+    return parseDateKey(record.reportingDate || record.reportDate || record.salesDate || record.date || record.createdAt || record.updatedAt);
   }
-
-  function getToday() {
-    return new Date();
-  }
-
+  function getToday() { return new Date(); }
   function getFetchRange() {
     const end = getToday();
     const start = new Date(end);
     start.setDate(start.getDate() - DATA_LOOKBACK_DAYS + 1);
-
-    return {
-      startDate: formatDate(start),
-      endDate: formatDate(end)
-    };
+    return { startDate: formatDate(start), endDate: formatDate(end) };
   }
-
   function getDateRange() {
     const preset = document.getElementById("dateSelect").value;
     const today = getToday();
     const endDate = formatDate(today);
-
     if (preset === "custom") {
       let startDate = document.getElementById("dateFrom").value || endDate;
       let customEnd = document.getElementById("dateTo").value || endDate;
-
-      if (startDate > customEnd) {
-        [startDate, customEnd] = [customEnd, startDate];
-      }
-
+      if (startDate > customEnd) { [startDate, customEnd] = [customEnd, startDate]; }
       return { startDate, endDate: customEnd };
     }
-
     if (preset === "yesterday") {
-      const d = new Date(today);
-      d.setDate(d.getDate() - 1);
+      const d = new Date(today); d.setDate(d.getDate() - 1);
       const day = formatDate(d);
       return { startDate: day, endDate: day };
     }
-
-    const daysMap = {
-      today: 1,
-      "7days": 7,
-      "30days": 30,
-      "90days": 90
-    };
-
+    const daysMap = { today: 1, "7days": 7, "30days": 30, "90days": 90 };
     const days = daysMap[preset] || 1;
     const start = new Date(today);
     start.setDate(start.getDate() - days + 1);
-
-    return {
-      startDate: formatDate(start),
-      endDate
-    };
+    return { startDate: formatDate(start), endDate };
   }
-
+  function getRangeDays(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) return 30;
+    return Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+  }
   function syncDateInputsFromPreset(preset) {
     const today = getToday();
     const todayStr = formatDate(today);
-    let fromStr = todayStr;
-    let toStr = todayStr;
-
+    let fromStr = todayStr, toStr = todayStr;
     switch (preset) {
-      case "today":
-        break;
-
-      case "yesterday": {
-        const y = new Date(today);
-        y.setDate(y.getDate() - 1);
-        fromStr = toStr = formatDate(y);
-        break;
-      }
-
-      case "7days": {
-        const d = new Date(today);
-        d.setDate(d.getDate() - 6);
-        fromStr = formatDate(d);
-        break;
-      }
-
-      case "30days": {
-        const d = new Date(today);
-        d.setDate(d.getDate() - 29);
-        fromStr = formatDate(d);
-        break;
-      }
-
-      case "90days": {
-        const d = new Date(today);
-        d.setDate(d.getDate() - 89);
-        fromStr = formatDate(d);
-        break;
-      }
-
-      case "custom":
-        return;
+      case "today": break;
+      case "yesterday": { const y = new Date(today); y.setDate(y.getDate() - 1); fromStr = toStr = formatDate(y); break; }
+      case "7days": { const d = new Date(today); d.setDate(d.getDate() - 6); fromStr = formatDate(d); break; }
+      case "30days": { const d = new Date(today); d.setDate(d.getDate() - 29); fromStr = formatDate(d); break; }
+      case "90days": { const d = new Date(today); d.setDate(d.getDate() - 89); fromStr = formatDate(d); break; }
+      case "custom": return;
     }
-
     document.getElementById("dateFrom").value = fromStr;
     document.getElementById("dateTo").value = toStr;
   }
-
-  function toggleCustomDateRange(show) {
-    document.getElementById("customDateRange").classList.toggle("visible", show);
-  }
-
-  function isDateInRange(dateKey, startDate, endDate) {
-    return !!dateKey && dateKey >= startDate && dateKey <= endDate;
-  }
-
-  /* ── Branch names ─────────────────────────────────────────── */
+  function toggleCustomDateRange(show) { document.getElementById("customDateRange").classList.toggle("visible", show); }
+  function isDateInRange(dateKey, startDate, endDate) { return !!dateKey && dateKey >= startDate && dateKey <= endDate; }
 
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
@@ -1178,17 +739,11 @@
   };
 
   const branchSelect = document.getElementById("branchSelect");
-
-  Object.entries(branchNames)
-    .sort((a, b) => a[1].localeCompare(b[1]))
-    .forEach(([id, name]) => {
-      const opt = document.createElement("option");
-      opt.value = id;
-      opt.textContent = name;
-      branchSelect.appendChild(opt);
-    });
-
-  /* ── Formatting ──────────────────────────────────────────── */
+  Object.entries(branchNames).sort((a, b) => a[1].localeCompare(b[1])).forEach(([id, name]) => {
+    const opt = document.createElement("option");
+    opt.value = id; opt.textContent = name;
+    branchSelect.appendChild(opt);
+  });
 
   function formatValue(num) {
     const n = Number(num) || 0;
@@ -1196,303 +751,157 @@
     if (n >= 1000) return (n / 1000).toFixed(1) + "K";
     return Math.round(n).toLocaleString();
   }
-
-  function formatCurrency(num) {
-    const n = Number(num) || 0;
-    if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
-    if (n >= 1000) return (n / 1000).toFixed(1) + "K";
-    return Math.round(n).toLocaleString();
-  }
-
-  function formatFullCurrency(num) {
-    return "KES " + Math.round(Number(num) || 0).toLocaleString();
-  }
-
+  function formatCurrency(num) { return formatValue(num); }
+  function formatFullCurrency(num) { return "KES " + Math.round(Number(num) || 0).toLocaleString(); }
   function toNumber(value) {
     if (value === null || value === undefined || value === "") return 0;
     if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-
-    const cleaned = String(value)
-      .replace(/,/g, "")
-      .replace(/%/g, "")
-      .trim();
-
+    const cleaned = String(value).replace(/,/g, "").replace(/%/g, "").trim();
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : 0;
   }
 
   function getSalesTarget(row) {
-    return toNumber(
-      row.dailySalesTarget ??
-      row.salesTarget ??
-      row.target ??
-      row.dailyTarget ??
-      row.targetSales
-    );
+    return toNumber(row.dailySalesTarget ?? row.salesTarget ?? row.target ?? row.dailyTarget ?? row.targetSales);
   }
+  function getMonthlyTarget(row) {
+    return toNumber(row.monthlySalesTarget ?? row.monthlyTarget ?? row.target ?? row.salesTarget ?? (row.dailySalesTarget ? row.dailySalesTarget * 30 : 0));
+  }
+  function getWeeklyTarget(row) { return toNumber(row.weeklySales ?? row.weeklyTarget ?? (getMonthlyTarget(row) / 4.33)); }
+  function getDailyTarget(row) { return toNumber(row.dailySalesTarget ?? row.dailyTarget ?? (getMonthlyTarget(row) / 30)); }
 
   function getNetSales(row) {
-    return toNumber(
-      row.netDailySales ??
-      row.netSales ??
-      row.dailyNetSales ??
-      row.branchNetSales
-    );
+    return toNumber(row.dailyNetSales ?? row.daysNetSales ?? row.netDailySales ?? row.dayNetSales ?? row.netSales ?? row.branchNetSales ?? row.routeNetSales);
   }
+  function getCustomerOrders(row) { return toNumber(row.totalDaysCustomers ?? row.dailyCustomers ?? row.customerOrders ?? row.totalCustomers); }
 
-  function getCustomerOrders(row) {
-    return toNumber(
-      row.totalDaysCustomers ??
-      row.dailyCustomers ??
-      row.customerOrders ??
-      row.totalCustomers
-    );
+  function normalizeRouteName(name) {
+    return String(name || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   }
-
-  function getBranchNameFromSalesRow(row) {
-    return String(
-      row.branchName ||
-      row.orgBranchName ||
-      branchNames[row.orgBranchId] ||
-      ""
-    ).trim();
+  function getRouteName(row) {
+    let name = String(row.routeName || row.route_name || row.name || row.route || row.routeCode || row.route_code || "").trim();
+    return name;
   }
-
-  function getBranchIdFromRow(row) {
-    return row.orgBranchId || row.branchId || "";
+  function getMainRoute(row) { return String(row.mainRoute || row.routeGroup || row.routeCategory || row.branchName || "").trim(); }
+  function getSalesPersonName(row) {
+    return String(row.salesPersonName || row.salespersonName || row.salesPerson || row.salesRepName || row.salesRep || row.repName || row.fcroName || row.fcro || row.FCRO || row.agentName || row.routeOwner || row.routeSalesPerson || row.salesAgent || row.userName || row.createdBy || row.user || row.rep || row.owner || "Unassigned").trim();
   }
-
+  function getBranchNameFromRow(row) { return String(row.branchName || row.orgBranchName || branchNames[row.orgBranchId] || "").trim(); }
+  function getBranchIdFromRow(row) { return row.orgBranchId || row.branchId || ""; }
   function getBranchIdByName(name) {
     const normalized = String(name || "").trim().toLowerCase();
-
     for (const [id, branchName] of Object.entries(branchNames)) {
       if (branchName.toLowerCase() === normalized) return id;
     }
-
     return "";
   }
 
-  /* ── Toast ───────────────────────────────────────────────── */
-
   let toastTimer = null;
-
   function showToast(msg, type) {
     const t = document.getElementById("toast");
     t.textContent = msg;
     t.className = "toast" + (type ? " toast-" + type : "");
     void t.offsetWidth;
     t.classList.add("show");
-
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove("show"), 4500);
   }
 
-  /* ── Abort / retry ───────────────────────────────────────── */
-
   function abortPreviousRequests() {
-    if (currentAbortCtrl) {
-      currentAbortCtrl.abort();
-      currentAbortCtrl = null;
-    }
-
+    if (currentAbortCtrl) { currentAbortCtrl.abort(); currentAbortCtrl = null; }
     currentAbortCtrl = new AbortController();
     return currentAbortCtrl.signal;
   }
-
   async function fetchWithRetry(url, options, maxRetries = 3) {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const response = await fetch(url, options);
-
         if (response.status === 409 && attempt < maxRetries) {
           const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-          showToast(
-            `Rate limited — retrying in ${Math.round(delay / 1000)}s...`,
-            "retry"
-          );
+          showToast(`Rate limited — retrying in ${Math.round(delay / 1000)}s...`, "retry");
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
-
-        if (!response.ok) {
-          throw new Error("HTTP " + response.status);
-        }
-
+        if (!response.ok) throw new Error("HTTP " + response.status);
         return await response.json();
-
       } catch (err) {
         if (err.name === "AbortError") throw err;
-
         if (attempt < maxRetries) {
           const delay = Math.pow(2, attempt) * 700 + Math.random() * 300;
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
-
         throw err;
       }
     }
   }
 
-  /* ── EXACTLY TWO API REQUESTS ────────────────────────────── */
-
   async function fetchSalesData(signal) {
     const { startDate, endDate } = getFetchRange();
+    const url = `${window.API_CONFIG.API_URL}sales-person-performance?pageSize=10000&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    const json = await fetchWithRetry(url, { signal, headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" } });
+    return Array.isArray(json) ? json : (json.data || []);
+  }
 
-    /*
-      No pageNum and no pagination loop.
-      The request intentionally does NOT contain orgBranchId.
-      Branch selection is handled entirely in the browser.
-    */
-    const url =
-      `${window.API_CONFIG.API_URL}sales-person-performance` +
-      `?pageSize=10000` +
-      `&startDate=${encodeURIComponent(startDate)}` +
-      `&endDate=${encodeURIComponent(endDate)}`;
-
-    console.log("[API 1/2] Sales:", url);
-
-    const json = await fetchWithRetry(url, {
-      signal,
-      headers: {
-        "Authorization": API_TOKEN,
-        "Content-Type": "application/json"
-      }
-    });
-
+  async function fetchRouteData(signal) {
+    const { startDate, endDate } = getFetchRange();
+    const url = `${window.API_CONFIG.API_URL}routewise-sales-performance-reports?pageSize=10000&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    const json = await fetchWithRetry(url, { signal, headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" } });
     return Array.isArray(json) ? json : (json.data || []);
   }
 
   async function fetchBranchPerformanceData(signal) {
     const { startDate, endDate } = getFetchRange();
-
-    const url =
-      `${window.API_CONFIG.API_URL}branch-sales-performance-reports` +
-      `?startDate=${encodeURIComponent(startDate)}` +
-      `&endDate=${encodeURIComponent(endDate)}` +
-      `&pageSize=10000`;
-
-    console.log("[API 2/2] Branch performance:", url);
-
-    const json = await fetchWithRetry(url, {
-      signal,
-      headers: {
-        "Authorization": API_TOKEN,
-        "Content-Type": "application/json"
-      }
-    });
-
+    const url = `${window.API_CONFIG.API_URL}branch-sales-performance-reports?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}&pageSize=10000`;
+    const json = await fetchWithRetry(url, { signal, headers: { "Authorization": API_TOKEN, "Content-Type": "application/json" } });
     return Array.isArray(json) ? json : (json.data || []);
   }
 
-  /* ── Loading state ───────────────────────────────────────── */
-
   function setLoadingState(loading) {
     isLoading = loading;
-
     const overlay = document.getElementById("headerLoading");
     const dateSelect = document.getElementById("dateSelect");
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
     const branchSel = document.getElementById("branchSelect");
-
-    /*
-      During the two API calls we lock the controls.
-      Once data is loaded, filters are unlocked and changing them
-      does NOT make another API request.
-    */
     if (loading) {
       overlay.classList.add("active");
-      dateSelect.disabled = true;
-      dateFrom.disabled = true;
-      dateTo.disabled = true;
-      branchSel.disabled = true;
+      dateSelect.disabled = true; dateFrom.disabled = true; dateTo.disabled = true; branchSel.disabled = true;
     } else {
       overlay.classList.remove("active");
-      dateSelect.disabled = false;
-      dateFrom.disabled = false;
-      dateTo.disabled = false;
-      branchSel.disabled = false;
+      dateSelect.disabled = false; dateFrom.disabled = false; dateTo.disabled = false; branchSel.disabled = false;
     }
   }
-
   function showTableLoading() {
-    document.getElementById("tableBody").innerHTML = `
-      <tr class="loading-row">
-        <td colspan="7">
-          <span class="loading-spinner"></span>
-          Loading sales data...
-        </td>
-      </tr>`;
+    document.getElementById("ts_tableBody").innerHTML = `<tr class="loading-row"><td colspan="7"><span class="loading-spinner"></span> Loading sales data...</td></tr>`;
+    document.getElementById("rw_tableBody").innerHTML = `<tr class="loading-row"><td colspan="9"><span class="loading-spinner"></span> Loading route data...</td></tr>`;
   }
-
-  /* ── Client-side range aggregation ───────────────────────── */
 
   function aggregateSalesPeople(startDate, endDate, selectedBranchId) {
     const groups = new Map();
-
-    for (const row of allRawData) {
+    for (const row of telesalesRawData) {
       const rowDate = getRecordDate(row);
-
       if (!isDateInRange(rowDate, startDate, endDate)) continue;
 
       const branchId = getBranchIdFromRow(row);
-      const branchName = getBranchNameFromSalesRow(row);
+      const branchName = getBranchNameFromRow(row);
 
       if (selectedBranchId) {
-        /*
-          Prefer the actual orgBranchId from the API.
-          If the API row does not contain it, fall back to branch name.
-        */
         const selectedName = branchNames[selectedBranchId] || "";
-
-        if (
-          branchId &&
-          branchId !== selectedBranchId &&
-          branchName.toLowerCase() !== selectedName.toLowerCase()
-        ) {
-          continue;
-        }
-
-        if (
-          !branchId &&
-          branchName.toLowerCase() !== selectedName.toLowerCase()
-        ) {
-          continue;
-        }
+        if (branchId && branchId !== selectedBranchId && branchName.toLowerCase() !== selectedName.toLowerCase()) continue;
+        if (!branchId && branchName.toLowerCase() !== selectedName.toLowerCase()) continue;
       }
 
-      const name = String(
-        row.salesPersonName ||
-        row.salespersonName ||
-        row.salesPerson ||
-        row.name ||
-        ""
-      ).trim();
-
+      const name = String(row.salesPersonName || row.salespersonName || row.salesPerson || row.name || "").trim();
       if (!name) continue;
 
       const key = `${name.toLowerCase()}||${branchName.toLowerCase()}`;
 
       if (!groups.has(key)) {
-        groups.set(key, {
-          salesPersonName: name,
-          branchName,
-          orgBranchId: branchId || getBranchIdByName(branchName),
-          netValue: 0,
-          target: 0,
-          orders: 0,
-          days: 0
-        });
+        groups.set(key, { salesPersonName: name, branchName, orgBranchId: branchId || getBranchIdByName(branchName), netValue: 0, target: 0, orders: 0, days: 0 });
       }
 
       const g = groups.get(key);
-
-      /*
-        CRITICAL:
-        We ADD the daily sales and daily target.
-        We do NOT use the highest dailySalesScore.
-      */
       g.netValue += getNetSales(row);
       g.target += getSalesTarget(row);
       g.orders += getCustomerOrders(row);
@@ -1500,214 +909,276 @@
     }
 
     return [...groups.values()]
-      .map(g => ({
-        ...g,
-        score: g.target > 0 ? (g.netValue / g.target) * 100 : 0,
-        totalDaysCustomers: g.orders
-      }))
+      .map(g => ({ ...g, score: g.target > 0 ? (g.netValue / g.target) * 100 : 0, totalDaysCustomers: g.orders }))
       .filter(g => g.score > 0);
   }
 
-  function aggregateBranches(startDate, endDate) {
-    // Build one record per branch/day. The branch API is preferred;
-    // missing branch/day records are recovered from the cached sales API.
-    const daily = new Map();
+  function aggregateRoutes(startDate, endDate, selectedBranchId) {
+    const groups = new Map();
+    const rangeDays = getRangeDays(startDate, endDate);
+    const lastKnownMonthlyTargets = {};
 
-    function addDaily(name, date, target, netSales) {
+    for (const [tplRoute, tplData] of Object.entries(masterTemplate)) {
+      const [tplMain, tplSP, tplBranch] = tplData;
+      let branchId = getBranchIdByName(tplBranch);
+
+      if (selectedBranchId) {
+        const selectedName = branchNames[selectedBranchId] || "";
+        if (tplBranch.toLowerCase() !== selectedName.toLowerCase()) continue;
+      }
+
+      const key = `${tplBranch.toLowerCase()}||${tplSP.toLowerCase()}||${tplRoute.toLowerCase()}`;
+      groups.set(key, {
+        branchName: tplBranch, salesPersonName: tplSP, routeName: tplRoute, mainRoute: tplMain,
+        orgBranchId: branchId, monthlyTarget: 0, weeklyTarget: 0, dailyTarget: 0, netValue: 0, orders: 0, days: 0
+      });
+    }
+
+    for (const row of routeRawData) {
+      const rowDate = getRecordDate(row);
+      if (!isDateInRange(rowDate, startDate, endDate)) continue;
+
+      let branchId = getBranchIdFromRow(row);
+      let branchName = getBranchNameFromRow(row);
+
+      if (selectedBranchId) {
+        const selectedName = branchNames[selectedBranchId] || "";
+        if (branchId && branchId !== selectedBranchId && branchName.toLowerCase() !== selectedName.toLowerCase()) continue;
+        if (!branchId && branchName.toLowerCase() !== selectedName.toLowerCase()) continue;
+      }
+
+      let routeName = getRouteName(row);
+      if (!routeName) continue;
+
+      let salesPersonName = getSalesPersonName(row);
+      let mainRoute = getMainRoute(row);
+
+      const routeKey = normalizeRouteName(routeName);
+      const templateKeys = Object.keys(masterTemplate);
+      let matchKey = templateKeys.find(k => normalizeRouteName(k) === routeKey);
+
+      if (!matchKey) {
+        const strippedName = routeKey.replace(/HQ$|HEADOFFICE$|PHILTON$|KENDIA$|BRANCH$/g, "");
+        matchKey = templateKeys.find(k => {
+          const strippedK = normalizeRouteName(k).replace(/HQ$|HEADOFFICE$|PHILTON$|KENDIA$|BRANCH$/g, "");
+          return strippedK === strippedName || strippedK.includes(strippedName) || strippedName.includes(strippedK);
+        });
+      }
+
+      if (matchKey) {
+        const template = masterTemplate[matchKey];
+        salesPersonName = template[1];
+        mainRoute = template[0];
+        branchName = template[2];
+        routeName = matchKey;
+      }
+
+      const mTarget = getMonthlyTarget(row);
+      if (mTarget > 0) lastKnownMonthlyTargets[normalizeRouteName(routeName)] = mTarget;
+
+      const key = `${branchName.toLowerCase()}||${salesPersonName.toLowerCase()}||${routeName.toLowerCase()}`;
+
+      if (!groups.has(key)) {
+        groups.set(key, { branchName, salesPersonName, routeName, mainRoute, orgBranchId: branchId || getBranchIdByName(branchName), monthlyTarget: 0, weeklyTarget: 0, dailyTarget: 0, netValue: 0, orders: 0, days: 0 });
+      }
+
+      const g = groups.get(key);
+      g.monthlyTarget = mTarget > 0 ? mTarget : g.monthlyTarget;
+      g.weeklyTarget = getWeeklyTarget(row) > 0 ? getWeeklyTarget(row) : g.weeklyTarget;
+      g.dailyTarget = getDailyTarget(row) > 0 ? getDailyTarget(row) : g.dailyTarget;
+      g.netValue += getNetSales(row);
+      g.orders += getCustomerOrders(row);
+      g.days += 1;
+    }
+
+    return [...groups.values()].map(g => {
+      const routeKey = normalizeRouteName(g.routeName);
+      const effectiveMonthlyTarget = g.monthlyTarget || lastKnownMonthlyTargets[routeKey] || 0;
+      const effectiveWeeklyTarget = effectiveMonthlyTarget / 4.33;
+      const effectiveDailyTarget = effectiveMonthlyTarget / 30;
+      const rangeTarget = effectiveMonthlyTarget * (rangeDays / 30);
+      return { ...g, monthlyTarget: effectiveMonthlyTarget, weeklyTarget: effectiveWeeklyTarget, dailyTarget: effectiveDailyTarget, rangeTarget: rangeTarget, score: rangeTarget > 0 ? (g.netValue / rangeTarget) * 100 : 0, totalDaysCustomers: g.orders };
+    });
+  }
+
+  function aggregateBranches(startDate, endDate) {
+    const daily = new Map();
+    const rangeDays = getRangeDays(startDate, endDate);
+    const branchMonthlyTargets = {};
+
+    function addDaily(name, date, monthlyTarget, netSales) {
       if (!name || !date) return;
       const key = `${name.toLowerCase().trim()}||${date}`;
-      if (!daily.has(key)) daily.set(key, { name, date, target: 0, netSales: 0 });
+      if (!daily.has(key)) daily.set(key, { name, date, monthlyTarget: 0, netSales: 0 });
       const d = daily.get(key);
-      d.target = Number(target) || d.target;
+      d.monthlyTarget = Number(monthlyTarget) || d.monthlyTarget;
       d.netSales += Number(netSales) || 0;
     }
 
-    // Branch endpoint records.
     for (const row of branchPerfData) {
       const date = getRecordDate(row);
       if (!isDateInRange(date, startDate, endDate)) continue;
       const name = String(row.orgBranchName || row.branchName || branchNames[row.orgBranchId] || '').trim();
       if (!name) continue;
-      addDaily(name, date, row.dailySalesTarget ?? row.target ?? row.branchTarget ?? row.salesTarget, getNetSales(row));
+      const mTarget = getMonthlyTarget(row);
+      if (mTarget > 0) branchMonthlyTargets[name.toLowerCase().trim()] = mTarget;
+      addDaily(name, date, mTarget, getNetSales(row));
     }
 
-    // Sales-cache fallback for branch/day combinations missing above.
-    const salesDaily = new Map();
-    for (const row of allRawData) {
+    const routeDaily = new Map();
+    for (const row of routeRawData) {
       const date = getRecordDate(row);
       if (!isDateInRange(date, startDate, endDate)) continue;
-      const name = getBranchNameFromSalesRow(row);
+      const name = getBranchNameFromRow(row);
       if (!name) continue;
+      const mTarget = getMonthlyTarget(row);
+      if (mTarget > 0) branchMonthlyTargets[name.toLowerCase().trim()] = mTarget;
+
       const key = `${name.toLowerCase().trim()}||${date}`;
-      if (!salesDaily.has(key)) salesDaily.set(key, { name, date, target: getSalesTarget(row), netSales: 0 });
-      const d = salesDaily.get(key);
+      if (!routeDaily.has(key)) routeDaily.set(key, { name, date, monthlyTarget: mTarget, netSales: 0 });
+      const d = routeDaily.get(key);
       d.netSales += getNetSales(row);
-      if (!d.target) d.target = getSalesTarget(row);
+      if (!d.monthlyTarget) d.monthlyTarget = mTarget;
     }
-    for (const [key, d] of salesDaily) {
-      if (!daily.has(key)) addDaily(d.name, d.date, d.target, d.netSales);
+    for (const [key, d] of routeDaily) {
+      if (!daily.has(key)) addDaily(d.name, d.date, d.monthlyTarget, d.netSales);
     }
 
     const groups = new Map();
-    for (const d of daily.values()) {
-      const key = d.name.toLowerCase().trim();
-      if (!groups.has(key)) groups.set(key, { name: d.name, target: 0, netSales: 0, days: 0, hasData: true });
-      const g = groups.get(key);
-      g.target += d.target;
-      g.netSales += d.netSales;
-      g.days += 1;
+    for (const name of Object.values(branchNames)) {
+      const key = name.toLowerCase().trim();
+      if (!groups.has(key)) groups.set(key, { name: name, monthlyTarget: 0, netSales: 0, days: 0, hasData: false });
     }
 
-    return [...groups.values()].map(b => ({
-      ...b,
-      pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0
-    }));
+    for (const d of daily.values()) {
+      const key = d.name.toLowerCase().trim();
+      if (!groups.has(key)) groups.set(key, { name: d.name, monthlyTarget: 0, netSales: 0, days: 0, hasData: false });
+      const g = groups.get(key);
+      g.monthlyTarget = Math.max(g.monthlyTarget, d.monthlyTarget);
+      g.netSales += d.netSales;
+      g.days += 1;
+      g.hasData = true;
+    }
+
+    return [...groups.values()].map(b => {
+      const effectiveMonthlyTarget = b.monthlyTarget || branchMonthlyTargets[b.name.toLowerCase().trim()] || 0;
+      const rangeTarget = effectiveMonthlyTarget * (rangeDays / 30);
+      return { ...b, monthlyTarget: effectiveMonthlyTarget, target: rangeTarget, pct: rangeTarget > 0 ? (b.netSales / rangeTarget) * 100 : 0 };
+    });
   }
-
-  /* ── Branch performance lookup ──────────────────────────── */
-
-  function getBranchPerfByName(branchName, startDate, endDate) {
-    const branches = aggregateBranches(startDate, endDate);
-    const normalized = String(branchName || "").toLowerCase().trim();
-
-    return branches.find(
-      b => b.name.toLowerCase().trim() === normalized
-    ) || null;
-  }
-
-  /* ── Main two-request refresh ───────────────────────────── */
 
   async function loadAllData() {
     if (isLoading) return;
-
     const signal = abortPreviousRequests();
     setLoadingState(true);
     showTableLoading();
 
     try {
-      /*
-        ONLY TWO fetches.
-        They run simultaneously.
-        No pagination. No branch-specific API call.
-      */
-      const [salesData, branchData] = await Promise.all([
+      const [salesData, routeData, branchData] = await Promise.all([
         fetchSalesData(signal),
+        fetchRouteData(signal),
         fetchBranchPerformanceData(signal)
       ]);
 
       if (signal.aborted) return;
 
-      allRawData = salesData;
+      telesalesRawData = salesData;
+      routeRawData = routeData;
       branchPerfData = branchData;
       lastDataFetchAt = new Date();
 
-      console.log(
-        `%c[DATA CACHE] Sales rows: ${allRawData.length} | Branch rows: ${branchPerfData.length}`,
-        "color:#22c55e;font-weight:bold"
-      );
-
-      processAndRender();
-
-      if (currentView === "branches") {
-        renderBranchView();
-      }
-
-      document.getElementById("lastUpdated").textContent =
-        lastDataFetchAt.toLocaleTimeString();
+      processAndRenderCurrentView();
+      document.getElementById("lastUpdated").textContent = lastDataFetchAt.toLocaleTimeString();
 
     } catch (err) {
-      if (err.name === "AbortError") {
-        console.log("[Request Aborted]");
-        return;
-      }
-
+      if (err.name === "AbortError") return;
       console.error(err);
       showToast("Failed to load data: " + err.message, "warn");
-
-      document.getElementById("tableBody").innerHTML =
-        `<tr class="no-data-row">
-          <td colspan="7">Failed to load data. Please try again.</td>
-        </tr>`;
-
+      document.getElementById("ts_tableBody").innerHTML = `<tr class="no-data-row"><td colspan="7">Failed to load data. Please try again.</td></tr>`;
+      document.getElementById("rw_tableBody").innerHTML = `<tr class="no-data-row"><td colspan="9">Failed to load data. Please try again.</td></tr>`;
     } finally {
-      if (!signal.aborted) {
-        setLoadingState(false);
-      }
+      if (!signal.aborted) setLoadingState(false);
     }
   }
 
-  /* ── View switching ─────────────────────────────────────── */
-
   function switchView(view) {
     currentView = view;
-
     const tv = document.getElementById("telesalesView");
+    const rv = document.getElementById("routeView");
     const bv = document.getElementById("branchView");
     const bt = document.getElementById("btnTelesales");
     const bb = document.getElementById("btnBranches");
+    const br = document.getElementById("btnRoutes");
     const bsw = document.getElementById("branchSelectorWrap");
     const ht = document.getElementById("headerTitle");
     const hs = document.getElementById("headerSubtitle");
 
+    tv.style.display = "none"; rv.style.display = "none"; bv.style.display = "none";
+    bt.classList.remove("active"); bb.classList.remove("active"); br.classList.remove("active");
+
     if (view === "branches") {
-      tv.style.display = "none";
-      bv.style.display = "flex";
-      bt.classList.remove("active");
-      bb.classList.add("active");
-      bsw.style.display = "none";
-      ht.textContent = "Branch Performance Dashboard";
-      hs.textContent = "All Branches — Real-time Performance Monitoring";
+      bv.style.display = "flex"; bb.classList.add("active"); bsw.style.display = "none";
+      ht.textContent = "Branch Performance Dashboard"; hs.textContent = "All Branches — Real-time Performance Monitoring";
       renderBranchView();
+    } else if (view === "routes") {
+      rv.style.display = "flex"; br.classList.add("active"); bsw.style.display = "";
+      ht.textContent = "Routewise Performance Dashboard"; hs.textContent = "Management Overview — Master Template Clustering";
+      processRoutes();
     } else {
-      tv.style.display = "flex";
-      bv.style.display = "none";
-      bt.classList.add("active");
-      bb.classList.remove("active");
-      bsw.style.display = "";
-      ht.textContent = "Telesales Performance Dashboard";
-      hs.textContent = "Management Overview — Real-time Sales Tracking";
-      processAndRender();
+      tv.style.display = "flex"; bt.classList.add("active"); bsw.style.display = "";
+      ht.textContent = "Telesales Performance Dashboard"; hs.textContent = "Management Overview — Real-time Sales Tracking";
+      processTelesales();
     }
+    updateSortHeaders();
   }
 
-  /* ── Branch view ─────────────────────────────────────────── */
+  function processAndRenderCurrentView() {
+    if (currentView === "telesales") processTelesales();
+    else if (currentView === "routes") processRoutes();
+    else if (currentView === "branches") renderBranchView();
+  }
+
+  function updateColumnHeaders() {
+    const preset = document.getElementById("dateSelect").value;
+    const targetLabel = document.getElementById("rw_thTargetLabel");
+    if (!targetLabel) return;
+    let text = "RANGE TARGET";
+    if (preset === "today" || preset === "yesterday") text = "DAILY TARGET";
+    else if (preset === "7days") text = "WEEKLY TARGET";
+    else if (preset === "30days") text = "MONTHLY TARGET";
+    else if (preset === "90days") text = "QUARTERLY TARGET";
+    targetLabel.textContent = text;
+  }
 
   function renderBranchView() {
-    if (!branchPerfData.length) {
-      document.getElementById("branchGrid").innerHTML =
-        '<div class="no-branch-data">No branch data available</div>';
+    if (!branchPerfData.length && !routeRawData.length) {
+      document.getElementById("branchGrid").innerHTML = '<div class="no-branch-data">No branch data available</div>';
       return;
     }
 
     const { startDate, endDate } = getDateRange();
     const aggregated = aggregateBranches(startDate, endDate);
+    const byName = new Map(aggregated.map(b => [b.name.toLowerCase().trim(), b]));
 
-    const byName = new Map(
-      aggregated.map(b => [b.name.toLowerCase().trim(), b])
-    );
+    const allRoutes = aggregateRoutes(startDate, endDate, "");
+    const routesByBranch = new Map();
+    for (const r of allRoutes) {
+      const key = r.branchName.toLowerCase().trim();
+      if (!routesByBranch.has(key)) routesByBranch.set(key, { total: 0, onTrack: 0 });
+      const rb = routesByBranch.get(key);
+      rb.total += 1;
+      if (r.score >= 80) rb.onTrack += 1;
+    }
 
     const branches = [];
-
     for (const id in branchNames) {
       const name = branchNames[id];
       const entry = byName.get(name.toLowerCase().trim());
-
+      const routeInfo = routesByBranch.get(name.toLowerCase().trim()) || { total: 0, onTrack: 0 };
       if (entry) {
-        branches.push({
-          name,
-          target: entry.target,
-          netSales: entry.netSales,
-          pct: entry.pct,
-          hasData: true
-        });
+        branches.push({ name, target: entry.target, netSales: entry.netSales, pct: entry.pct, hasData: entry.hasData, routeTotal: routeInfo.total, routeOnTrack: routeInfo.onTrack });
       } else {
-        branches.push({
-          name,
-          target: 0,
-          netSales: 0,
-          pct: 0,
-          hasData: false
-        });
+        branches.push({ name, target: 0, netSales: 0, pct: 0, hasData: false, routeTotal: 0, routeOnTrack: 0 });
       }
     }
 
@@ -1723,307 +1194,225 @@
     const totalTarget = withData.reduce((s, b) => s + b.target, 0);
     const overallPct = totalTarget > 0 ? (totalNet / totalTarget) * 100 : 0;
 
-    const onTrack = withData.filter(b => b.pct >= 80).length;
-    const atRisk = withData.filter(b => b.pct < 80).length;
+    const totalRoutes = allRoutes.length;
+    const routesOnTrack = allRoutes.filter(r => r.score >= 80).length;
+    const routesBelow = allRoutes.filter(r => r.score < 80).length;
 
-    const overallClass =
-      overallPct >= 80 ? "perf-high" :
-      overallPct >= 50 ? "perf-medium" :
-      "perf-low";
+    const overallClass = overallPct >= 80 ? "perf-high" : overallPct >= 50 ? "perf-medium" : "perf-low";
 
-    document.getElementById("bsOverallPct").textContent =
-      overallPct.toFixed(1) + "%";
-    document.getElementById("bsOverallPct").className =
-      "stat-value " + overallClass;
-
-    document.getElementById("bsTotalSales").textContent =
-      "KES " + formatCurrency(totalNet);
-
-    document.getElementById("bsOnTrack").textContent = onTrack;
-    document.getElementById("bsOnTrackSub").textContent =
-      `of ${withData.length} branches at 80%+`;
-
-    document.getElementById("bsAtRisk").textContent = atRisk;
-    document.getElementById("bsAtRiskSub").textContent =
-      `of ${withData.length} branches below 80%`;
+    document.getElementById("bsOverallPct").textContent = overallPct.toFixed(1) + "%";
+    document.getElementById("bsOverallPct").className = "stat-value " + overallClass;
+    document.getElementById("bsTotalSales").textContent = "KES " + formatCurrency(totalNet);
+    document.getElementById("bsOnTrack").textContent = routesOnTrack;
+    document.getElementById("bsOnTrackSub").textContent = `of ${totalRoutes} routes at 80%+`;
+    document.getElementById("bsAtRisk").textContent = routesBelow;
+    document.getElementById("bsAtRiskSub").textContent = `of ${totalRoutes} routes below 80%`;
 
     let html = "";
-
     branches.forEach(b => {
-      const tier =
-        !b.hasData ? "none" :
-        b.pct >= 80 ? "high" :
-        b.pct >= 50 ? "medium" :
-        "low";
-
-      const barWidth =
-        b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
+      const tier = !b.hasData ? "none" : b.pct >= 80 ? "high" : b.pct >= 50 ? "medium" : "low";
+      const barWidth = b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
+      const routeInfoHTML = b.hasData && b.routeTotal > 0 ? `<div class="b-card-routes">${b.routeTotal} routes · ${b.routeOnTrack} on track</div>` : "";
 
       html += `
         <div class="b-card tier-${tier}" data-name="${b.name.toLowerCase()}">
           <div class="b-card-name">${b.name}</div>
-          <div class="b-card-pct ${b.hasData ? "perf-" + tier : ""}">
-            ${b.hasData ? b.pct.toFixed(1) + "%" : "—"}
-          </div>
-          <div class="b-card-detail">
-            ${b.hasData
-              ? formatFullCurrency(b.netSales) + " of " + formatFullCurrency(b.target)
-              : "No data available"}
-          </div>
-          <div class="b-card-bar">
-            <div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div>
-          </div>
+          <div class="b-card-pct ${b.hasData ? "perf-" + tier : ""}">${b.hasData ? b.pct.toFixed(1) + "%" : "—"}</div>
+          ${routeInfoHTML}
+          <div class="b-card-detail">${b.hasData ? formatFullCurrency(b.netSales) + " of " + formatFullCurrency(b.target) : "No data available"}</div>
+          <div class="b-card-bar"><div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div></div>
         </div>
       `;
     });
 
     document.getElementById("branchGrid").innerHTML = html;
-    document.getElementById("branchCount").textContent =
-      withData.length + " branches";
+    document.getElementById("branchCount").textContent = withData.length + " branches";
   }
 
   document.getElementById("branchSearchBox").addEventListener("input", e => {
     const q = e.target.value.toLowerCase().trim();
-
     document.querySelectorAll(".b-card").forEach(card => {
       const name = card.dataset.name;
-      card.classList.toggle(
-        "hidden",
-        q.length > 0 && !name.includes(q)
-      );
+      card.classList.toggle("hidden", q.length > 0 && !name.includes(q));
     });
   });
 
-  /* ── Telesales processing ───────────────────────────────── */
-
-  function processAndRender() {
+  function processTelesales() {
     const { startDate, endDate } = getDateRange();
     const selectedBranch = branchSelect.value;
-    const selectedBranchName = selectedBranch
-      ? (branchNames[selectedBranch] || "")
-      : "";
+    const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
 
-    const processed = aggregateSalesPeople(
-      startDate,
-      endDate,
-      selectedBranch
-    );
-
+    const processed = aggregateSalesPeople(startDate, endDate, selectedBranch);
     processed.sort((a, b) => b.score - a.score);
 
-    const totalOrders = processed.reduce(
-      (s, r) => s + Number(r.totalDaysCustomers || 0),
-      0
-    );
-
+    const totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
     const activeCount = processed.length;
 
-    /*
-      Branch summary also uses SUM(net sales) / SUM(target)
-      over the selected dates.
-    */
-    const selectedBranches = selectedBranch
-      ? [selectedBranchName]
-      : Object.values(branchNames);
-
+    const selectedBranches = selectedBranch ? [selectedBranchName] : Object.values(branchNames);
     const branchAggregated = aggregateBranches(startDate, endDate);
+    const selectedBranchSet = new Set(selectedBranches.map(n => n.toLowerCase().trim()));
+    const relevantBranches = branchAggregated.filter(b => selectedBranchSet.has(b.name.toLowerCase().trim()));
 
-    const selectedBranchSet = new Set(
-      selectedBranches.map(n => n.toLowerCase().trim())
-    );
-
-    const relevantBranches = branchAggregated.filter(b =>
-      selectedBranchSet.has(b.name.toLowerCase().trim())
-    );
-
-    const branchTarget = relevantBranches.reduce(
-      (s, b) => s + b.target, 0
-    );
-
-    const branchNetSales = relevantBranches.reduce(
-      (s, b) => s + b.netSales, 0
-    );
-
-    const branchPerfPct =
-      branchTarget > 0
-        ? (branchNetSales / branchTarget) * 100
-        : 0;
+    const branchTarget = relevantBranches.reduce((s, b) => s + b.target, 0);
+    const branchNetSales = relevantBranches.reduce((s, b) => s + b.netSales, 0);
+    const branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
 
     const deficit = branchTarget - branchNetSales;
     const eightyPctTarget = branchTarget * 0.8;
     const deficitBelow80 = eightyPctTarget - branchNetSales;
 
-    document.getElementById("statOrders").textContent =
-      totalOrders.toLocaleString();
+    document.getElementById("ts_statOrders").textContent = totalOrders.toLocaleString();
+    document.getElementById("ts_statOrdersSub").textContent = selectedBranch ? `from ${selectedBranchName}` : "across all branches";
+    document.getElementById("ts_statActive").textContent = activeCount;
+    document.getElementById("ts_statActiveSub").textContent = selectedBranch ? `in ${selectedBranchName}` : "across all branches";
 
-    document.getElementById("statOrdersSub").textContent =
-      selectedBranch
-        ? `from ${selectedBranchName}`
-        : "across all branches";
-
-    document.getElementById("statActive").textContent = activeCount;
-
-    document.getElementById("statActiveSub").textContent =
-      selectedBranch
-        ? `in ${selectedBranchName}`
-        : "across all branches";
-
-    const deficitEl = document.getElementById("statDeficit");
-    const deficitLabelEl = document.getElementById("deficitLabel");
-    const deficitSubEl = document.getElementById("statDeficitSub");
+    const deficitEl = document.getElementById("ts_statDeficit");
+    const deficitLabelEl = document.getElementById("ts_deficitLabel");
+    const deficitSubEl = document.getElementById("ts_statDeficitSub");
 
     if (deficitBelow80 > 0) {
       deficitLabelEl.textContent = "Deficit Below 80%";
       deficitEl.className = "stat-value perf-low";
-      deficitEl.textContent =
-        "KES " + formatCurrency(deficitBelow80);
-      deficitSubEl.textContent =
-        `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
+      deficitEl.textContent = "KES " + formatCurrency(deficitBelow80);
+      deficitSubEl.textContent = `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
     } else {
       deficitLabelEl.textContent = "Above 80% Target";
       deficitEl.className = "stat-value perf-high";
-      deficitEl.textContent =
-        "KES " + formatCurrency(Math.abs(deficitBelow80));
+      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficitBelow80));
       deficitSubEl.textContent = "minimum threshold met";
     }
 
-    const perfClass =
-      branchPerfPct >= 80 ? "perf-high" :
-      branchPerfPct >= 50 ? "perf-medium" :
-      "perf-low";
-
-    const perfEl = document.getElementById("branchPerfValue");
+    const perfClass = branchPerfPct >= 80 ? "perf-high" : branchPerfPct >= 50 ? "perf-medium" : "perf-low";
+    const perfEl = document.getElementById("ts_branchPerfValue");
     perfEl.textContent = branchPerfPct.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
-    let detailHTML =
-      `${formatFullCurrency(branchNetSales)} of ` +
-      `${formatFullCurrency(branchTarget)} target<br>`;
+    let detailHTML = `${formatFullCurrency(branchNetSales)} of ${formatFullCurrency(branchTarget)} target<br>`;
+    if (deficit > 0) detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+    else if (deficit < 0) detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
+    else detailHTML += `<span class="surplus">Exactly on target</span>`;
+    document.getElementById("ts_branchPerfDetail").innerHTML = detailHTML;
 
-    if (deficit > 0) {
-      detailHTML +=
-        `Deficit on 100%: <span class="deficit">` +
-        `${formatFullCurrency(deficit)}</span>`;
-    } else if (deficit < 0) {
-      detailHTML +=
-        `Surplus: <span class="surplus">` +
-        `${formatFullCurrency(Math.abs(deficit))}</span>`;
-    } else {
-      detailHTML += `<span class="surplus">Exactly on target</span>`;
-    }
-
-    document.getElementById("branchPerfDetail").innerHTML = detailHTML;
-
-    const bar = document.getElementById("branchPerfBar");
+    const bar = document.getElementById("ts_branchPerfBar");
     const barPct = Math.min(branchPerfPct, 100);
-
     bar.style.width = barPct + "%";
-    bar.style.background =
-      branchPerfPct >= 80
-        ? "linear-gradient(90deg, #16a34a, #22c55e)"
-        : branchPerfPct >= 50
-          ? "linear-gradient(90deg, #ca8a04, #facc15)"
-          : "linear-gradient(90deg, #dc2626, #ef4444)";
+    bar.style.background = branchPerfPct >= 80 ? "linear-gradient(90deg, #16a34a, #22c55e)" : branchPerfPct >= 50 ? "linear-gradient(90deg, #ca8a04, #facc15)" : "linear-gradient(90deg, #dc2626, #ef4444)";
+    document.getElementById("ts_marker50").className = branchPerfPct < 50 ? "active-marker" : "";
 
-    document.getElementById("marker50").className =
-      branchPerfPct < 50 ? "active-marker" : "";
-
-    filteredData = processed;
-    applySearchAndSort();
+    telesalesFilteredData = processed;
+    applyTelesalesSearchAndSort();
   }
 
-  /* ── Telesales sorting ───────────────────────────────────── */
+  function processRoutes() {
+    updateColumnHeaders();
+    const { startDate, endDate } = getDateRange();
+    const selectedBranch = branchSelect.value;
+    const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
 
-  function getSortValue(item, key) {
+    const processed = aggregateRoutes(startDate, endDate, selectedBranch);
+
+    const totalOrders = processed.reduce((s, r) => s + Number(r.totalDaysCustomers || 0), 0);
+    const activeCount = processed.length;
+
+    const selectedBranches = selectedBranch ? [selectedBranchName] : Object.values(branchNames);
+    const branchAggregated = aggregateBranches(startDate, endDate);
+    const selectedBranchSet = new Set(selectedBranches.map(n => n.toLowerCase().trim()));
+    const relevantBranches = branchAggregated.filter(b => selectedBranchSet.has(b.name.toLowerCase().trim()));
+
+    const branchTarget = relevantBranches.reduce((s, b) => s + b.target, 0);
+    const branchNetSales = relevantBranches.reduce((s, b) => s + b.netSales, 0);
+    const branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
+
+    const deficit = branchTarget - branchNetSales;
+    const eightyPctTarget = branchTarget * 0.8;
+    const deficitBelow80 = eightyPctTarget - branchNetSales;
+
+    document.getElementById("rw_statOrders").textContent = totalOrders.toLocaleString();
+    document.getElementById("rw_statOrdersSub").textContent = selectedBranch ? `from ${selectedBranchName}` : "across all routes";
+    document.getElementById("rw_statActive").textContent = activeCount;
+    document.getElementById("rw_statActiveSub").textContent = selectedBranch ? `in ${selectedBranchName}` : "including zero sales";
+
+    const deficitEl = document.getElementById("rw_statDeficit");
+    const deficitLabelEl = document.getElementById("rw_deficitLabel");
+    const deficitSubEl = document.getElementById("rw_statDeficitSub");
+
+    if (deficitBelow80 > 0) {
+      deficitLabelEl.textContent = "Deficit Below 80%";
+      deficitEl.className = "stat-value perf-low";
+      deficitEl.textContent = "KES " + formatCurrency(deficitBelow80);
+      deficitSubEl.textContent = `to reach ${formatFullCurrency(eightyPctTarget)} (80% target)`;
+    } else {
+      deficitLabelEl.textContent = "Above 80% Target";
+      deficitEl.className = "stat-value perf-high";
+      deficitEl.textContent = "KES " + formatCurrency(Math.abs(deficitBelow80));
+      deficitSubEl.textContent = "minimum threshold met";
+    }
+
+    const perfClass = branchPerfPct >= 80 ? "perf-high" : branchPerfPct >= 50 ? "perf-medium" : "perf-low";
+    const perfEl = document.getElementById("rw_branchPerfValue");
+    perfEl.textContent = branchPerfPct.toFixed(1) + "%";
+    perfEl.className = "value " + perfClass;
+
+    let detailHTML = `${formatFullCurrency(branchNetSales)} of ${formatFullCurrency(branchTarget)} target<br>`;
+    if (deficit > 0) detailHTML += `Deficit on 100%: <span class="deficit">${formatFullCurrency(deficit)}</span>`;
+    else if (deficit < 0) detailHTML += `Surplus: <span class="surplus">${formatFullCurrency(Math.abs(deficit))}</span>`;
+    else detailHTML += `<span class="surplus">Exactly on target</span>`;
+    document.getElementById("rw_branchPerfDetail").innerHTML = detailHTML;
+
+    const bar = document.getElementById("rw_branchPerfBar");
+    const barPct = Math.min(branchPerfPct, 100);
+    bar.style.width = barPct + "%";
+    bar.style.background = branchPerfPct >= 80 ? "linear-gradient(90deg, #16a34a, #22c55e)" : branchPerfPct >= 50 ? "linear-gradient(90deg, #ca8a04, #facc15)" : "linear-gradient(90deg, #dc2626, #ef4444)";
+    document.getElementById("rw_marker50").className = branchPerfPct < 50 ? "active-marker" : "";
+
+    routeFilteredData = processed;
+    applyRouteSearchAndSort();
+  }
+
+  function getTelesalesSortValue(item, key) {
     switch (key) {
-      case "name":
-        return (item.salesPersonName || "").toLowerCase();
-      case "branch":
-        return (item.branchName || "").toLowerCase();
-      case "score":
-        return item.score;
-      case "orders":
-        return Number(item.totalDaysCustomers || 0);
-      case "value":
-        return item.netValue;
-      default:
-        return 0;
+      case "name": return (item.salesPersonName || "").toLowerCase();
+      case "branch": return (item.branchName || "").toLowerCase();
+      case "score": return item.score;
+      case "orders": return Number(item.totalDaysCustomers || 0);
+      case "value": return item.netValue;
+      default: return 0;
     }
   }
-
-  function sortData(data) {
-    const { key, dir } = currentSort;
+  function sortTelesalesData(data) {
+    const { key, dir } = telesalesSort;
     const sorted = [...data];
-
     sorted.sort((a, b) => {
-      const va = getSortValue(a, key);
-      const vb = getSortValue(b, key);
-
-      if (typeof va === "string") {
-        const cmp = va.localeCompare(vb);
-        return dir === "asc" ? cmp : -cmp;
-      }
-
+      const va = getTelesalesSortValue(a, key);
+      const vb = getTelesalesSortValue(b, key);
+      if (typeof va === "string") return dir === "asc" ? va.localeCompare(vb) : -va.localeCompare(vb);
       return dir === "asc" ? va - vb : vb - va;
     });
-
     return sorted;
   }
-
-  function applySearchAndSort() {
-    const q = document.getElementById("searchBox").value
-      .toLowerCase()
-      .trim();
-
-    let data = filteredData;
-
-    if (q) {
-      data = data.filter(d =>
-        (d.salesPersonName || "").toLowerCase().includes(q) ||
-        (d.branchName || "").toLowerCase().includes(q)
-      );
-    }
-
-    displayedData = sortData(data);
-    renderTable(displayedData);
+  function applyTelesalesSearchAndSort() {
+    const q = document.getElementById("ts_searchBox").value.toLowerCase().trim();
+    let data = telesalesFilteredData;
+    if (q) data = data.filter(d => (d.salesPersonName || "").toLowerCase().includes(q) || (d.branchName || "").toLowerCase().includes(q));
+    renderTelesalesTable(sortTelesalesData(data));
   }
-
-  function renderTable(data) {
-    const tbody = document.getElementById("tableBody");
-
-    document.getElementById("tableCount").textContent =
-      data.length + (data.length === 1 ? " person" : " people");
+  function renderTelesalesTable(data) {
+    const tbody = document.getElementById("ts_tableBody");
+    document.getElementById("ts_tableCount").textContent = data.length + (data.length === 1 ? " person" : " people");
 
     if (!data.length) {
-      tbody.innerHTML =
-        `<tr class="no-data-row">
-          <td colspan="7">No telesales data found for the selected range</td>
-        </tr>`;
+      tbody.innerHTML = `<tr class="no-data-row"><td colspan="7">No telesales data found for the selected range</td></tr>`;
       return;
     }
 
     let html = "";
-
     data.forEach((item, i) => {
       const sales = Number(item.score) || 0;
       const orders = Number(item.totalDaysCustomers || 0);
       const value = Number(item.netValue) || 0;
-
-      const pctClass =
-        sales >= 80 ? "pct-high" :
-        sales >= 50 ? "pct-medium" :
-        "pct-low";
-
-      const statusClass =
-        sales >= 80 ? "status-on-track" :
-        sales >= 50 ? "status-at-risk" :
-        "status-below";
-
-      const statusText =
-        sales >= 80 ? "ACHIEVED" :
-        sales >= 50 ? "AVERAGE" :
-        "OFF TRACK";
-
+      const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
+      const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
+      const statusText = sales >= 80 ? "ACHIEVED" : sales >= 50 ? "AVERAGE" : "OFF TRACK";
       const rankClass = i < 3 ? "rank top3" : "rank";
 
       html += `
@@ -2031,190 +1420,210 @@
           <td class="${rankClass}">${i + 1}</td>
           <td class="sales-name">${item.salesPersonName}</td>
           <td class="branch-cell">${item.branchName}</td>
-          <td style="text-align:center;">
-            <span class="pct-badge ${pctClass}">
-              ${sales.toFixed(1)}%
-            </span>
-          </td>
-          <td class="orders-cell" style="text-align:center;">
-            ${orders.toLocaleString()}
-          </td>
-          <td class="value-cell">
-            <span class="kes">KES</span> ${formatValue(value)}
-          </td>
-          <td style="text-align:center;">
-            <span class="status-dot ${statusClass}">
-              ${statusText}
-            </span>
-          </td>
+          <td style="text-align:center;"><span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span></td>
+          <td class="orders-cell" style="text-align:center;">${orders.toLocaleString()}</td>
+          <td class="value-cell"><span class="kes">KES</span> ${formatValue(value)}</td>
+          <td style="text-align:center;"><span class="status-dot ${statusClass}">${statusText}</span></td>
         </tr>
       `;
     });
-
     tbody.innerHTML = html;
   }
 
-  /* ── Sort headers ────────────────────────────────────────── */
-
-  const sortLabels = {
-    name: "Name",
-    branch: "Branch",
-    score: "Sales %",
-    orders: "Orders",
-    value: "Order Value"
-  };
-
-  function updateSortHeaders() {
-    document.querySelectorAll("thead th.sortable").forEach(th => {
-      const key = th.dataset.sort;
-
-      th.classList.remove(
-        "active-sort",
-        "sort-asc",
-        "sort-desc"
-      );
-
-      if (key === currentSort.key) {
-        th.classList.add(
-          "active-sort",
-          currentSort.dir === "asc" ? "sort-asc" : "sort-desc"
-        );
-      }
-    });
-
-    const hint = document.getElementById("sortHint");
-    const arrow = currentSort.dir === "asc" ? "↑" : "↓";
-    hint.textContent =
-      `Sorted by ${sortLabels[currentSort.key]} ${arrow}`;
-  }
-
-  document.querySelectorAll("thead th.sortable").forEach(th => {
-    th.addEventListener("click", () => {
-      const key = th.dataset.sort;
-
-      if (currentSort.key === key) {
-        currentSort.dir =
-          currentSort.dir === "desc" ? "asc" : "desc";
-      } else {
-        currentSort.key = key;
-        currentSort.dir =
-          (key === "score" ||
-           key === "orders" ||
-           key === "value")
-            ? "desc"
-            : "asc";
-      }
-
-      updateSortHeaders();
-      applySearchAndSort();
-    });
-  });
-
-  /* ── FILTER HANDLERS ───────────────────────────────────────
-     IMPORTANT: NONE OF THESE CALL THE API.
-     They only recalculate from allRawData / branchPerfData.
-     --------------------------------------------------------- */
-
-  function refreshFromCachedData() {
-    if (!allRawData.length && !branchPerfData.length) return;
-
-    processAndRender();
-
-    if (currentView === "branches") {
-      renderBranchView();
+  function getRouteSortValue(item, key) {
+    switch (key) {
+      case "name": return (item.routeName || "").toLowerCase();
+      case "branch": return (item.mainRoute || "").toLowerCase();
+      case "sp": return (item.salesPersonName || "").toLowerCase();
+      case "target": return item.rangeTarget || 0;
+      case "weekly": return item.weeklyTarget;
+      case "daily": return item.dailyTarget;
+      case "actual": return item.netValue;
+      case "score": return item.score;
+      default: return 0;
     }
   }
+  function sortRouteData(data) {
+    const { key, dir } = routeSort;
+    const sorted = [...data];
+    sorted.sort((a, b) => {
+      const va = getRouteSortValue(a, key);
+      const vb = getRouteSortValue(b, key);
+      if (typeof va === "string") return dir === "asc" ? va.localeCompare(vb) : -va.localeCompare(vb);
+      return dir === "asc" ? va - vb : vb - va;
+    });
+    return sorted;
+  }
+  function applyRouteSearchAndSort() {
+    const q = document.getElementById("rw_searchBox").value.toLowerCase().trim();
+    let data = routeFilteredData;
+    if (q) {
+      data = data.filter(d =>
+        (d.routeName || "").toLowerCase().includes(q) ||
+        (d.branchName || "").toLowerCase().includes(q) ||
+        (d.salesPersonName || "").toLowerCase().includes(q)
+      );
+    }
+    renderRouteTable(sortRouteData(data));
+  }
+  function renderRouteTable(data) {
+    const tbody = document.getElementById("rw_tableBody");
+    document.getElementById("rw_tableCount").textContent = data.length + (data.length === 1 ? " route" : " routes");
 
-  document.getElementById("dateSelect").addEventListener("change", () => {
-    const val = document.getElementById("dateSelect").value;
-
-    if (val === "custom") {
-      toggleCustomDateRange(true);
-
-      if (
-        !document.getElementById("dateFrom").value &&
-        !document.getElementById("dateTo").value
-      ) {
-        const todayStr = formatDate(getToday());
-        document.getElementById("dateFrom").value = todayStr;
-        document.getElementById("dateTo").value = todayStr;
-      }
-
+    if (!data.length) {
+      tbody.innerHTML = `<tr class="no-data-row"><td colspan="9">No route data found for the selected range</td></tr>`;
       return;
     }
 
-    toggleCustomDateRange(false);
-    syncDateInputsFromPreset(val);
-
-    /* CLIENT-SIDE ONLY */
-    refreshFromCachedData();
-  });
-
-  function onCustomDateChange() {
-    if (
-      document.getElementById("dateSelect").value !== "custom"
-    ) {
-      document.getElementById("dateSelect").value = "custom";
-      toggleCustomDateRange(true);
-    }
-
-    const from = document.getElementById("dateFrom").value;
-    const to = document.getElementById("dateTo").value;
-
-    if (from && to && from > to) {
-      document.getElementById("dateTo").value = from;
-    }
-
-    /* CLIENT-SIDE ONLY */
-    refreshFromCachedData();
-  }
-
-  document.getElementById("dateFrom")
-    .addEventListener("change", onCustomDateChange);
-
-  document.getElementById("dateTo")
-    .addEventListener("change", onCustomDateChange);
-
-  branchSelect.addEventListener("change", () => {
-    currentSort = { key: "score", dir: "desc" };
-    updateSortHeaders();
-
-    /* CLIENT-SIDE ONLY — NO API CALL */
-    refreshFromCachedData();
-  });
-
-  let searchDebounce = null;
-
-  document.getElementById("searchBox")
-    .addEventListener("input", () => {
-      if (searchDebounce) clearTimeout(searchDebounce);
-
-      searchDebounce = setTimeout(
-        applySearchAndSort,
-        150
-      );
+    const grouped = {};
+    data.forEach(item => {
+      const branch = item.branchName || "Unknown Branch";
+      const sp = item.salesPersonName || "Unassigned";
+      if (!grouped[branch]) grouped[branch] = {};
+      if (!grouped[branch][sp]) grouped[branch][sp] = [];
+      grouped[branch][sp].push(item);
     });
 
-  /* ── Initial load ────────────────────────────────────────── */
+    const branches = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+    let html = "";
 
-  syncDateInputsFromPreset("today");
-  toggleCustomDateRange(false);
-  updateSortHeaders();
+    branches.forEach(branch => {
+      html += `<tr class="group-header branch-header"><td colspan="9">${branch}</td></tr>`;
+      const salesPersons = Object.keys(grouped[branch]).sort((a, b) => a.localeCompare(b));
 
-  /* Exactly two API requests here. */
-  loadAllData();
+      salesPersons.forEach(sp => {
+        const routes = grouped[branch][sp];
+        const sortedRoutes = sortRouteData(routes);
 
-  /*
-    ONLY automatic API refresh.
-    User filter changes never call loadAllData().
-  */
-  setInterval(() => {
-    if (!isLoading) {
-      loadAllData();
+        let totalRangeTarget = 0, totalMonthly = 0, totalWeekly = 0, totalDaily = 0, totalNet = 0;
+        routes.forEach(r => {
+          totalRangeTarget += r.rangeTarget || 0;
+          totalMonthly += r.monthlyTarget;
+          totalWeekly += r.weeklyTarget;
+          totalDaily += r.dailyTarget;
+          totalNet += r.netValue;
+        });
+        const totalScore = totalRangeTarget > 0 ? (totalNet / totalRangeTarget) * 100 : 0;
+
+        const overallClass = totalScore >= 80 ? "perf-high" : totalScore >= 50 ? "perf-medium" : "perf-low";
+        const subStatusClass = totalScore >= 80 ? "status-on-track" : totalScore >= 50 ? "status-at-risk" : "status-below";
+        const subStatusText = totalScore >= 80 ? "ACHIEVED" : totalScore >= 50 ? "AVERAGE" : "OFF TRACK";
+
+        sortedRoutes.forEach((item) => {
+          const sales = Number(item.score) || 0;
+          const value = Number(item.netValue) || 0;
+          const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
+          const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
+          const statusText = sales >= 80 ? "ACHIEVED" : sales >= 50 ? "AVERAGE" : "OFF TRACK";
+
+          html += `
+            <tr class="route-row">
+              <td class="route-name">${item.routeName}</td>
+              <td class="branch-cell">${item.mainRoute}</td>
+              <td class="sp-cell">
+                <span>${item.salesPersonName}</span>
+                <button class="edit-sp-btn" data-route="${item.routeName}" data-sp="${item.salesPersonName}" title="Edit Sales Person">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+              </td>
+              <td class="value-cell"><span class="kes">KES</span> ${formatValue(item.rangeTarget || 0)}</td>
+              <td class="value-cell"><span class="kes">KES</span> ${formatValue(item.weeklyTarget)}</td>
+              <td class="value-cell"><span class="kes">KES</span> ${formatValue(item.dailyTarget)}</td>
+              <td class="value-cell"><span class="kes">KES</span> ${formatValue(value)}</td>
+              <td style="text-align:center;"><span class="pct-badge ${pctClass}">${sales.toFixed(1)}%</span></td>
+              <td style="text-align:center;"><span class="status-dot ${statusClass}">${statusText}</span></td>
+            </tr>
+          `;
+        });
+
+        html += `
+          <tr class="group-subtotal">
+            <td colspan="3"><span class="sp-name">TOTAL (${sp})</span></td>
+            <td class="value-cell"><span class="kes">KES</span> ${formatValue(totalRangeTarget)}</td>
+            <td class="value-cell"><span class="kes">KES</span> ${formatValue(totalWeekly)}</td>
+            <td class="value-cell"><span class="kes">KES</span> ${formatValue(totalDaily)}</td>
+            <td class="value-cell"><span class="kes">KES</span> ${formatValue(totalNet)}</td>
+            <td style="text-align:center;"><span class="pct-badge ${overallClass.replace('perf-', 'pct-')}">${totalScore.toFixed(1)}%</span></td>
+            <td style="text-align:center;"><span class="status-dot ${subStatusClass}">${subStatusText}</span></td>
+          </tr>
+        `;
+      });
+    });
+    tbody.innerHTML = html;
+  }
+
+  const telesalesLabels = { name: "Name", branch: "Branch", score: "Sales %", orders: "Orders", value: "Order Value" };
+  const routeLabels = { name: "Sales Route", branch: "Main Route", sp: "Sales Person", target: "Target", weekly: "Weekly Target", daily: "Daily Target", actual: "Actual Sales", score: "% Achievement" };
+
+  function updateSortHeaders() {
+    document.querySelectorAll("#telesalesView thead th.sortable").forEach(th => {
+      const key = th.dataset.sort;
+      th.classList.remove("active-sort", "sort-asc", "sort-desc");
+      if (currentView === "telesales" && key === telesalesSort.key) {
+        th.classList.add("active-sort", telesalesSort.dir === "asc" ? "sort-asc" : "sort-desc");
+      }
+    });
+    if (currentView === "telesales") {
+      const hint = document.getElementById("ts_sortHint");
+      const arrow = telesalesSort.dir === "asc" ? "↑" : "↓";
+      hint.textContent = `Sorted by ${telesalesLabels[telesalesSort.key]} ${arrow}`;
     }
-  }, AUTO_REFRESH_MS);
 
-</script>
+    document.querySelectorAll("#routeView thead th.sortable").forEach(th => {
+      const key = th.dataset.sort;
+      th.classList.remove("active-sort", "sort-asc", "sort-desc");
+      if (currentView === "routes" && key === routeSort.key) {
+        th.classList.add("active-sort", routeSort.dir === "asc" ? "sort-asc" : "sort-desc");
+      }
+    });
+    if (currentView === "routes") {
+      const hint = document.getElementById("rw_sortHint");
+      const arrow = routeSort.dir === "asc" ? "↑" : "↓";
+      hint.textContent = `Sorted by ${routeLabels[routeSort.key]} ${arrow}`;
+    }
+  }
 
-</body>
-</html>
+  document.querySelectorAll("#telesalesView thead th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      if (telesalesSort.key === key) telesalesSort.dir = telesalesSort.dir === "desc" ? "asc" : "desc";
+      else {
+        telesalesSort.key = key;
+        telesalesSort.dir = (key === "score" || key === "orders" || key === "value") ? "desc" : "asc";
+      }
+      updateSortHeaders();
+      applyTelesalesSearchAndSort();
+    });
+  });
+
+  document.querySelectorAll("#routeView thead th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      if (routeSort.key === key) routeSort.dir = routeSort.dir === "desc" ? "asc" : "desc";
+      else {
+        routeSort.key = key;
+        routeSort.dir = (key === "score" || key === "actual" || key === "target" || key === "weekly" || key === "daily") ? "desc" : "asc";
+      }
+      updateSortHeaders();
+      applyRouteSearchAndSort();
+    });
+  });
+
+  document.getElementById("ts_searchBox").addEventListener("input", () => {
+    let d = null; clearTimeout(d); d = setTimeout(applyTelesalesSearchAndSort, 150);
+  });
+  document.getElementById("rw_searchBox").addEventListener("input", () => {
+    let d = null; clearTimeout(d); d = setTimeout(applyRouteSearchAndSort, 150);
+  });
+
+  document.getElementById("rw_tableBody").addEventListener("click", (e) => {
+    const btn = e.target.closest(".edit-sp-btn");
+    if (!btn) return;
+
+    const routeName = btn.getAttribute("data-route");
+    const currentSP = btn.getAttribute("data-sp");
+    const newSP = prompt(`Edit Sales Person for route: ${routeName}`, currentSP);
+    if (newSP !== null && newSP.trim() !== "" && newSP.trim() !== currentSP) {
+        const routeKey = Object.keys(masterTemplate).find(k => normalizeRouteName(k) === normalizeRouteName(routeName));
+        if (routeKey) {
+            masterTemplate[route
