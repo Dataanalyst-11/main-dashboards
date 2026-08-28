@@ -143,7 +143,8 @@
   .search-box::placeholder { color: #475569; }
   .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12); }
 
-  .table-wrap { flex: 1; overflow-y: auto; border-radius: 10px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  /* DOM Containment for performance */
+  .table-wrap { flex: 1; overflow-y: auto; border-radius: 10px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; contain: content; }
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
@@ -1229,14 +1230,6 @@
     document.getElementById("branchCount").textContent = withData.length + " branches";
   }
 
-  document.getElementById("branchSearchBox").addEventListener("input", e => {
-    const q = e.target.value.toLowerCase().trim();
-    document.querySelectorAll(".b-card").forEach(card => {
-      const name = card.dataset.name;
-      card.classList.toggle("hidden", q.length > 0 && !name.includes(q));
-    });
-  });
-
   function processTelesales() {
     const { startDate, endDate } = getDateRange();
     const selectedBranch = branchSelect.value;
@@ -1609,11 +1602,16 @@
     });
   });
 
+  let tsSearchDebounce = null;
   document.getElementById("ts_searchBox").addEventListener("input", () => {
-    let d = null; clearTimeout(d); d = setTimeout(applyTelesalesSearchAndSort, 150);
+    if (tsSearchDebounce) clearTimeout(tsSearchDebounce);
+    tsSearchDebounce = setTimeout(applyTelesalesSearchAndSort, 150);
   });
+  
+  let rwSearchDebounce = null;
   document.getElementById("rw_searchBox").addEventListener("input", () => {
-    let d = null; clearTimeout(d); d = setTimeout(applyRouteSearchAndSort, 150);
+    if (rwSearchDebounce) clearTimeout(rwSearchDebounce);
+    rwSearchDebounce = setTimeout(applyRouteSearchAndSort, 150);
   });
 
   document.getElementById("rw_tableBody").addEventListener("click", (e) => {
@@ -1626,4 +1624,86 @@
     if (newSP !== null && newSP.trim() !== "" && newSP.trim() !== currentSP) {
         const routeKey = Object.keys(masterTemplate).find(k => normalizeRouteName(k) === normalizeRouteName(routeName));
         if (routeKey) {
-            masterTemplate[route
+            masterTemplate[routeKey][1] = newSP.trim();
+
+            let overrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
+            overrides[routeKey] = newSP.trim();
+            localStorage.setItem('spOverrides', JSON.stringify(overrides));
+
+            processRoutes();
+            showToast(`Sales Person for ${routeName} updated to ${newSP.trim()}`, "retry");
+        } else {
+            showToast(`Route ${routeName} not found in template.`, "warn");
+        }
+    }
+  });
+
+  function refreshFromCachedData() {
+    if (!telesalesRawData.length && !routeRawData.length && !branchPerfData.length) return;
+    if (currentView === "telesales") processTelesales();
+    else if (currentView === "routes") processRoutes();
+    else if (currentView === "branches") renderBranchView();
+  }
+
+  document.getElementById("dateSelect").addEventListener("change", () => {
+    const val = document.getElementById("dateSelect").value;
+    if (val === "custom") {
+      toggleCustomDateRange(true);
+      if (!document.getElementById("dateFrom").value && !document.getElementById("dateTo").value) {
+        const todayStr = formatDate(getToday());
+        document.getElementById("dateFrom").value = todayStr;
+        document.getElementById("dateTo").value = todayStr;
+      }
+      return;
+    }
+    toggleCustomDateRange(false);
+    syncDateInputsFromPreset(val);
+    refreshFromCachedData();
+  });
+
+  function onCustomDateChange() {
+    if (document.getElementById("dateSelect").value !== "custom") {
+      document.getElementById("dateSelect").value = "custom";
+      toggleCustomDateRange(true);
+    }
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+    if (from && to && from > to) {
+      document.getElementById("dateTo").value = from;
+    }
+    refreshFromCachedData();
+  }
+
+  document.getElementById("dateFrom").addEventListener("change", onCustomDateChange);
+  document.getElementById("dateTo").addEventListener("change", onCustomDateChange);
+
+  branchSelect.addEventListener("change", () => {
+    telesalesSort = { key: "score", dir: "desc" };
+    routeSort = { key: "actual", dir: "desc" };
+    updateSortHeaders();
+    refreshFromCachedData();
+  });
+
+  document.getElementById("branchSearchBox").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll(".b-card").forEach(card => {
+      const name = card.dataset.name;
+      card.classList.toggle("hidden", q.length > 0 && !name.includes(q));
+    });
+  });
+
+  (async () => {
+    syncDateInputsFromPreset("today");
+    toggleCustomDateRange(false);
+    updateSortHeaders();
+    updateColumnHeaders();
+    loadAllData();
+    setInterval(() => {
+      if (!isLoading) {
+        loadAllData();
+      }
+    }, AUTO_REFRESH_MS);
+  })();
+</script>
+</body>
+</html>
