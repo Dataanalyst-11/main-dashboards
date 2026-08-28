@@ -19,19 +19,19 @@
     font-family: 'Segoe UI', Arial, sans-serif;
     background: #0f172a;
     color: #e5e7eb;
-    height: 100vh; /* Fallback for older browsers */
-    height: 100dvh; /* Dynamic Viewport Height - fixes mobile address bar issue */
+    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     width: 100dvw;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Prevent body scroll, let inner containers scroll */
+    overflow: hidden;
   }
 
   header {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     border-bottom: 3px solid #ba9305;
-    padding: 10px 24px; /* Squeezed */
+    padding: 10px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -102,7 +102,6 @@
   #routeView, #branchView { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   #branchView { display: none; }
 
-  /* Squeezed Stats Row */
   .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
   .branch-summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px 24px 0; flex-shrink: 0; }
   .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
@@ -119,7 +118,6 @@
   .perf-medium { color: #facc15 !important; }
   .perf-low { color: #ef4444 !important; }
 
-  /* Squeezed Branch Performance Section */
   .branch-perf-section { padding: 12px 24px 0; flex-shrink: 0; }
   .branch-perf-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
   .branch-perf-info { flex: 0 0 auto; min-width: 200px; }
@@ -134,7 +132,6 @@
   .perf-bar-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: #475569; font-weight: 600; }
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
-  /* Table Section - Flex 1 to take remaining height */
   .table-section { flex: 1; padding: 12px 24px 12px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
   .table-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
@@ -146,15 +143,13 @@
   .search-box::placeholder { color: #475569; }
   .search-box:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186, 147, 5, 0.12); }
 
-  /* Table Wrap - The Scrollable Area */
   .table-wrap { flex: 1; overflow-y: auto; border-radius: 10px; border: 1px solid #334155; background: #0f172a; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
   .table-wrap::-webkit-scrollbar { width: 6px; }
   .table-wrap::-webkit-scrollbar-track { background: transparent; }
   .table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
   table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
-  
-  /* Frozen Headers */
+
   thead th {
     position: sticky; top: 0; background: #1e293b; color: #94a3b8; text-transform: uppercase;
     font-size: 10px; letter-spacing: 0.8px; font-weight: 700; z-index: 2; padding: 10px 12px;
@@ -179,7 +174,6 @@
   th:nth-child(8), td:nth-child(8) { width: 8%; text-align: center; }
   th:nth-child(9), td:nth-child(9) { width: 8%; text-align: center; }
 
-  /* Squeezed Table Cells */
   td { padding: 8px 12px; border-bottom: 1px solid #1e293b; vertical-align: middle; color: #cbd5e1; }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(30, 41, 59, 0.6); }
@@ -188,45 +182,44 @@
     background: #172033; color: #ba9305; font-weight: 800; text-transform: uppercase;
     letter-spacing: 1px; padding: 10px 12px; border-top: 2px solid #334155; border-bottom: 1px solid #334155;
   }
-  
-  tr.group-header.branch-header td { 
-    background: #1e3a8a; 
-    color: #bfdbfe; 
-    font-size: 14px; 
-    border-top: 3px solid #3b82f6; 
-    border-bottom: 1px solid #1e40af; 
+
+  tr.group-header.branch-header td {
+    background: #1e3a8a;
+    color: #bfdbfe;
+    font-size: 14px;
+    border-top: 3px solid #3b82f6;
+    border-bottom: 1px solid #1e40af;
   }
-  
-  /* Total / Subtotal Row - Vibrant Fuchsia/Purple Gradient */
+
   tr.group-subtotal td {
-    background: linear-gradient(90deg, #db2777 0%, #9333ea 100%); 
-    font-weight: 900; 
-    color: #ffffff; 
+    background: linear-gradient(90deg, #db2777 0%, #9333ea 100%);
+    font-weight: 900;
+    color: #ffffff;
     border-top: 2px solid #ec4899;
-    border-bottom: 2px solid #7e22ce; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    font-size: 14px; 
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.4); 
+    border-bottom: 2px solid #7e22ce;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
   }
-  tr.group-subtotal .sp-name { color: #fde047; font-weight: 900; font-size: 15px; } 
-  
-  tr.group-subtotal .value-cell { 
-    color: #ffffff; 
-    font-weight: 900; 
-    font-size: 15px; 
+  tr.group-subtotal .sp-name { color: #fde047; font-weight: 900; font-size: 15px; }
+
+  tr.group-subtotal .value-cell {
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 15px;
   }
-  tr.group-subtotal .value-cell .kes { 
-    color: #fbcfe8; 
-    font-weight: 800; 
-    font-size: 12px; 
+  tr.group-subtotal .value-cell .kes {
+    color: #fbcfe8;
+    font-weight: 800;
+    font-size: 12px;
   }
-  tr.group-subtotal .pct-badge { 
-    background: #0f172a; 
+  tr.group-subtotal .pct-badge {
+    background: #0f172a;
     color: #ffffff;
     font-weight: 900;
     border: 1px solid #ffffff;
-    font-size: 12px; 
+    font-size: 12px;
     padding: 4px 10px;
   }
   tr.group-subtotal .pct-high { background: #0f172a; color: #4ade80; border: 1px solid #4ade80; }
@@ -240,7 +233,7 @@
   .route-name { font-weight: 700; color: #f1f5f9; font-size: 12px; }
   .branch-cell { font-size: 11px; color: #94a3b8; }
   .sp-cell { font-size: 11px; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  
+
   .edit-sp-btn {
     background: none;
     border: none;
@@ -308,15 +301,30 @@
   .toast.toast-warn { border-left-color: #f59e0b; }
   .toast.toast-retry { border-left-color: #38bdf8; }
 
+  /* ====== FIXED: Redistribute column widths so the header extends to the end ====== */
   @media (max-width: 1100px) {
     .branch-summary-row { grid-template-columns: 1fr 1fr; }
+    /* Hide columns 2 (MAIN ROUTE), 5 (WEEKLY), 6 (DAILY) */
     th:nth-child(2), td:nth-child(2) { display: none; }
     th:nth-child(5), td:nth-child(5) { display: none; }
     th:nth-child(6), td:nth-child(6) { display: none; }
+    /* Visible columns: 1, 3, 4, 7, 8, 9 → redistribute to 100% */
+    th:nth-child(1), td:nth-child(1) { width: 22%; }
+    th:nth-child(3), td:nth-child(3) { width: 22%; }
+    th:nth-child(4), td:nth-child(4) { width: 18%; }
+    th:nth-child(7), td:nth-child(7) { width: 18%; }
+    th:nth-child(8), td:nth-child(8) { width: 10%; }
+    th:nth-child(9), td:nth-child(9) { width: 10%; }
   }
   @media (max-width: 900px) {
+    /* Additionally hide columns 4 (RANGE TARGET) and 9 (STATUS) */
     th:nth-child(4), td:nth-child(4) { display: none; }
     th:nth-child(9), td:nth-child(9) { display: none; }
+    /* Visible columns: 1, 3, 7, 8 → redistribute to 100% */
+    th:nth-child(1), td:nth-child(1) { width: 28%; }
+    th:nth-child(3), td:nth-child(3) { width: 28%; }
+    th:nth-child(7), td:nth-child(7) { width: 24%; }
+    th:nth-child(8), td:nth-child(8) { width: 20%; }
   }
 </style>
 </head>
@@ -495,7 +503,6 @@
     "MAKONGENI": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KIGANJO - THIKA": ["THIKA ROUTE","ELIZABETH WANJOGU","THIKA"], "MUGUGA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "KISII - THIKA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "LANDLESS": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "NDITHINI": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "ITHANGA": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "NGOLIBA": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "OLDONYO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KILIMAMBOGO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MAKUYU": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KANGARI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAYOLE - THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUNUNGA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAMAHUHA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUTHITHI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KIRERE": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GACHOCHO": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MANANJA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KINYONA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GATUNDU": ["GATUNDU","NO FCRO","THIKA"], "JUJA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENYATTA ROAD": ["KENYATTA ROAD","NO FCRO","THIKA"], "GATUKUYU": ["JUJA ROUTE","NO FCRO","THIKA"], "GACHORORO": ["JUJA ROUTE","NO FCRO","THIKA"], "KAMWANGI": ["JUJA ROUTE","NO FCRO","THIKA"], "MANG'U - THIKA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENOL": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "WITEITHIE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "GITHUMU": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KANDARA": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KABATI - THIKA": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "GATURA": ["KENOL ROUTE","LINET MORAA","THIKA"], "GACHARAGE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"]
   };
 
-  // Load Local Overrides for Sales Person Names
   let spOverrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
   for (const k in spOverrides) {
     if (masterTemplate[k]) {
@@ -503,10 +510,7 @@
     }
   }
 
-  /* ============================================================
-     DATA ENGINE
-     ============================================================ */
-  const AUTO_REFRESH_MS = 600000; // 10 minutes
+  const AUTO_REFRESH_MS = 600000;
   const DATA_LOOKBACK_DAYS = 365;
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
@@ -521,7 +525,6 @@
   let displayedData = [];
   let lastDataFetchAt = null;
 
-  /* ── Date Helpers ────────────────────────────────────────── */
   function formatDate(d) {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -589,7 +592,6 @@
   function toggleCustomDateRange(show) { document.getElementById("customDateRange").classList.toggle("visible", show); }
   function isDateInRange(dateKey, startDate, endDate) { return !!dateKey && dateKey >= startDate && dateKey <= endDate; }
 
-  /* ── Branch Names ─────────────────────────────────────────── */
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
     "orgbranch-684558f576bd774c32f00d8e": "Naivasha",
@@ -628,7 +630,6 @@
     branchSelect.appendChild(opt);
   });
 
-  /* ── Formatting & Data Extractors ────────────────────────── */
   function formatValue(num) {
     const n = Number(num) || 0;
     if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
@@ -644,20 +645,18 @@
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : 0;
   }
-  
-  // Strict API Source of Truth for Monthly Target
+
   function getMonthlyTarget(row) {
     return toNumber(row.monthlySalesTarget ?? row.monthlyTarget ?? row.target ?? row.salesTarget ?? (row.dailySalesTarget ? row.dailySalesTarget * 30 : 0));
   }
   function getWeeklyTarget(row) { return toNumber(row.weeklySales ?? row.weeklyTarget ?? (getMonthlyTarget(row) / 4.33)); }
   function getDailyTarget(row) { return toNumber(row.dailySalesTarget ?? row.dailyTarget ?? (getMonthlyTarget(row) / 30)); }
-  
-  // Explicitly strictly reading Day's Net Sales (Actual Sales)
-  function getNetSales(row) { 
-    return toNumber(row.dailyNetSales ?? row.daysNetSales ?? row.netDailySales ?? row.dayNetSales ?? row.netSales ?? row.branchNetSales ?? row.routeNetSales); 
+
+  function getNetSales(row) {
+    return toNumber(row.dailyNetSales ?? row.daysNetSales ?? row.netDailySales ?? row.dayNetSales ?? row.netSales ?? row.branchNetSales ?? row.routeNetSales);
   }
   function getCustomerOrders(row) { return toNumber(row.totalDaysCustomers ?? row.dailyCustomers ?? row.customerOrders ?? row.totalCustomers); }
-  
+
   function normalizeRouteName(name) {
     return String(name || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   }
@@ -679,7 +678,6 @@
     return "";
   }
 
-  /* ── Toast ───────────────────────────────────────────────── */
   let toastTimer = null;
   function showToast(msg, type) {
     const t = document.getElementById("toast");
@@ -691,7 +689,6 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 4500);
   }
 
-  /* ── Abort / retry ───────────────────────────────────────── */
   function abortPreviousRequests() {
     if (currentAbortCtrl) { currentAbortCtrl.abort(); currentAbortCtrl = null; }
     currentAbortCtrl = new AbortController();
@@ -721,7 +718,6 @@
     }
   }
 
-  /* ── API REQUESTS ────────────────────────────── */
   async function fetchRouteData(signal) {
     const { startDate, endDate } = getFetchRange();
     const url = `${window.API_CONFIG.API_URL}routewise-sales-performance-reports?pageSize=10000&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
@@ -737,7 +733,6 @@
     return Array.isArray(json) ? json : (json.data || []);
   }
 
-  /* ── Loading state ───────────────────────────────────────── */
   function setLoadingState(loading) {
     isLoading = loading;
     const overlay = document.getElementById("headerLoading");
@@ -757,17 +752,15 @@
     document.getElementById("tableBody").innerHTML = `<tr class="loading-row"><td colspan="9"><span class="loading-spinner"></span> Loading route data...</td></tr>`;
   }
 
-  /* ── Client-side route aggregation ───────────────────────── */
   function aggregateRoutes(startDate, endDate, selectedBranchId) {
     const groups = new Map();
     const rangeDays = getRangeDays(startDate, endDate);
     const lastKnownMonthlyTargets = {};
 
-    // 1. Pre-populate groups with ALL Master Template routes (Ensures 0 sales routes appear)
     for (const [tplRoute, tplData] of Object.entries(masterTemplate)) {
       const [tplMain, tplSP, tplBranch] = tplData;
       let branchId = getBranchIdByName(tplBranch);
-      
+
       if (selectedBranchId) {
         const selectedName = branchNames[selectedBranchId] || "";
         if (tplBranch.toLowerCase() !== selectedName.toLowerCase()) continue;
@@ -781,7 +774,6 @@
       });
     }
 
-    // 2. Process API data and merge into groups
     for (const row of allRawData) {
       const rowDate = getRecordDate(row);
       if (!isDateInRange(rowDate, startDate, endDate)) continue;
@@ -797,7 +789,7 @@
 
       let routeName = getRouteName(row);
       if (!routeName) continue;
-      
+
       let salesPersonName = getSalesPersonName(row);
       let mainRoute = getMainRoute(row);
 
@@ -818,10 +810,9 @@
         salesPersonName = template[1];
         mainRoute = template[0];
         branchName = template[2];
-        routeName = matchKey; // Normalize route name to match master template exactly
+        routeName = matchKey;
       }
 
-      // Cache target to ensure we retain it even if sales are 0 this period
       const mTarget = getMonthlyTarget(row);
       if (mTarget > 0) {
         lastKnownMonthlyTargets[normalizeRouteName(routeName)] = mTarget;
@@ -841,12 +832,11 @@
       g.monthlyTarget = mTarget > 0 ? mTarget : g.monthlyTarget;
       g.weeklyTarget = getWeeklyTarget(row) > 0 ? getWeeklyTarget(row) : g.weeklyTarget;
       g.dailyTarget = getDailyTarget(row) > 0 ? getDailyTarget(row) : g.dailyTarget;
-      g.netValue += getNetSales(row); // Strictly accumulating Day's Net Sales
+      g.netValue += getNetSales(row);
       g.orders += getCustomerOrders(row);
       g.days += 1;
     }
 
-    // 3. Map to array, ensuring targets are applied even for zero-sales routes (using cached targets)
     return [...groups.values()]
       .map(g => {
         const routeKey = normalizeRouteName(g.routeName);
@@ -866,18 +856,17 @@
       });
   }
 
-  /* ── Branch aggregation ────── */
   function aggregateBranches(startDate, endDate) {
     const daily = new Map();
     const rangeDays = getRangeDays(startDate, endDate);
     const branchMonthlyTargets = {};
-    
+
     function addDaily(name, date, monthlyTarget, netSales) {
       if (!name || !date) return;
       const key = `${name.toLowerCase().trim()}||${date}`;
       if (!daily.has(key)) daily.set(key, { name, date, monthlyTarget: 0, netSales: 0 });
       const d = daily.get(key);
-      d.monthlyTarget = Number(monthlyTarget) || d.monthlyTarget; 
+      d.monthlyTarget = Number(monthlyTarget) || d.monthlyTarget;
       d.netSales += Number(netSales) || 0;
     }
 
@@ -888,7 +877,7 @@
       if (!name) continue;
       const mTarget = getMonthlyTarget(row);
       if (mTarget > 0) branchMonthlyTargets[name.toLowerCase().trim()] = mTarget;
-      addDaily(name, date, mTarget, getNetSales(row)); // Strictly accumulating Day's Net Sales
+      addDaily(name, date, mTarget, getNetSales(row));
     }
 
     const routeDaily = new Map();
@@ -899,11 +888,11 @@
       if (!name) continue;
       const mTarget = getMonthlyTarget(row);
       if (mTarget > 0) branchMonthlyTargets[name.toLowerCase().trim()] = mTarget;
-      
+
       const key = `${name.toLowerCase().trim()}||${date}`;
       if (!routeDaily.has(key)) routeDaily.set(key, { name, date, monthlyTarget: mTarget, netSales: 0 });
       const d = routeDaily.get(key);
-      d.netSales += getNetSales(row); // Strictly accumulating Day's Net Sales
+      d.netSales += getNetSales(row);
       if (!d.monthlyTarget) d.monthlyTarget = mTarget;
     }
     for (const [key, d] of routeDaily) {
@@ -911,8 +900,7 @@
     }
 
     const groups = new Map();
-    
-    // Pre-populate all known branches so their cards always show
+
     for (const name of Object.values(branchNames)) {
       const key = name.toLowerCase().trim();
       if (!groups.has(key)) {
@@ -924,10 +912,10 @@
       const key = d.name.toLowerCase().trim();
       if (!groups.has(key)) groups.set(key, { name: d.name, monthlyTarget: 0, netSales: 0, days: 0, hasData: false });
       const g = groups.get(key);
-      g.monthlyTarget = Math.max(g.monthlyTarget, d.monthlyTarget); 
+      g.monthlyTarget = Math.max(g.monthlyTarget, d.monthlyTarget);
       g.netSales += d.netSales;
       g.days += 1;
-      g.hasData = true; // Mark true if we found any sales records
+      g.hasData = true;
     }
 
     return [...groups.values()].map(b => {
@@ -942,7 +930,6 @@
     });
   }
 
-  /* ── Main two-request refresh ───────────────────────────── */
   async function loadAllData() {
     if (isLoading) return;
     const signal = abortPreviousRequests();
@@ -986,7 +973,6 @@
     }
   }
 
-  /* ── View switching ─────────────────────────────────────── */
   function switchView(view) {
     currentView = view;
     const rv = document.getElementById("routeView");
@@ -1014,22 +1000,20 @@
     }
   }
 
-  /* ── Dynamic Column Headers ─────────────────────────────── */
   function updateColumnHeaders() {
     const preset = document.getElementById("dateSelect").value;
     const targetLabel = document.getElementById("thTargetLabel");
     if (!targetLabel) return;
-    
+
     let text = "RANGE TARGET";
     if (preset === "today" || preset === "yesterday") text = "DAILY TARGET";
     else if (preset === "7days") text = "WEEKLY TARGET";
     else if (preset === "30days") text = "MONTHLY TARGET";
     else if (preset === "90days") text = "QUARTERLY TARGET";
-    
+
     targetLabel.textContent = text;
   }
 
-  /* ── Branch view ─────────────────────────────────────────── */
   function renderBranchView() {
     if (!branchPerfData.length && !allRawData.length) {
       document.getElementById("branchGrid").innerHTML = '<div class="no-branch-data">No branch data available</div>';
@@ -1117,10 +1101,9 @@
     });
   });
 
-  /* ── Routes processing ──────────────────────────────────── */
   function processAndRender() {
     updateColumnHeaders();
-    
+
     const { startDate, endDate } = getDateRange();
     const selectedBranch = branchSelect.value;
     const selectedBranchName = selectedBranch ? (branchNames[selectedBranch] || "") : "";
@@ -1185,13 +1168,12 @@
     applySearchAndSort();
   }
 
-  /* ── Sorting ─────────────────────────────────────────────── */
   function getSortValue(item, key) {
     switch (key) {
       case "name": return (item.routeName || "").toLowerCase();
       case "branch": return (item.mainRoute || "").toLowerCase();
       case "sp": return (item.salesPersonName || "").toLowerCase();
-      case "target": return item.rangeTarget || 0; 
+      case "target": return item.rangeTarget || 0;
       case "weekly": return item.weeklyTarget;
       case "daily": return item.dailyTarget;
       case "actual": return item.netValue;
@@ -1315,7 +1297,6 @@
     tbody.innerHTML = html;
   }
 
-  /* ── Sort headers ────────────────────────────────────────── */
   const sortLabels = {
     name: "Sales Route", branch: "Main Route", sp: "Sales Person",
     target: "Target", weekly: "Weekly Target", daily: "Daily Target",
@@ -1347,29 +1328,26 @@
     });
   });
 
-  /* ── Edit Sales Person Event Listener ──────────────────── */
   document.getElementById("tableBody").addEventListener("click", (e) => {
     const btn = e.target.closest(".edit-sp-btn");
     if (!btn) return;
-    
+
     const routeName = btn.getAttribute("data-route");
     const currentSP = btn.getAttribute("data-sp");
-    
+
     const newSP = prompt(`Edit Sales Person for route: ${routeName}`, currentSP);
     if (newSP !== null && newSP.trim() !== "" && newSP.trim() !== currentSP) {
-        const routeKey = Object.keys(masterTemplate).find(k => 
+        const routeKey = Object.keys(masterTemplate).find(k =>
             normalizeRouteName(k) === normalizeRouteName(routeName)
         );
-        
+
         if (routeKey) {
             masterTemplate[routeKey][1] = newSP.trim();
-            
-            // Save to localStorage
+
             let overrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
             overrides[routeKey] = newSP.trim();
             localStorage.setItem('spOverrides', JSON.stringify(overrides));
-            
-            // Re-render to apply new clustering
+
             processAndRender();
             showToast(`Sales Person for ${routeName} updated to ${newSP.trim()}`, "retry");
         } else {
@@ -1378,7 +1356,6 @@
     }
   });
 
-  /* ── FILTER HANDLERS ──────────────────── */
   function refreshFromCachedData() {
     if (!allRawData.length && !branchPerfData.length) return;
     processAndRender();
@@ -1426,13 +1403,12 @@
     searchDebounce = setTimeout(applySearchAndSort, 150);
   });
 
-  /* ── Initial load ────────────────────────────────────────── */
   (async () => {
     syncDateInputsFromPreset("today");
     toggleCustomDateRange(false);
     updateSortHeaders();
     updateColumnHeaders();
-    loadAllData(); // Fetch API Data and render
+    loadAllData();
     setInterval(() => {
       if (!isLoading) {
         loadAllData();
