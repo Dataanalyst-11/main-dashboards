@@ -308,6 +308,147 @@
   .toast.toast-warn { border-left-color: #f59e0b; }
   .toast.toast-retry { border-left-color: #38bdf8; }
 
+  /* ═══ Override Manager & Edit Enhancements ═══ */
+  .route-edited .sp-cell span:first-child::after {
+    content: " ✎"; color: #ba9305; font-size: 10px; font-weight: 700;
+  }
+  .route-edited .route-name::after {
+    content: " [EDITED]"; color: #ba9305; font-size: 9px; font-weight: 700;
+    background: rgba(186,147,5,0.15); padding: 1px 5px; border-radius: 4px;
+    margin-left: 4px; vertical-align: middle;
+  }
+
+  .om-btn {
+    padding: 7px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .om-btn:hover { border-color: #ba9305; color: #ba9305; }
+  .om-btn .om-badge {
+    background: #ba9305; color: #020617; font-size: 10px; font-weight: 900;
+    padding: 1px 6px; border-radius: 99px; min-width: 18px; text-align: center;
+  }
+
+  .om-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .om-overlay.active { opacity: 1; pointer-events: all; }
+  .om-modal {
+    background: #1e293b; border: 1px solid #334155; border-radius: 14px;
+    width: 90%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column;
+    transform: scale(0.95); transition: transform 0.25s; box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .om-overlay.active .om-modal { transform: scale(1); }
+  .om-header {
+    padding: 18px 24px; border-bottom: 2px solid #334155; display: flex;
+    align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .om-title { font-size: 18px; font-weight: 800; color: #f8fafc; }
+  .om-subtitle { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .om-close {
+    background: none; border: none; color: #64748b; font-size: 24px; cursor: pointer;
+    padding: 4px 8px; border-radius: 6px; transition: all 0.2s; line-height: 1;
+  }
+  .om-close:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+  .om-toolbar {
+    padding: 12px 24px; border-bottom: 1px solid #334155; display: flex;
+    gap: 8px; flex-wrap: wrap; align-items: center; flex-shrink: 0;
+  }
+  .om-action-btn {
+    padding: 7px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #0f172a; color: #cbd5e1; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+  }
+  .om-action-btn:hover { border-color: #ba9305; color: #ba9305; }
+  .om-action-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+  .om-action-btn.success { border-color: #22c55e; color: #22c55e; }
+  .om-action-btn.success:hover { background: rgba(34,197,94,0.1); }
+  .om-search {
+    flex: 1; min-width: 180px; padding: 7px 12px; border-radius: 8px;
+    border: 2px solid #334155; background: #0f172a; color: #f1f5f9;
+    font-size: 12px; outline: none;
+  }
+  .om-search:focus { border-color: #ba9305; }
+  .om-body { flex: 1; overflow-y: auto; padding: 12px 24px; }
+  .om-body::-webkit-scrollbar { width: 6px; }
+  .om-body::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+  .om-empty { text-align: center; padding: 40px 20px; color: #475569; font-size: 14px; }
+  .om-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px;
+    align-items: center; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
+    background: #0f172a; border: 1px solid #1e293b; transition: border-color 0.2s;
+  }
+  .om-row:hover { border-color: #334155; }
+  .om-row .om-route { font-weight: 700; color: #f1f5f9; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .om-row .om-branch { font-size: 11px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .om-row .om-sp-input {
+    padding: 5px 10px; border-radius: 6px; border: 2px solid #334155;
+    background: #1e293b; color: #f1f5f9; font-size: 12px; font-weight: 600;
+    outline: none; transition: border-color 0.2s;
+  }
+  .om-row .om-sp-input:focus { border-color: #ba9305; }
+  .om-row .om-sp-input.om-original { color: #64748b; font-style: italic; }
+  .om-row .om-actions { display: flex; gap: 4px; }
+  .om-icon-btn {
+    background: none; border: 1px solid #334155; color: #64748b; cursor: pointer;
+    padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .om-icon-btn:hover { color: #f1f5f9; border-color: #475569; }
+  .om-icon-btn.delete:hover { color: #ef4444; border-color: #ef4444; }
+  .om-footer {
+    padding: 14px 24px; border-top: 2px solid #334155; display: flex;
+    justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .om-count { font-size: 12px; color: #64748b; font-weight: 600; }
+  .om-count strong { color: #ba9305; }
+
+  /* Edit Modal */
+  .edit-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 1100; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .edit-modal-overlay.active { opacity: 1; pointer-events: all; }
+  .edit-modal {
+    background: #1e293b; border: 1px solid #334155; border-radius: 14px;
+    padding: 28px; width: 90%; max-width: 440px;
+    transform: scale(0.95); transition: transform 0.25s; box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .edit-modal-overlay.active .edit-modal { transform: scale(1); }
+  .edit-modal-title { font-size: 16px; font-weight: 800; color: #f8fafc; margin-bottom: 4px; }
+  .edit-modal-sub { font-size: 11px; color: #64748b; margin-bottom: 16px; }
+  .edit-modal-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #ba9305; font-weight: 700; margin-bottom: 6px; }
+  .edit-modal-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 2px solid #334155;
+    background: #0f172a; color: #f1f5f9; font-size: 14px; font-weight: 600; outline: none;
+    transition: border-color 0.2s; margin-bottom: 16px;
+  }
+  .edit-modal-input:focus { border-color: #ba9305; box-shadow: 0 0 0 3px rgba(186,147,5,0.12); }
+  .edit-modal-suggestions {
+    max-height: 120px; overflow-y: auto; margin-bottom: 16px; border: 1px solid #334155;
+    border-radius: 8px; background: #0f172a;
+  }
+  .edit-modal-suggestion {
+    padding: 8px 14px; font-size: 12px; color: #cbd5e1; cursor: pointer;
+    border-bottom: 1px solid #1e293b; transition: background 0.15s; font-weight: 600;
+  }
+  .edit-modal-suggestion:hover { background: #1e293b; color: #ba9305; }
+  .edit-modal-suggestion:last-child { border-bottom: none; }
+  .edit-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .edit-modal-btn {
+    padding: 9px 20px; border-radius: 8px; border: 2px solid #334155;
+    background: #1e293b; color: #cbd5e1; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .edit-modal-btn:hover { border-color: #475569; color: #f1f5f9; }
+  .edit-modal-btn.primary { background: #ba9305; border-color: #ba9305; color: #020617; }
+  .edit-modal-btn.primary:hover { background: #d4a817; }
+  .edit-modal-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
   @media (max-width: 1100px) {
     .branch-summary-row { grid-template-columns: 1fr 1fr; }
     
@@ -370,6 +511,12 @@
       border-top: 1px solid #334155;
     }
     .date-range-input-wrap input[type="date"] { width: 100%; }
+    
+    .om-row { grid-template-columns: 1fr; gap: 6px; }
+    .om-row .om-actions { justify-content: flex-end; }
+    .om-modal { width: 95%; max-height: 90vh; }
+    .om-toolbar { flex-direction: column; align-items: stretch; }
+    .om-search { width: 100%; }
   }
 </style>
 </head>
@@ -417,6 +564,11 @@
       <button id="btnBranches" onclick="switchView('branches')">Branches</button>
       <button id="btnRoutes" onclick="switchView('routes')">Routes</button>
     </div>
+    <button class="om-btn" id="overrideManagerBtn" onclick="openOverrideManager()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      SP Overrides
+      <span class="om-badge" id="omBadge">0</span>
+    </button>
     <div class="filter-select branch-selector" id="branchSelectorWrap">
       <select id="branchSelect"><option value="">All Branches</option></select>
     </div>
@@ -582,6 +734,64 @@
   Auto-refreshes every 10 mins &nbsp;|&nbsp;
   Designed and Managed by <span class="highlight">MIS.DPT</span>
 </footer>
+
+<!-- Override Manager Modal -->
+<div class="om-overlay" id="overrideManagerOverlay">
+  <div class="om-modal">
+    <div class="om-header">
+      <div>
+        <div class="om-title">Sales Person Overrides Manager</div>
+        <div class="om-subtitle">Permanently saved in browser localStorage — persists across sessions</div>
+      </div>
+      <button class="om-close" onclick="closeOverrideManager()">&times;</button>
+    </div>
+    <div class="om-toolbar">
+      <input type="text" class="om-search" id="omSearch" placeholder="Search route or branch..." oninput="filterOverrideRows()">
+      <button class="om-action-btn success" onclick="exportOverrides()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Export JSON
+      </button>
+      <button class="om-action-btn" onclick="document.getElementById('omImportFile').click()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Import JSON
+      </button>
+      <input type="file" id="omImportFile" accept=".json" style="display:none" onchange="importOverrides(event)">
+      <button class="om-action-btn" onclick="generateUpdatedJS()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        Generate Updated JS
+      </button>
+      <button class="om-action-btn danger" onclick="clearAllOverrides()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Clear All
+      </button>
+    </div>
+    <div class="om-body" id="omBody">
+      <div class="om-empty">No overrides saved yet. Edit a route's Sales Person to create one.</div>
+    </div>
+    <div class="om-footer">
+      <div class="om-count"><strong id="omCount">0</strong> override(s) active</div>
+      <div style="font-size:11px;color:#475569;">Changes are permanent and persist across browser sessions</div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit SP Modal -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal">
+    <div class="edit-modal-title">Edit Sales Person</div>
+    <div class="edit-modal-sub" id="editModalRoute">Route: —</div>
+    <div class="edit-modal-label">Current Sales Person</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:12px;font-style:italic;" id="editModalCurrent">—</div>
+    <div class="edit-modal-label">New Sales Person Name</div>
+    <input type="text" class="edit-modal-input" id="editModalInput" placeholder="Enter new sales person name..." oninput="onEditInputChange()">
+    <div class="edit-modal-suggestions" id="editModalSuggestions" style="display:none;"></div>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-btn" onclick="closeEditModal()">Cancel</button>
+      <button class="edit-modal-btn primary" id="editModalSave" onclick="saveEditModal()" disabled>Save & Persist</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
@@ -612,16 +822,44 @@
     "KILIFI": ["KILIFI","MWANGANGI MAINGI","MOMBASA"], "MTWAPA": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "SHANZU": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "KANAMAI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "VIPINGO": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "KIKAMBALA": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MAJAONI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MAVUENI": ["KILIFI","MWANGANGI MAINGI","MOMBASA"], "SHARIANI": ["MTWAPA","MWANGANGI MAINGI","MOMBASA"], "MSHOMORONI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "KIEMBENI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "JUNDA": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "MTOPANGA": ["BAMBURI","PHILISTER KENYATTA","MOMBASA"], "KWA BULO": ["KWA BULO","PHILISTER KENYATTA","MOMBASA"], "VIKWATANI": ["VIKWATANI","PHILISTER KENYATTA","MOMBASA"], "MWAKIRUNGE": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "VIRUNGANI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "KAJIWENI": ["MSHOMORONI","PHILISTER KENYATTA","MOMBASA"], "MOMBASA CBD": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "TUDOR": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "MAJENGO - MOMBASA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "KINGORANI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "GANJONI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "OLD TOWN": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "BONDENI - MOMBASA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "SPARKI": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "MAKUPA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "TONONOKA": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "LEBANON": ["MOMBASA CBD","JANE ATIENO","MOMBASA"], "LIKONI": ["LIKONI","SAMUEL JEFWA","MOMBASA"], "LUNGALUNGA - MOMBASA": ["LUNGA LUNGA","JOHN OGOLA","MOMBASA"], "MTONGWE": ["LIKONI","JOHN OGOLA","MOMBASA"], "SHIMONI": ["SHIMONI","JOHN OGOLA","MOMBASA"], "SHIMBAHILLS": ["SIMBA HILLS","JOHN OGOLA","MOMBASA"], "PERANI": ["LUNGA LUNGA","JOHN OGOLA","MOMBASA"], "UJAMAA": ["UKUNDA","JOHN OGOLA","MOMBASA"], "BAMBURI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "KISAUNI": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "FISHERIES": ["FISHERIES","DAVID OMOLLO","MOMBASA"], "MWEMBENI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "BAKARANI": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "UTANGE": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "MLALEO": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "LAKE VIEW ESTATE": ["LAKE VIEW ESTATE","DAVID OMOLLO","MOMBASA"], "MTAMBO": ["BAMBURI","DAVID OMOLLO","MOMBASA"], "MWANDONI": ["MWANDONI","DAVID OMOLLO","MOMBASA"], "BARSHEBA": ["KISAUNI","DAVID OMOLLO","MOMBASA"], "BOMBOLULU": ["BOMBOLULU","GEORGE CLINTON MASIWO","MOMBASA"], "NYALI": ["NYALI","GEORGE CLINTON MASIWO","MOMBASA"], "KONGOWEA": ["KONGOWEA","GEORGE CLINTON MASIWO","MOMBASA"], "MAWENI - MOMBASA": ["MAWENI","GEORGE CLINTON MASIWO","MOMBASA"], "KARAMA": ["KONGOWEA","GEORGE CLINTON MASIWO","MOMBASA"], "VOK": ["VOK","GEORGE CLINTON MASIWO","MOMBASA"], "KISIMANI": ["BOMBOLULU","GEORGE CLINTON MASIWO","MOMBASA"], "UKUNDA": ["UKUNDA","MILICA MBEKE","MOMBASA"], "MSAMBWENI": ["LUNGA LUNGA","MILICA MBEKE","MOMBASA"], "KOMBANI": ["UKUNDA","MILICA MBEKE","MOMBASA"], "KWALE": ["KWALE","MILICA MBEKE","MOMBASA"], "KINANGO": ["KINANGO","MILICA MBEKE","MOMBASA"], "TIRIBE": ["KWALE","MILICA MBEKE","MOMBASA"], "DIANI": ["UKUNDA","MILICA MBEKE","MOMBASA"], "MAGONGO": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MIRITINI": ["MIRITINI","SAMUEL MBATHA","MOMBASA"], "MIKINDANI": ["MIKINDANI","SAMUEL MBATHA","MOMBASA"], "JOMVU": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MIGADINI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "CHANGAMWE": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "ALDINA": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "CHAANI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "VIKOBANI": ["VIKOBANI","SAMUEL MBATHA","MOMBASA"], "JITONI": ["MAGONGO","SAMUEL MBATHA","MOMBASA"], "MARIAKANI - MOMBASA": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "KALOLENI - MOMBASA": ["KALOLENI","JOSEPH BOB KAYAGO","MOMBASA"], "MAZERAS": ["MAZERAS","JOSEPH BOB KAYAGO","MOMBASA"], "BAMBA": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "MATANO MANNE": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "CHASIMBA": ["CHASIMBA","JOSEPH BOB KAYAGO","MOMBASA"], "KOKOTONI": ["UKUNDA","JOSEPH BOB KAYAGO","MOMBASA"], "GANZE": ["MARIAKANI","JOSEPH BOB KAYAGO","MOMBASA"], "RABAI": ["RABAI","JOSEPH BOB KAYAGO","MOMBASA"], "VITENGENI": ["MSHOMORONI","JOSEPH BOB KAYAGO","MOMBASA"],
     "ENGINEER": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NDUNYU NJERU": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "KIMENDE": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NJAMBINI": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "FLYOVER": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "MWENDANDU": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "KWA HARAKA": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "RWANYAMBO": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "GWAKANYWA": ["Naivasha route","JOHN MACHARIA","NAIVASHA"], "NAIVASHA": ["Naivasha CBD","STEPHEN MUWIMA","NAIVASHA"], "GILGIL": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "KIKOPEY": ["KIKOPEY","STEPHEN MUWIMA","NAIVASHA"], "MIHARATI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "RIRONI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "BUSH": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "WANJOHI": ["GILGIL","STEPHEN MUWIMA","NAIVASHA"], "MAAI MAHIU": ["MAAI MAHIU","GEORGE NJUGUNA","NAIVASHA"], "KAYOLE - NAIVASHA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "SUSWA": ["SUSWA ROUTE","GEORGE NJUGUNA","NAIVASHA"], "KINANGOP": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "KARAGITA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "KINAMBA - NAIVASHA": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"], "DUKA MOJA": ["SUSWA ROUTE","GEORGE NJUGUNA","NAIVASHA"], "KAMERE": ["Naivasha route","GEORGE NJUGUNA","NAIVASHA"],
     "NAKURU CBD": ["NAKURU CBD","ERICK NYAMWEYA","NAKURU"], "WHITE HOUSE": ["HESHIMA ROUTE","ERICK NYAMWEYA","NAKURU"], "LONDON": ["SHOWGROUND ROUTE","ERICK NYAMWEYA","NAKURU"], "KITI": ["KITI","ERICK NYAMWEYA","NAKURU"], "KIRATINA": ["LANET ROUTE","ERICK NYAMWEYA","NAKURU"], "KIAMUNYI": ["KIAMUNYI/KABARAK ROUTE","ERICK NYAMWEYA","NAKURU"], "HESHIMA": ["HESHIMA/BAHATI","ERICK NYAMWEYA","NAKURU"], "FREE AREA": ["PIPELINE ROUTE","ERICK NYAMWEYA","NAKURU"], "RAVINE": ["EDAMARAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "MOGOTIO CENTRE": ["RAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "KABARAK": ["KABARAK/KAMPI MOTO ROUTE","ERICK NYAMWEYA","NAKURU"], "EMINING": ["MARIGAT ROUTE","ERICK NYAMWEYA","NAKURU"], "MARIGAT": ["MARIGAT ROUTE","ERICK NYAMWEYA","NAKURU"], "KAMBI YA MOTO": ["RAVINE ROUTE","ERICK NYAMWEYA","NAKURU"], "MANGU": ["MANGU/KABARAK","ERICK NYAMWEYA","NAKURU"], "RAFIKI - NAKURU": ["KABARAK KAMPI MOTO ROUTE","ERICK NYAMWEYA","NAKURU"], "KABIMOI": ["KABIMOI","ERICK NYAMWEYA","NAKURU"], "MILE SITA": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "SOLAI CENTER": ["SOLAI ROUTE","FAITH MBINYA","NAKURU"], "MAILI KUMI": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "MAWANGA": ["HESHIMA ROUTE","FAITH MBINYA","NAKURU"], "MARIAKANI - NAKURU": ["HESHIMA ROUTE","FAITH MBINYA","NAKURU"], "KWA AMOS": ["KWA AMOS","FAITH MBINYA","NAKURU"], "WANYORORO": ["SOLAI ROUTE","FAITH MBINYA","NAKURU"], "KABATINI": ["HESHIMA/BAHATI ROUTE","FAITH MBINYA","NAKURU"], "AHERO - NAKURU": ["BAHATI ROUTE","FAITH MBINYA","NAKURU"], "NAROK CBD": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "OLOLUNGA": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "NTULELE": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "NAROOSURA": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "OLEKIRKIRAI": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "MONGARE": ["NAROK ROUTE","GEOFFREY OSEKO","NAKURU"], "MOLO CENTRE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "NJORO CENTRE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "KERINGET": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "OLENGURUONE": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "SALGAA CENTRE": ["SALGAA ROUTE","MOLINTA ONYANGO","NAKURU"], "MAU NAROK": ["MAU NAROK","MOLINTA ONYANGO","NAKURU"], "KIHINGO": ["MOLO","MOLINTA ONYANGO","NAKURU"], "TIPIS": ["TIPIS","MOLINTA ONYANGO","NAKURU"], "SEKUTON": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "MAUCHE": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "EGERTON-KIINGO": ["MOLO","MOLINTA ONYANGO","NAKURU"], "KIPTAGICH": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "SOBEA": ["SALGAA ROUTE","MOLINTA ONYANGO","NAKURU"], "ELBURGON": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "MATHANGAUTA": ["MATHANGAUTA","MOLINTA ONYANGO","NAKURU"], "MAKUTANO - NAKURU": ["TOTAL ROUTE","MOLINTA ONYANGO","NAKURU"], "LIKIA": ["LIKIA","MOLINTA ONYANGO","NAKURU"], "KURESOI - NAKURU": ["OLENGURUONE ROUTE","MOLINTA ONYANGO","NAKURU"], "TURI": ["TURI","MOLINTA ONYANGO","NAKURU"], "NESSUIT": ["MOLO ROUTE","MOLINTA ONYANGO","NAKURU"], "SACHORA": ["SACHORA","MOLINTA ONYANGO","NAKURU"], "RONGAI - NAKURU": ["RONGAI","MOLINTA ONYANGO","NAKURU"], "MWISHO WA LAMI": ["MAU NAROK ROUTE","MOLINTA ONYANGO","NAKURU"], "KAPTEMBWA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NGAMBO": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "SHARBAB": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "LANGALANGA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NGATA": ["NGATA ROUTE","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "RHONDA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KENLANDS": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "BONDENI - NAKURU": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "MANYANI": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "BANGLADESH": ["KABARAK ROUTE","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "WEAVERS": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "PONDAMALI": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KOLEN": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "KIPANGA": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "SEWAGE": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "RACE COURSE": ["NAKURU CBD","JOY KALOKI/BEATRICE KIOKO","NAKURU"], "NYAHURURU CBD": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "MARALAL CENTRE": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "KINAMBA - NAKURU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "SUBUKIA": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "RUMURUTI": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "MAILI NNE - NAKURU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "OLJORO-OROK": ["OLJORO-OROK ROUTE","ROSE CHEPKORIR","NAKURU"], "KABAZI": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "SIPILI": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "RURII": ["RURII","ROSE CHEPKORIR","NAKURU"], "KANYOTU": ["NYAHURURU ROUTE","ROSE CHEPKORIR","NAKURU"], "KWA KUNGU": ["MARALAL ROUTE","ROSE CHEPKORIR","NAKURU"], "KIVORONJO": ["KIVORONJO","ROSE CHEPKORIR","NAKURU"], "OLKALOU CENTRE": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "DONDORI": ["OLKALAU ROUTE","SYLVIA LASOI","NAKURU"], "NDUNDORI": ["LANET ROUTES","SYLVIA LASOI","NAKURU"], "GWAKIONGO": ["BAHATI ROUTE","SYLVIA LASOI","NAKURU"], "PASSENGA": ["PASSENGA","SYLVIA LASOI","NAKURU"], "KIONDO": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "LANET": ["LANET ROUTE","SYLVIA LASOI","NAKURU"], "PIPELINE - NAKURU": ["WANYANA ROUTE","SYLVIA LASOI","NAKURU"], "BARNABAS": ["PIPELINE ROUTE","SYLVIA LASOI","NAKURU"], "KIPTANGWANY": ["NAKURU CBD","SYLVIA LASOI","NAKURU"], "WANYAMA CENTER": ["WANYANA ROUTE","SYLVIA LASOI","NAKURU"], "KONGASIS": ["NAKURU CBD","SYLVIA LASOI","NAKURU"], "TEE": ["NAKURU CBD","SYLVIA LASOI","NAKURU"],
-    "KITALE CBD": ["KITALE CBD","JOHN MWAI","PHILTON"], "KIMININI": ["KIMININI","JOHN MWAI","PHILTON"], "KIBOMET": ["KITALE CBD","JOHN MWAI","PHILTON"], "SIKHENDU": ["KIMININI","JOHN MWAI","PHILTON"], "KIUNGANI": ["KIMININI","JOHN MWAI","PHILTON"], "MALIKI": ["KIMININI","JOHN MWAI","PHILTON"], "BIG TREE": ["KIMININI","JOHN MWAI","PHILTON"], "MUCHARAGE": ["KIMININI","JOHN MWAI","PHILTON"], "CHALICHA": ["KIMININI","JOHN MWAI","PHILTON"], "NOREK": ["KITALE CBD","JOHN MWAI","PHILTON"], "MAKUNGA - PHILTON": ["KITALE CBD","JOHN MWAI","PHILTON"], "BARBATON": ["KIMININI","JOHN MWAI","PHILTON"], "KAPCHEROP": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "SIBANGA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MAILI SABA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPSARA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MARAKWET - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPLAMAI": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KIPSAINA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "TUIGOIN": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "CHEBARUS": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPYEGO": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "ZIWA - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KOLONGOLO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "ENDEBESS": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MATISI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "VETERINARY": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KAPKOI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KWANZA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "CHEPCHOINA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "SABOTI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BIRUNDA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BONDENI - KITALE": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KIPSONGO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "GITWAMBA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "TUWAN": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MUROKI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MOLEM": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LESSOS - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LUKHOME": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "RAFIKI - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MAKUTANO - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ORTUM": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KACHELIBA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "SIGOR - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "UGANDA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "LOMUT": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "BENDERA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "CHEPARERIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KASEI": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ALALE": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KAPENGURIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KONYAO": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "MOIS BRIDGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NAITIRI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BRIGADIER": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDALU": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "PWANI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KONA MBAYA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "TONGAREN": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BIKEKE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "SIRENDE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MUKUYUNI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "GATUA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NYANGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MATUNDA - PHILTON": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KARIMA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDIVISI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"],
+    "KITALE CBD": ["KITALE CBD","JOHN MWAI","PHILTON"], "KIMININI": ["KIMININI","JOHN MWAI","PHILTON"], "KIBOMET": ["KITALE CBD","JOHN MWAI","PHILTON"], "SIKHENDU": ["KIMININI","JOHN MWAI","PHILTON"], "KIUNGANI": ["KIMININI","JOHN MWAI","PHILTON"], "MALIKI": ["KIMININI","JOHN MWAI","PHILTON"], "BIG TREE": ["KIMININI","JOHN MWAI","PHILTON"], "MUCHARAGE": ["KIMININI","JOHN MWAI","PHILTON"], "CHALICHA": ["KIMININI","JOHN MWAI","PHILTON"], "NOREK": ["KITALE CBD","JOHN MWAI","PHILTON"], "MAKUNGA - PHILTON": ["KITALE CBD","JOHN MWAI","PHILTON"], "BARBATON": ["KIMININI","JOHN MWAI","PHILTON"], "KAPCHEROP": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "SIBANGA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MAILI SABA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPSARA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "MARAKWET - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPLAMAI": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPSAINA": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "TUIGOIN": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "CHEBARUS": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KAPYEGO": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "ZIWA - PHILTON": ["KAPCHEROP","DOUGLAS MUTURI","PHILTON"], "KOLONGOLO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "ENDEBESS": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MATISI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "VETERINARY": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KAPKOI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KWANZA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "CHEPCHOINA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "SABOTI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BIRUNDA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "BONDENI - KITALE": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "KIPSONGO": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "GITWAMBA": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "TUWAN": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MUROKI": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MOLEM": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LESSOS - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "LUKHOME": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "RAFIKI - PHILTON": ["KOLONGOLO","WINNIE CHEPKWEMOI","PHILTON"], "MAKUTANO - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ORTUM": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KACHELIBA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "SIGOR - PHILTON": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "UGANDA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "LOMUT": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "BENDERA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "CHEPARERIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KASEI": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "ALALE": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KAPENGURIA": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "KONYAO": ["MAKUTANO","WESLEY KIPKOECH","PHILTON"], "MOIS BRIDGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NAITIRI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BRIGADIER": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDALU": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "PWANI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KONA MBAYA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "TONGAREN": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "BIKEKE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "SIRENDE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MUKUYUNI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "GATUA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NYANGE": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "MATUNDA - PHILTON": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "KARIMA": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"], "NDIVISI": ["MOIS BRIDGE","NJERI MARGARET WAIRIMU","PHILTON"],
     "KISERIAN": ["kiserian","GLORIA KITIABI","RONGAI"], "NGONG - RONGAI WHOLESALE": ["NGONG","GLORIA KITIABI","RONGAI"], "KWARE - RONGAI": ["NGONG","GLORIA KITIABI","RONGAI"], "EMBULBUL": ["kiserian","GLORIA KITIABI","RONGAI"], "GATAKA": ["rongai","GLORIA KITIABI","RONGAI"], "RONGAI - RONGAI WHOLESALE": ["rongai","VIVIAN AKIRU","RONGAI"], "LANGATA": ["langata","VIVIAN AKIRU","RONGAI"], "SOUTH C": ["south c","VIVIAN AKIRU","RONGAI"], "TWALA": ["rongai","VIVIAN AKIRU","RONGAI"], "OLEKASASI": ["rongai","VIVIAN AKIRU","RONGAI"], "KAREN - RONGAI": ["karen","VIVIAN AKIRU","RONGAI"], "MAASAI LODGE": ["rongai","VIVIAN AKIRU","RONGAI"], "NAIROBI WEST": ["nairobi west","VIVIAN AKIRU","RONGAI"],
     "MAKONGENI": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KIGANJO - THIKA": ["THIKA ROUTE","ELIZABETH WANJOGU","THIKA"], "MUGUGA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "KISII - THIKA": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "LANDLESS": ["THIKA/KENOL ROUTE","ELIZABETH WANJOGU","THIKA"], "NDITHINI": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "ITHANGA": ["WEITEITHIE ROUTE","ELIZABETH WANJOGU","THIKA"], "NGOLIBA": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "OLDONYO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "KILIMAMBOGO": ["MAKONGENI ROUTE","ELIZABETH WANJOGU","THIKA"], "THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MAKUYU": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KANGARI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAYOLE - THIKA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUNUNGA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KAMAHUHA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MUTHITHI": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KIRERE": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GACHOCHO": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "MANANJA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "KINYONA": ["THIKA/KENOL ROUTE","NANCY GAKII","THIKA"], "GATUNDU": ["GATUNDU","NO FCRO","THIKA"], "JUJA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENYATTA ROAD": ["KENYATTA ROAD","NO FCRO","THIKA"], "GATUKUYU": ["JUJA ROUTE","NO FCRO","THIKA"], "GACHORORO": ["JUJA ROUTE","NO FCRO","THIKA"], "KAMWANGI": ["JUJA ROUTE","NO FCRO","THIKA"], "MANG'U - THIKA": ["JUJA ROUTE","NO FCRO","THIKA"], "KENOL": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "WITEITHIE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "GITHUMU": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KANDARA": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"], "KABATI - THIKA": ["THIKA/KENOL ROUTE","LINET MORAA","THIKA"], "GATURA": ["KENOL ROUTE","LINET MORAA","THIKA"], "GACHARAGE": ["WEITEITHIE ROUTE","LINET MORAA","THIKA"]
   };
 
-  let spOverrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
-  for (const k in spOverrides) {
-    if (masterTemplate[k]) {
-      masterTemplate[k][1] = spOverrides[k];
+  /* ============================================================
+     PERSISTENT OVERRIDE SYSTEM
+     - Stores original template for comparison/reset
+     - Loads overrides from localStorage on every page load
+     - All edits are permanent and survive refresh/restart
+     ============================================================ */
+  const originalMasterTemplate = JSON.parse(JSON.stringify(masterTemplate));
+  
+  function loadOverrides() {
+    let spOverrides = {};
+    try {
+      spOverrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
+    } catch(e) { spOverrides = {}; }
+    // Apply all overrides to masterTemplate permanently
+    for (const k in spOverrides) {
+      if (masterTemplate[k]) {
+        masterTemplate[k][1] = spOverrides[k];
+      }
     }
+    return spOverrides;
+  }
+  
+  let spOverrides = loadOverrides();
+  
+  function saveOverrides() {
+    localStorage.setItem('spOverrides', JSON.stringify(spOverrides));
+    updateOverrideBadge();
+  }
+  
+  function updateOverrideBadge() {
+    const count = Object.keys(spOverrides).length;
+    const badge = document.getElementById('omBadge');
+    if (badge) badge.textContent = count;
   }
 
   const AUTO_REFRESH_MS = 600000;
@@ -968,7 +1206,7 @@
 
       if (matchKey) {
         const template = masterTemplate[matchKey];
-        salesPersonName = template[1];
+        salesPersonName = template[1]; // Uses overridden value if exists
         mainRoute = template[0];
         branchName = template[2];
         routeName = matchKey;
@@ -1508,9 +1746,11 @@
           const pctClass = sales >= 80 ? "pct-high" : sales >= 50 ? "pct-medium" : "pct-low";
           const statusClass = sales >= 80 ? "status-on-track" : sales >= 50 ? "status-at-risk" : "status-below";
           const statusText = sales >= 80 ? "ACHIEVED" : sales >= 50 ? "AVERAGE" : "OFF TRACK";
+          const isEdited = spOverrides[item.routeName] !== undefined;
+          const editedClass = isEdited ? " route-edited" : "";
 
           html += `
-            <tr class="route-row">
+            <tr class="route-row${editedClass}">
               <td class="route-name">${item.routeName}</td>
               <td class="branch-cell">${item.mainRoute}</td>
               <td class="sp-cell">
@@ -1614,29 +1854,311 @@
     rwSearchDebounce = setTimeout(applyRouteSearchAndSort, 150);
   });
 
+  /* ============================================================
+     EDIT SALES PERSON MODAL — Custom UI replacing browser prompt
+     Saves permanently to localStorage and updates masterTemplate
+     ============================================================ */
+  let currentEditRoute = null;
+  let currentEditSP = null;
+
   document.getElementById("rw_tableBody").addEventListener("click", (e) => {
     const btn = e.target.closest(".edit-sp-btn");
     if (!btn) return;
+    currentEditRoute = btn.getAttribute("data-route");
+    currentEditSP = btn.getAttribute("data-sp");
+    openEditModal(currentEditRoute, currentEditSP);
+  });
 
-    const routeName = btn.getAttribute("data-route");
-    const currentSP = btn.getAttribute("data-sp");
-    const newSP = prompt(`Edit Sales Person for route: ${routeName}`, currentSP);
-    if (newSP !== null && newSP.trim() !== "" && newSP.trim() !== currentSP) {
-        const routeKey = Object.keys(masterTemplate).find(k => normalizeRouteName(k) === normalizeRouteName(routeName));
-        if (routeKey) {
-            masterTemplate[routeKey][1] = newSP.trim();
+  function openEditModal(routeName, currentSP) {
+    document.getElementById("editModalRoute").textContent = `Route: ${routeName}`;
+    document.getElementById("editModalCurrent").textContent = currentSP;
+    const input = document.getElementById("editModalInput");
+    input.value = currentSP;
+    input.classList.toggle("om-original", spOverrides[routeName] === undefined);
+    document.getElementById("editModalSave").disabled = true;
+    document.getElementById("editModalSuggestions").style.display = "none";
+    document.getElementById("editModalOverlay").classList.add("active");
+    setTimeout(() => input.focus(), 100);
+  }
 
-            let overrides = JSON.parse(localStorage.getItem('spOverrides') || '{}');
-            overrides[routeKey] = newSP.trim();
-            localStorage.setItem('spOverrides', JSON.stringify(overrides));
+  function closeEditModal() {
+    document.getElementById("editModalOverlay").classList.remove("active");
+    currentEditRoute = null;
+    currentEditSP = null;
+  }
 
-            processRoutes();
-            showToast(`Sales Person for ${routeName} updated to ${newSP.trim()}`, "retry");
-        } else {
-            showToast(`Route ${routeName} not found in template.`, "warn");
-        }
+  function onEditInputChange() {
+    const input = document.getElementById("editModalInput");
+    const val = input.value.trim();
+    const saveBtn = document.getElementById("editModalSave");
+    saveBtn.disabled = val === "" || val === currentEditSP;
+
+    // Show suggestions from existing sales persons
+    const suggestions = document.getElementById("editModalSuggestions");
+    if (val.length > 0) {
+      const allSPs = [...new Set(Object.values(masterTemplate).map(t => t[1]))].sort();
+      const filtered = allSPs.filter(sp => sp.toLowerCase().includes(val.toLowerCase()) && sp !== currentEditSP).slice(0, 6);
+      if (filtered.length > 0) {
+        suggestions.innerHTML = filtered.map(sp => `<div class="edit-modal-suggestion" onclick="selectSuggestion('${sp.replace(/'/g, "\\'")}')">${sp}</div>`).join("");
+        suggestions.style.display = "block";
+      } else {
+        suggestions.style.display = "none";
+      }
+    } else {
+      suggestions.style.display = "none";
+    }
+  }
+
+  function selectSuggestion(sp) {
+    document.getElementById("editModalInput").value = sp;
+    onEditInputChange();
+  }
+
+  function saveEditModal() {
+    const newSP = document.getElementById("editModalInput").value.trim();
+    if (!newSP || !currentEditRoute || newSP === currentEditSP) return;
+
+    // Find the exact key in masterTemplate
+    const routeKey = Object.keys(masterTemplate).find(k => normalizeRouteName(k) === normalizeRouteName(currentEditRoute));
+    if (!routeKey) {
+      showToast(`Route "${currentEditRoute}" not found in template.`, "warn");
+      return;
+    }
+
+    // Update masterTemplate in memory
+    masterTemplate[routeKey][1] = newSP;
+
+    // Save to localStorage permanently
+    spOverrides[routeKey] = newSP;
+    saveOverrides();
+
+    // Re-process and re-render
+    processRoutes();
+    showToast(`✓ "${currentEditRoute}" Sales Person permanently updated to "${newSP}"`, "retry");
+    closeEditModal();
+  }
+
+  // Close modals on overlay click
+  document.getElementById("editModalOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeEditModal();
+  });
+  document.getElementById("overrideManagerOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeOverrideManager();
+  });
+  // Escape key closes modals
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeEditModal();
+      closeOverrideManager();
     }
   });
+
+  /* ============================================================
+     OVERRIDE MANAGER — View, edit, remove, export, import, 
+     and generate updated JS with overrides baked in
+     ============================================================ */
+  function openOverrideManager() {
+    renderOverrideRows();
+    document.getElementById("overrideManagerOverlay").classList.add("active");
+  }
+  function closeOverrideManager() {
+    document.getElementById("overrideManagerOverlay").classList.remove("active");
+  }
+
+  function renderOverrideRows() {
+    const body = document.getElementById("omBody");
+    const keys = Object.keys(spOverrides).sort();
+    document.getElementById("omCount").textContent = keys.length;
+    updateOverrideBadge();
+
+    if (keys.length === 0) {
+      body.innerHTML = '<div class="om-empty">No overrides saved yet.<br>Edit a route\'s Sales Person (pencil icon in Routes view) to create one.<br><br>All overrides are permanently saved in browser localStorage.</div>';
+      return;
+    }
+
+    let html = "";
+    keys.forEach(routeKey => {
+      const template = masterTemplate[routeKey] || originalMasterTemplate[routeKey] || ["", "", ""];
+      const originalSP = originalMasterTemplate[routeKey] ? originalMasterTemplate[routeKey][1] : "—";
+      const currentSP = spOverrides[routeKey];
+      const branch = template[2] || "—";
+      html += `
+        <div class="om-row" data-search="${(routeKey + ' ' + branch).toLowerCase()}">
+          <div class="om-route" title="${routeKey}">${routeKey}</div>
+          <div class="om-branch" title="${branch}">${branch}</div>
+          <input type="text" class="om-sp-input" value="${currentSP.replace(/"/g, '&quot;')}" data-route="${routeKey.replace(/"/g, '&quot;')}" onchange="updateOverrideFromInput(this)" placeholder="Sales Person">
+          <div class="om-actions">
+            <button class="om-icon-btn" onclick="resetOverride('${routeKey.replace(/'/g, "\\'")}')">Reset</button>
+            <button class="om-icon-btn delete" onclick="removeOverride('${routeKey.replace(/'/g, "\\'")}')">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    body.innerHTML = html;
+  }
+
+  function filterOverrideRows() {
+    const q = document.getElementById("omSearch").value.toLowerCase().trim();
+    document.querySelectorAll("#omBody .om-row").forEach(row => {
+      const searchData = row.getAttribute("data-search") || "";
+      row.style.display = (!q || searchData.includes(q)) ? "" : "none";
+    });
+  }
+
+  function updateOverrideFromInput(input) {
+    const routeKey = input.getAttribute("data-route");
+    const newSP = input.value.trim();
+    if (!newSP) {
+      showToast("Sales Person name cannot be empty.", "warn");
+      input.value = spOverrides[routeKey];
+      return;
+    }
+    if (masterTemplate[routeKey]) {
+      masterTemplate[routeKey][1] = newSP;
+    }
+    spOverrides[routeKey] = newSP;
+    saveOverrides();
+    showToast(`✓ "${routeKey}" updated to "${newSP}"`, "retry");
+    if (currentView === "routes") processRoutes();
+  }
+
+  function removeOverride(routeKey) {
+    delete spOverrides[routeKey];
+    if (originalMasterTemplate[routeKey] && masterTemplate[routeKey]) {
+      masterTemplate[routeKey][1] = originalMasterTemplate[routeKey][1];
+    }
+    saveOverrides();
+    renderOverrideRows();
+    showToast(`Override for "${routeKey}" removed. Reverted to original.`, "retry");
+    if (currentView === "routes") processRoutes();
+  }
+
+  function resetOverride(routeKey) {
+    if (originalMasterTemplate[routeKey] && masterTemplate[routeKey]) {
+      masterTemplate[routeKey][1] = originalMasterTemplate[routeKey][1];
+    }
+    delete spOverrides[routeKey];
+    saveOverrides();
+    renderOverrideRows();
+    showToast(`"${routeKey}" reset to original Sales Person.`, "retry");
+    if (currentView === "routes") processRoutes();
+  }
+
+  function clearAllOverrides() {
+    const count = Object.keys(spOverrides).length;
+    if (count === 0) {
+      showToast("No overrides to clear.", "warn");
+      return;
+    }
+    if (!confirm(`Are you sure you want to clear all ${count} override(s)? This will revert all Sales Person edits to their original values.`)) return;
+    
+    for (const routeKey in spOverrides) {
+      if (originalMasterTemplate[routeKey] && masterTemplate[routeKey]) {
+        masterTemplate[routeKey][1] = originalMasterTemplate[routeKey][1];
+      }
+    }
+    spOverrides = {};
+    saveOverrides();
+    renderOverrideRows();
+    showToast("All overrides cleared. All routes reverted to original.", "retry");
+    refreshFromCachedData();
+  }
+
+  function exportOverrides() {
+    const count = Object.keys(spOverrides).length;
+    if (count === 0) {
+      showToast("No overrides to export.", "warn");
+      return;
+    }
+    const data = {
+      exportDate: new Date().toISOString(),
+      exportCount: count,
+      overrides: spOverrides
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sp-overrides-${formatDate(new Date())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`✓ Exported ${count} override(s) to JSON file.`, "retry");
+  }
+
+  function importOverrides(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const imported = data.overrides || data;
+        if (typeof imported !== "object") throw new Error("Invalid format");
+        let count = 0;
+        for (const routeKey in imported) {
+          if (masterTemplate[routeKey]) {
+            masterTemplate[routeKey][1] = imported[routeKey];
+            spOverrides[routeKey] = imported[routeKey];
+            count++;
+          }
+        }
+        saveOverrides();
+        renderOverrideRows();
+        showToast(`✓ Imported ${count} override(s) successfully.`, "retry");
+        refreshFromCachedData();
+      } catch (err) {
+        showToast("Failed to import: " + err.message, "warn");
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = "";
+  }
+
+  function generateUpdatedJS() {
+    const count = Object.keys(spOverrides).length;
+    if (count === 0) {
+      showToast("No overrides to generate. Edit routes first.", "warn");
+      return;
+    }
+    
+    // Generate a complete JS file with overrides baked into masterTemplate
+    let templateStr = "const masterTemplate = {\n";
+    const entries = Object.entries(masterTemplate);
+    entries.forEach(([key, val], i) => {
+      const [main, sp, branch] = val;
+      const comma = i < entries.length - 1 ? "," : "";
+      templateStr += `    ${JSON.stringify(key)}: [${JSON.stringify(main)},${JSON.stringify(sp)},${JSON.stringify(branch)}]${comma}\n`;
+    });
+    templateStr += "  };";
+    
+    const jsContent = `/* ============================================================
+     MASTER WEEKLY TEMPLATE — Updated with ${count} override(s)
+     Generated: ${new Date().toISOString()}
+     ============================================================ */
+ ${templateStr}
+
+// Original values for reference (before overrides were applied):
+/*
+ ${Object.entries(spOverrides).map(([k, v]) => {
+  const orig = originalMasterTemplate[k] ? originalMasterTemplate[k][1] : "—";
+  return `// ${k}: "${orig}" → "${v}"`;
+}).join('\n')}
+*/
+`;
+    
+    const blob = new Blob([jsContent], { type: "text/javascript" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `masterTemplate-updated-${formatDate(new Date())}.js`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`✓ Downloaded updated JS template with ${count} override(s). Replace your original template with this file.`, "retry");
+  }
 
   function refreshFromCachedData() {
     if (!telesalesRawData.length && !routeRawData.length && !branchPerfData.length) return;
@@ -1697,6 +2219,7 @@
     toggleCustomDateRange(false);
     updateSortHeaders();
     updateColumnHeaders();
+    updateOverrideBadge();
     loadAllData();
     setInterval(() => {
       if (!isLoading) {
