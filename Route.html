@@ -159,6 +159,14 @@
               <th style="width: 14%;">Modified</th>
               <th style="width: 14%; text-align: right;">Actions</th>
             </tr>
+            <!-- Loading Row -->
+<tr class="loading-row"><td colspan="8"><span class="loading-spinner"></span> Loading route data...</td></tr>
+
+<!-- No Data Row -->
+<tr class="no-data-row"><td colspan="8">No route data found for the selected range</td></tr>
+
+<!-- Branch Header Row (inside the JS renderTable function) -->
+html += `<tr class="group-header branch-header"><td colspan="8">${branch}</td></tr>`;
           </thead>
           <tbody id="ovmTableBody"></tbody>
         </table>
