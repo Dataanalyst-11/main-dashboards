@@ -95,7 +95,7 @@
             <th class="sortable" data-sort="branch">MAIN ROUTE <span class="sort-icon">▲</span></th>
             <th class="sortable" data-sort="sp">SALES PERSON <span class="sort-icon">▲</span></th>
             <th class="sortable" data-sort="target" style="text-align:right;"><span id="thTargetLabel">RANGE TARGET</span> <span class="sort-icon">▲</span></th>
-            <!-- <th class="sortable" data-sort="weekly" style="text-align:right;">WEEKLY SALES <span class="sort-icon">▲</span></th> -->
+            <th class="sortable" data-sort="weekly" style="text-align:right;">WEEKLY SALES <span class="sort-icon">▲</span></th>
             <th class="sortable" data-sort="daily" style="text-align:right;">DAILY TARGET <span class="sort-icon">▲</span></th>
             <th class="sortable active-sort sort-desc" data-sort="actual" style="text-align:right;">ACTUAL SALES <span class="sort-icon">▲</span></th>
             <th class="sortable" data-sort="score" style="text-align:center;">% ACHIEVEMENT <span class="sort-icon">▲</span></th>
@@ -159,14 +159,6 @@
               <th style="width: 14%;">Modified</th>
               <th style="width: 14%; text-align: right;">Actions</th>
             </tr>
-            <!-- Loading Row -->
-<tr class="loading-row"><td colspan="8"><span class="loading-spinner"></span> Loading route data...</td></tr>
-
-<!-- No Data Row -->
-<tr class="no-data-row"><td colspan="8">No route data found for the selected range</td></tr>
-
-<!-- Branch Header Row (inside the JS renderTable function) -->
-html += `<tr class="group-header branch-header"><td colspan="8">${branch}</td></tr>`;
           </thead>
           <tbody id="ovmTableBody"></tbody>
         </table>
