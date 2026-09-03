@@ -457,7 +457,7 @@
     padding: 9px 16px 9px 38px;
     border-radius: 10px;
     border: 2px solid #334155;
-    background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
+    background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397,1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") 14px center no-repeat;
     color: #f1f5f9;
     font-size: 14px;
     width: 260px;
@@ -870,7 +870,7 @@
   <div class="branch-perf-section">
     <div class="branch-perf-card">
       <div class="branch-perf-info">
-        <div class="label">Branch Performance vs Target</div>
+        <div class="label">Branch Performance on Special Target</div>
         <div class="value" id="branchPerfValue">—</div>
         <div class="detail" id="branchPerfDetail">loading...</div>
       </div>
@@ -929,7 +929,7 @@
 
   <div class="branch-summary-row">
     <div class="stat-card">
-      <div class="stat-label">Overall Performance</div>
+      <div class="stat-label">Special Targets Performance</div>
       <div class="stat-value" id="bsOverallPct">—</div>
       <div class="stat-sub">aggregated all branches</div>
     </div>
@@ -943,10 +943,11 @@
       <div class="stat-value perf-high" id="bsOnTrack">—</div>
       <div class="stat-sub" id="bsOnTrackSub">at 80% or above</div>
     </div>
+    <!-- 4th Card Modified to show Actual Score (Raw Target %) -->
     <div class="stat-card">
-      <div class="stat-label">Branches Below Target</div>
-      <div class="stat-value perf-low" id="bsAtRisk">—</div>
-      <div class="stat-sub" id="bsAtRiskSub">below 80% threshold</div>
+      <div class="stat-label">Actual Score (Raw)</div>
+      <div class="stat-value" id="bsRawPerf">—</div>
+      <div class="stat-sub" id="bsRawPerfSub">against original targets</div>
     </div>
   </div>
 
@@ -978,22 +979,9 @@
 <script>
   /* ============================================================
      DATA ENGINE
-     ============================================================
-     IMPORTANT:
-     - Exactly TWO API requests per refresh cycle:
-         1) sales-person-performance
-         2) branch-sales-performance-reports
-     - No pagination.
-     - Both requests are made in parallel.
-     - Data is pulled once every 2 minutes.
-     - Date and branch filters are CLIENT-SIDE only.
-     - Performance for a date range is:
-         SUM(net sales for selected days)
-         -------------------------------- × 100
-         SUM(target for selected days)
      ============================================================ */
 
-  const AUTO_REFRESH_MS = 600000;//10 minutes
+  const AUTO_REFRESH_MS = 600000; // 10 minutes
   const DATA_LOOKBACK_DAYS = 365; // One API pull covers the client-side date filters.
   const API_TOKEN = window.API_CONFIG.API_TOKEN;
 
@@ -1144,7 +1132,7 @@
     return !!dateKey && dateKey >= startDate && dateKey <= endDate;
   }
 
-  /* ── Branch names ─────────────────────────────────────────── */
+  /* ── Branch names & IDs ────────────────────────────────────── */
 
   const branchNames = {
     "orgbranch-683976e3994a072a600cbd7a": "Head Office",
@@ -1174,10 +1162,16 @@
     "orgbranch-685002247d3c6f75c8c1dc25": "Embu",
     "orgbranch-69df9dc58418a65253e015a6": "Arms Narok Wholesale",
     "orgbranch-69f7511b83ba28b7dda7ccd1": "Ol Kalou",
-   "orgbranch-6a8c509e44cec8b9b30ec559": "Wote",
+    "orgbranch-6a8c509e44cec8b9b30ec559": "Wote",
     "orgbranch-6a840bfb1936a960f8ec3e7a": "Migori",
     "orgbranch-6a14177260c3a453acb56ceb": "Nanyuki"
   };
+
+  // Special Branch IDs Target Mapping
+  const ID_KAWANGWARE = "orgbranch-684593b176bd774c32f150c6";
+  const ID_RONGAI = "orgbranch-685002137d3c6f75c8c1db4f";
+  const ID_KITENGEELA = "orgbranch-68455bea76bd774c32f031cc";
+  const ID_KITUI = "orgbranch-6850015d7d3c6f75c8c1d680";
 
   const branchSelect = document.getElementById("branchSelect");
 
@@ -1274,6 +1268,76 @@
     return "";
   }
 
+  /* ── Target Multiplier Logic (Special & Double Gifting) ─────────── */
+  // Only Applies to Branch Aggregation, NOT individual salespeople.
+  
+  function getTargetMultiplier(dateStr, branchId) {
+    const dateSelectVal = document.getElementById("dateSelect").value;
+    const todayStr = formatDate(getToday());
+    
+    if (dateSelectVal !== "today" || dateStr !== todayStr) return 1;
+
+    // Parse safely to avoid timezone offset issues
+    const dateObj = new Date(dateStr + "T00:00:00");
+    const dayOfWeek = dateObj.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+
+    // Helper: Check if it's the last specific weekday of the month
+    function isLastWeekdayOfMonth(date, targetDay) {
+      if (date.getDay() !== targetDay) return false;
+      const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      return date.getDate() + 7 > lastDayOfMonth.getDate();
+    }
+
+    // 1. Check Double Gifting FIRST (Overrides Special Targets)
+    // Last Tuesday (Day 2) - Kitui Wholesale
+    if (dayOfWeek === 2 && isLastWeekdayOfMonth(dateObj, 2) && branchId === ID_KITUI) return 1.5;
+    
+    // Last Wednesday (Day 3) - Kawangware Wholesale
+    if (dayOfWeek === 3 && isLastWeekdayOfMonth(dateObj, 3) && branchId === ID_KAWANGWARE) return 1.5;
+    
+    // Last Friday (Day 5) - Kitengela and Rongai Wholesale
+    if (dayOfWeek === 5 && isLastWeekdayOfMonth(dateObj, 5) && (branchId === ID_KITENGEELA || branchId === ID_RONGAI)) return 1.5;
+    
+    // Last Thursday (Day 4) - All other remaining branches
+    if (dayOfWeek === 4 && isLastWeekdayOfMonth(dateObj, 4)) {
+      if (![ID_KITUI, ID_KAWANGWARE, ID_KITENGEELA, ID_RONGAI].includes(branchId)) return 1.5;
+    }
+
+    // 2. Check Special Targets
+    // Monday: All branches 70%
+    if (dayOfWeek === 1) return 0.7;
+
+    // Tuesday: All 80% EXCEPT Kawangware Wholesale, Rongai Wholesale (60%)
+    if (dayOfWeek === 2) {
+      if (branchId === ID_KAWANGWARE || branchId === ID_RONGAI) return 0.6;
+      return 0.8;
+    }
+
+    // Wednesday: All 60% EXCEPT Kawangware Wholesale, Rongai Wholesale (80%)
+    if (dayOfWeek === 3) {
+      if (branchId === ID_KAWANGWARE || branchId === ID_RONGAI) return 0.8;
+      return 0.6;
+    }
+
+    // Thursday: All 80% EXCEPT Kitengela, Kawangware Wholesale, Rongai Wholesale (60%)
+    if (dayOfWeek === 4) {
+      if (branchId === ID_KITENGEELA || branchId === ID_KAWANGWARE || branchId === ID_RONGAI) return 0.6;
+      return 0.8;
+    }
+
+    // Friday: All 60% EXCEPT Kawangware Wholesale, Rongai Wholesale, Kitengela (80%)
+    if (dayOfWeek === 5) {
+      if (branchId === ID_KAWANGWARE || branchId === ID_RONGAI || branchId === ID_KITENGEELA) return 0.8;
+      return 0.6;
+    }
+
+    // Sunday: All branches 60%
+    if (dayOfWeek === 0) return 0.6;
+
+    // Saturday or any other unhandled case -> normal target
+    return 1.0;
+  }
+
   /* ── Toast ───────────────────────────────────────────────── */
 
   let toastTimer = null;
@@ -1341,11 +1405,6 @@
   async function fetchSalesData(signal) {
     const { startDate, endDate } = getFetchRange();
 
-    /*
-      No pageNum and no pagination loop.
-      The request intentionally does NOT contain orgBranchId.
-      Branch selection is handled entirely in the browser.
-    */
     const url =
       `${window.API_CONFIG.API_URL}sales-person-performance` +
       `?pageSize=10000` +
@@ -1398,11 +1457,6 @@
     const dateTo = document.getElementById("dateTo");
     const branchSel = document.getElementById("branchSelect");
 
-    /*
-      During the two API calls we lock the controls.
-      Once data is loaded, filters are unlocked and changing them
-      does NOT make another API request.
-    */
     if (loading) {
       overlay.classList.add("active");
       dateSelect.disabled = true;
@@ -1430,6 +1484,8 @@
 
   /* ── Client-side range aggregation ───────────────────────── */
 
+  // Aggregates Individual Telesales. 
+  // NOTE: Multiplier is NOT applied here. Individual targets always remain raw.
   function aggregateSalesPeople(startDate, endDate, selectedBranchId) {
     const groups = new Map();
 
@@ -1442,10 +1498,6 @@
       const branchName = getBranchNameFromSalesRow(row);
 
       if (selectedBranchId) {
-        /*
-          Prefer the actual orgBranchId from the API.
-          If the API row does not contain it, fall back to branch name.
-        */
         const selectedName = branchNames[selectedBranchId] || "";
 
         if (
@@ -1482,21 +1534,17 @@
           branchName,
           orgBranchId: branchId || getBranchIdByName(branchName),
           netValue: 0,
-          target: 0,
+          target: 0, 
           orders: 0,
           days: 0
         });
       }
 
       const g = groups.get(key);
+      const rawTarget = getSalesTarget(row);
 
-      /*
-        CRITICAL:
-        We ADD the daily sales and daily target.
-        We do NOT use the highest dailySalesScore.
-      */
       g.netValue += getNetSales(row);
-      g.target += getSalesTarget(row);
+      g.target += rawTarget; // No multiplier, individual targets remain raw.
       g.orders += getCustomerOrders(row);
       g.days += 1;
     }
@@ -1510,17 +1558,19 @@
       .filter(g => g.score > 0);
   }
 
+  // Aggregates Branches. 
+  // NOTE: Multiplier IS applied here. Branch targets will reflect special/double gifting rules.
   function aggregateBranches(startDate, endDate) {
-    // Build one record per branch/day. The branch API is preferred;
-    // missing branch/day records are recovered from the cached sales API.
     const daily = new Map();
 
-    function addDaily(name, date, target, netSales) {
+    function addDaily(name, date, target, netSales, branchId) {
       if (!name || !date) return;
       const key = `${name.toLowerCase().trim()}||${date}`;
-      if (!daily.has(key)) daily.set(key, { name, date, target: 0, netSales: 0 });
+      if (!daily.has(key)) daily.set(key, { name, date, target: 0, netSales: 0, rawTarget: 0 });
       const d = daily.get(key);
-      d.target = Number(target) || d.target;
+      const multiplier = getTargetMultiplier(date, branchId);
+      d.target += Number(target) * multiplier;
+      d.rawTarget += Number(target);
       d.netSales += Number(netSales) || 0;
     }
 
@@ -1530,7 +1580,7 @@
       if (!isDateInRange(date, startDate, endDate)) continue;
       const name = String(row.orgBranchName || row.branchName || branchNames[row.orgBranchId] || '').trim();
       if (!name) continue;
-      addDaily(name, date, row.dailySalesTarget ?? row.target ?? row.branchTarget ?? row.salesTarget, getNetSales(row));
+      addDaily(name, date, getSalesTarget(row), getNetSales(row), row.orgBranchId || getBranchIdByName(name));
     }
 
     // Sales-cache fallback for branch/day combinations missing above.
@@ -1541,28 +1591,31 @@
       const name = getBranchNameFromSalesRow(row);
       if (!name) continue;
       const key = `${name.toLowerCase().trim()}||${date}`;
-      if (!salesDaily.has(key)) salesDaily.set(key, { name, date, target: getSalesTarget(row), netSales: 0 });
+      const branchId = getBranchIdFromRow(row);
+      if (!salesDaily.has(key)) salesDaily.set(key, { name, date, target: getSalesTarget(row), netSales: 0, branchId });
       const d = salesDaily.get(key);
       d.netSales += getNetSales(row);
       if (!d.target) d.target = getSalesTarget(row);
     }
     for (const [key, d] of salesDaily) {
-      if (!daily.has(key)) addDaily(d.name, d.date, d.target, d.netSales);
+      if (!daily.has(key)) addDaily(d.name, d.date, d.target, d.netSales, d.branchId);
     }
 
     const groups = new Map();
     for (const d of daily.values()) {
       const key = d.name.toLowerCase().trim();
-      if (!groups.has(key)) groups.set(key, { name: d.name, target: 0, netSales: 0, days: 0, hasData: true });
+      if (!groups.has(key)) groups.set(key, { name: d.name, target: 0, netSales: 0, days: 0, hasData: true, rawTarget: 0 });
       const g = groups.get(key);
       g.target += d.target;
+      g.rawTarget += d.rawTarget;
       g.netSales += d.netSales;
       g.days += 1;
     }
 
     return [...groups.values()].map(b => ({
       ...b,
-      pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0
+      pct: b.target > 0 ? (b.netSales / b.target) * 100 : 0,
+      rawPct: b.rawTarget > 0 ? (b.netSales / b.rawTarget) * 100 : 0 // Actual score based on raw target
     }));
   }
 
@@ -1587,11 +1640,6 @@
     showTableLoading();
 
     try {
-      /*
-        ONLY TWO fetches.
-        They run simultaneously.
-        No pagination. No branch-specific API call.
-      */
       const [salesData, branchData] = await Promise.all([
         fetchSalesData(signal),
         fetchBranchPerformanceData(signal)
@@ -1698,16 +1746,20 @@
         branches.push({
           name,
           target: entry.target,
+          rawTarget: entry.rawTarget,
           netSales: entry.netSales,
           pct: entry.pct,
+          rawPct: entry.rawPct,
           hasData: true
         });
       } else {
         branches.push({
           name,
           target: 0,
+          rawTarget: 0,
           netSales: 0,
           pct: 0,
+          rawPct: 0,
           hasData: false
         });
       }
@@ -1723,10 +1775,12 @@
     const withData = branches.filter(b => b.hasData);
     const totalNet = withData.reduce((s, b) => s + b.netSales, 0);
     const totalTarget = withData.reduce((s, b) => s + b.target, 0);
+    const totalRawTarget = withData.reduce((s, b) => s + b.rawTarget, 0);
+
     const overallPct = totalTarget > 0 ? (totalNet / totalTarget) * 100 : 0;
+    const overallRawPct = totalRawTarget > 0 ? (totalNet / totalRawTarget) * 100 : 0; // Overall Actual Score
 
     const onTrack = withData.filter(b => b.pct >= 80).length;
-    const atRisk = withData.filter(b => b.pct < 80).length;
 
     const overallClass =
       overallPct >= 80 ? "perf-high" :
@@ -1745,9 +1799,15 @@
     document.getElementById("bsOnTrackSub").textContent =
       `of ${withData.length} branches at 80%+`;
 
-    document.getElementById("bsAtRisk").textContent = atRisk;
-    document.getElementById("bsAtRiskSub").textContent =
-      `of ${withData.length} branches below 80%`;
+    // Update 4th Card with Overall Actual Score against Raw Targets
+    const rawPerfClass =
+      overallRawPct >= 80 ? "perf-high" :
+      overallRawPct >= 50 ? "perf-medium" :
+      "perf-low";
+
+    document.getElementById("bsRawPerf").textContent = overallRawPct.toFixed(1) + "%";
+    document.getElementById("bsRawPerf").className = "stat-value " + rawPerfClass;
+    document.getElementById("bsRawPerfSub").textContent = "against original targets";
 
     let html = "";
 
@@ -1761,6 +1821,15 @@
       const barWidth =
         b.hasData ? Math.min(b.pct, 100).toFixed(1) : 0;
 
+      // Determine dynamic color for raw score (Actual Score)
+      const rawPctColor = !b.hasData ? "#64748b" :
+        b.rawPct >= 80 ? "#22c55e" :
+        b.rawPct >= 50 ? "#facc15" :
+        "#ef4444";
+
+      const isSpecialDay = b.hasData && b.rawTarget > 0 && b.target !== b.rawTarget;
+      const isDouble = b.hasData && b.target > b.rawTarget;
+
       html += `
         <div class="b-card tier-${tier}" data-name="${b.name.toLowerCase()}">
           <div class="b-card-name">${b.name}</div>
@@ -1772,6 +1841,10 @@
               ? formatFullCurrency(b.netSales) + " of " + formatFullCurrency(b.target)
               : "No data available"}
           </div>
+          ${b.hasData && isSpecialDay ? 
+            `<div class="b-card-detail" style="margin-top: 4px; font-size: 11px; color: ${isDouble ? '#ba9305' : '#38bdf8'}; font-weight:700;">${isDouble ? 'DOUBLE GIFTING' : 'SPECIAL TARGET'} ACTIVE</div>
+             <div style="font-size: 14px; font-weight: bold; color: ${rawPctColor}; margin-top: 2px;">Actual Score: ${b.rawPct.toFixed(1)}% (Raw: ${formatFullCurrency(b.rawTarget)})</div>` : 
+             (b.hasData ? `<div style="font-size: 14px; font-weight: bold; color: ${rawPctColor}; margin-top: 4px;">Actual Score: ${b.rawPct.toFixed(1)}%</div>` : "")}
           <div class="b-card-bar">
             <div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div>
           </div>
@@ -1820,10 +1893,6 @@
 
     const activeCount = processed.length;
 
-    /*
-      Branch summary also uses SUM(net sales) / SUM(target)
-      over the selected dates.
-    */
     const selectedBranches = selectedBranch
       ? [selectedBranchName]
       : Object.values(branchNames);
@@ -1838,17 +1907,18 @@
       selectedBranchSet.has(b.name.toLowerCase().trim())
     );
 
-    const branchTarget = relevantBranches.reduce(
-      (s, b) => s + b.target, 0
-    );
-
-    const branchNetSales = relevantBranches.reduce(
-      (s, b) => s + b.netSales, 0
-    );
+    const branchTarget = relevantBranches.reduce((s, b) => s + b.target, 0);
+    const branchRawTarget = relevantBranches.reduce((s, b) => s + b.rawTarget, 0);
+    const branchNetSales = relevantBranches.reduce((s, b) => s + b.netSales, 0);
 
     const branchPerfPct =
       branchTarget > 0
         ? (branchNetSales / branchTarget) * 100
+        : 0;
+
+    const branchRawPct =
+      branchRawTarget > 0
+        ? (branchNetSales / branchRawTarget) * 100
         : 0;
 
     const deficit = branchTarget - branchNetSales;
@@ -1898,9 +1968,24 @@
     perfEl.textContent = branchPerfPct.toFixed(1) + "%";
     perfEl.className = "value " + perfClass;
 
+    // Determine dynamic color for raw score (Actual Score)
+    const rawPctColor =
+      branchRawPct >= 80 ? "#22c55e" :
+      branchRawPct >= 50 ? "#facc15" :
+      "#ef4444";
+
     let detailHTML =
       `${formatFullCurrency(branchNetSales)} of ` +
       `${formatFullCurrency(branchTarget)} target<br>`;
+
+    // Show Special/Double Gifting indicator and Raw Target / Actual Score if today's logic modified it
+    if (branchRawTarget > 0 && branchTarget !== branchRawTarget) {
+      const isDouble = branchTarget > branchRawTarget;
+      detailHTML += `<div style="margin-top:8px; font-size:11px; font-weight:700; color:${isDouble ? '#ba9305' : '#38bdf8'}; text-transform:uppercase; letter-spacing:0.5px;">${isDouble ? 'DOUBLE GIFTING' : 'SPECIAL TARGET'} ACTIVE</div>`;
+      detailHTML += `<div style="font-size:14px; font-weight:bold; color:${rawPctColor}; margin-top:4px;">Actual Score: ${branchRawPct.toFixed(1)}% (Raw Target: ${formatFullCurrency(branchRawTarget)})</div><br>`;
+    } else {
+      detailHTML += `<div style="font-size:14px; font-weight:bold; color:${rawPctColor}; margin-top:4px;">Actual Score: ${branchRawPct.toFixed(1)}%</div><br>`;
+    }
 
     if (deficit > 0) {
       detailHTML +=
@@ -2007,7 +2092,7 @@
     let html = "";
 
     data.forEach((item, i) => {
-      const sales = Number(item.score) || 0;
+      const sales = Number(item.score) || 0; // Individual score uses raw target
       const orders = Number(item.totalDaysCustomers || 0);
       const value = Number(item.netValue) || 0;
 
@@ -2112,10 +2197,7 @@
     });
   });
 
-  /* ── FILTER HANDLERS ───────────────────────────────────────
-     IMPORTANT: NONE OF THESE CALL THE API.
-     They only recalculate from allRawData / branchPerfData.
-     --------------------------------------------------------- */
+  /* ── FILTER HANDLERS ─────────────────────────────────────── */
 
   function refreshFromCachedData() {
     if (!allRawData.length && !branchPerfData.length) return;
@@ -2148,7 +2230,6 @@
     toggleCustomDateRange(false);
     syncDateInputsFromPreset(val);
 
-    /* CLIENT-SIDE ONLY */
     refreshFromCachedData();
   });
 
@@ -2167,7 +2248,6 @@
       document.getElementById("dateTo").value = from;
     }
 
-    /* CLIENT-SIDE ONLY */
     refreshFromCachedData();
   }
 
@@ -2181,7 +2261,6 @@
     currentSort = { key: "score", dir: "desc" };
     updateSortHeaders();
 
-    /* CLIENT-SIDE ONLY — NO API CALL */
     refreshFromCachedData();
   });
 
@@ -2203,13 +2282,8 @@
   toggleCustomDateRange(false);
   updateSortHeaders();
 
-  /* Exactly two API requests here. */
   loadAllData();
 
-  /*
-    ONLY automatic API refresh.
-    User filter changes never call loadAllData().
-  */
   setInterval(() => {
     if (!isLoading) {
       loadAllData();
