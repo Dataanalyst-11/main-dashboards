@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Confirmer Performance Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Upgraded to ExcelJS for full styling support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0e6ed;height:100vh;overflow:hidden;display:flex;flex-direction:column}
@@ -17,22 +20,31 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .fr select{min-width:160px;cursor:pointer}
 .fr input:focus,.fr select:focus{border-color:#3498db;box-shadow:0 0 0 2px rgba(52,152,219,.25)}
 .fdiv{width:1px;height:24px;background:#1e3347;flex-shrink:0}
-.qb{background:#1e3347;color:#6b8299;border:1px solid #2c4a63;border-radius:4px;padding:5px 12px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all .15s}
-.qb:hover{background:#243d54;color:#b0c4d8}
-.qb.on{background:#3498db;color:#fff;border-color:#3498db}
+
+/* Company Toggle */
+.company-toggle{display:flex;gap:4px;background:#0f1923;border:1px solid #2c4a63;border-radius:6px;padding:3px}
+.company-toggle button{background:transparent;color:#6b8299;border:none;padding:6px 16px;font-size:11px;font-weight:700;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .2s}
+.company-toggle button:hover{color:#b0c4d8}
+.company-toggle button.on{background:#3498db;color:#fff}
+
+.custom-range-bar{display:none;align-items:center;gap:12px}
+.custom-range-bar.active{display:flex}
+
 .xb{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;border-radius:5px;padding:7px 18px;font-size:11px;font-family:inherit;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(39,174,96,.3);flex-shrink:0}
 .xb:hover{background:linear-gradient(135deg,#2ecc71,#58d68d);box-shadow:0 4px 14px rgba(39,174,96,.45);transform:translateY(-1px)}
 .xb:active{transform:translateY(0);box-shadow:0 1px 4px rgba(39,174,96,.3)}
 .xb .xi{font-size:14px;line-height:1}
 .xb.disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .ri{background:#0f1923;padding:5px 20px;font-size:10px;color:#4a6580;border-bottom:1px solid #1a2a3a;flex-shrink:0;display:flex;gap:10px;flex-wrap:wrap}
-.ri .bl{color:#3498db;font-weight:700}.ri .gr{color:#27ae60;font-weight:600}.ri .pu{color:#9b59b6;font-weight:700;font-family:monospace}
+.ri .bl{color:#3498db;font-weight:700}.ri .gr{color:#27ae60;font-weight:600}.ri .pu{color:#9b59b6;font-weight:700;font-family:monospace}.ri .cy{color:#5dade2;font-weight:600}
 .sb{display:flex;background:#162230;border-bottom:1px solid #1e3347;flex-shrink:0}
 .sc{flex:1;min-width:100px;padding:10px 8px;text-align:center;border-right:1px solid #1e3347}
 .sc:last-child{border-right:none}
 .sc .v{font-size:17px;font-weight:800;color:#3498db}
 .sc .l{font-size:9px;color:#6b8299;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
-.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+
+/* Added padding-bottom to prevent fixed footer from hiding the last rows */
+.tc{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:45px}
 .tc::-webkit-scrollbar{width:5px}
 .tc::-webkit-scrollbar-track{background:#0f1923}
 .tc::-webkit-scrollbar-thumb{background:#2c3e50;border-radius:3px}
@@ -67,17 +79,40 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 </style>
 </head>
 <body>
-<div class="hd"><h1>📋 Confirmer Performance — All Branches</h1><div id="clock"></div></div>
+<div class="hd"><h1 id="pageTitle">📋 Confirmer Performance — Pharma</h1><div id="clock"></div></div>
 <div class="fr">
-<div><label>From</label><input type="date" id="sd"></div>
-<div><label>To</label><input type="date" id="ed"></div>
-<div class="fdiv"></div>
-<div id="qbs" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-<div class="fdiv"></div>
-<div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
-<div class="fdiv"></div>
-<button class="xb" id="xbtn" onclick="exportExcel()"><span class="xi">📥</span> Export Excel</button>
+    <!-- Company Toggle -->
+    <div class="company-toggle">
+        <button id="btnPharma" class="on" onclick="switchCompany('pharma')">Pharma</button>
+        <button id="btnBeibora" onclick="switchCompany('beibora')">Beibora</button>
+    </div>
+    <div class="fdiv"></div>
+
+    <!-- Period Dropdown -->
+    <div>
+        <label>Period</label>
+        <select id="periodSelect" onchange="handlePeriodChange()">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 90 Days</option>
+            <option value="custom">Custom Range</option>
+        </select>
+    </div>
+    
+    <!-- Custom Date Range -->
+    <div class="custom-range-bar" id="customRangeBar">
+        <div><label>From</label><input type="date" id="sd"></div>
+        <div><label>To</label><input type="date" id="ed"></div>
+    </div>
+
+    <div class="fdiv"></div>
+    <div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
+    <div class="fdiv"></div>
+    <button class="xb" id="xbtn" onclick="exportExcel()"><span class="xi">📥</span> Export Excel</button>
 </div>
+
 <div class="ri" id="ri">Loading...</div>
 <div class="sb">
 <div class="sc"><div class="v" id="s1">--</div><div class="l">Confirmers</div></div>
@@ -88,21 +123,55 @@ tr.rl{background:rgba(231,76,60,.1);border-left:4px solid #e74c3c}
 <div class="sc"><div class="v" id="s6">--</div><div class="l">Top Score</div></div>
 <div class="sc"><div class="v" id="s7">--</div><div class="l">Branches</div></div>
 </div>
+
 <div class="tc" id="tc">
 <table><thead><tr>
 <th style="width:46px">Rank</th><th>Confirmation Attendant</th><th>Branch</th><th>Entries</th><th>Hrs Worked</th><th>Total Orders</th><th>Line Items</th><th>Items/Hr</th><th>Orders/Hr</th><th>Avg Order Val</th><th style="width:120px">Efficiency</th>
 </tr></thead><tbody id="tb"><tr><td colspan="11" class="lm">Loading data...</td></tr></tbody></table>
 </div>
-<div class="ft"><div>Last updated: <span id="lu">--</span></div><div>Designed and Managed by MIS.DPT</div></div>
+
+<!-- Blue Footer -->
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:90;background:#1e3a8a;border-top:2px solid #172554;overflow:hidden;height:36px;display:flex;align-items:center;">
+  <div style="display:flex;white-space:nowrap;animation:scrollFooter 18s linear infinite;font-weight:700;font-size:.78rem;color:#ffffff;letter-spacing:.3px; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);">
+    <span style="padding:0 40px">Last updated: <span id="lu">--</span></span>
+    <span style="color:var(--accent);padding:0 8px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);">●</span>
+    <span style="padding:0 40px">Designed and Managed by MIS.DPT</span>
+    <span style="color:var(--accent);padding:0 8px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);">●</span>
+    <span style="padding:0 40px">Last updated: <span id="lu2">--</span></span>
+    <span style="color:var(--accent);padding:0 8px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);">●</span>
+    <span style="padding:0 40px">Designed and Managed by MIS.DPT</span>
+    <span style="color:var(--accent);padding:0 8px; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);">●</span>
+  </div>
+</div>
+
+<style>
+@keyframes scrollFooter {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+</style>
+
+<script>
+const now = new Date();
+const dateStr = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+const full = dateStr + ', ' + timeStr;
+document.getElementById('lu').textContent = full;
+document.getElementById('lu2').textContent = full;
+</script>
 
 <div class="toast" id="toast"></div>
 
+<!-- Load both configuration files -->
 <script src="config.js"></script>
+<script src="beibora.js"></script>
+
 <script>
-const DF='createdAt',PS=5000;
-let raw=[],filt=[],all=[],pd=7,ld=false,fetching=false,silent=false;
-const BK='cbf',SK='csd',EK='ced',QK='cqr';
-const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD']];
+let currentCompany = "pharma";
+const DF='createdAt', FETCH_DAYS=365; // 1-year lookback cache
+let cache = { pharma: [], beibora: [] }; 
+let raw=[], filt=[], all=[], pd=7, ld=false, fetching=false, silent=false;
+const BK='cbf';
 
 /* Toast notification */
 function showToast(msg, isErr) {
@@ -114,175 +183,528 @@ function showToast(msg, isErr) {
     t._tid = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-/* Build quick-range buttons */
-const qbc=document.getElementById('qbs');
-ranges.forEach(r=>{const b=document.createElement('button');b.className='qb';b.textContent=r[1];b.dataset.r=r[0];b.onclick=()=>{setQR(r[0]);applyF()};qbc.appendChild(b)});
+function updClk() {
+    const n = new Date();
+    document.getElementById('clock').textContent = n.toLocaleDateString(undefined, {weekday:'short',month:'short',day:'numeric'}) + ' — ' + n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updClk, 1000); updClk();
 
-function updClk(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' — '+n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-setInterval(updClk,1000);updClk();
+/* Safely get active config */
+function getActiveConfig() {
+    if (currentCompany === "pharma") {
+        return window.PHARMA_CONFIG || window.API_CONFIG || { API_URL: "", API_TOKEN: "" };
+    } else {
+        return window.BEIBORA_CONFIG || { API_URL: "", API_TOKEN: "" };
+    }
+}
 
-function fdu(d){return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')}
-function fdn(s){if(!s)return'';return new Date(s+'T00:00:00Z').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}
-function gdr(k){const n=new Date(),s=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate())),e=new Date(s);switch(k){case'today':break;case'yesterday':s.setUTCDate(s.getUTCDate()-1);e=new Date(s);break;case'7d':s.setUTCDate(s.getUTCDate()-6);break;case'30d':s.setUTCDate(s.getUTCDate()-29);break;case'90d':s.setUTCDate(s.getUTCDate()-89);break;case'mtd':s=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),1));break}return{s:fdu(s),e:fdu(e)}}
-function gpd(a,b){return Math.round(Math.abs(new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5)+1}
+/* Switch Company Logic */
+function switchCompany(company) {
+    currentCompany = company;
+    document.getElementById("btnPharma").classList.toggle("on", company === "pharma");
+    document.getElementById("btnBeibora").classList.toggle("on", company === "beibora");
+    document.getElementById("pageTitle").textContent = company === "pharma" 
+        ? "📋 Confirmer Performance — Pharma" 
+        : "📋 Confirmer Performance — Beibora";
+    
+    document.getElementById('bf').innerHTML = '<option value="ALL">All Branches</option>';
+    document.getElementById('periodSelect').value = 'today';
+    document.getElementById('customRangeBar').classList.remove('active');
+    
+    const d = gdr('today');
+    document.getElementById('sd').value = d.s;
+    document.getElementById('ed').value = d.e;
 
-function exd(r){const v=r[DF];if(v==null)return null;const s=String(v).trim();if(!s)return null;if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.substring(0,10);if(/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(s)){const p=s.split(/[\/\-\.]/),a=+p[0],b=+p[1],c=+p[2];if(a>12&&b>=1&&b<=12)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');if(a>=1&&a<=31&&b>=1&&b<=12)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');if(b>=1&&b<=31&&a>=1&&a<=12)return c+'-'+String(a).padStart(2,'0')+'-'+String(b).padStart(2,'0')}if(/^\d{13}$/.test(s)){const d=new Date(+s);if(!isNaN(d)&&d.getFullYear()>=2000)return fdu(d)}if(/^\d{10}$/.test(s)){const d=new Date(+s*1e3);if(!isNaN(d)&&d.getFullYear()>=2000)return fdu(d)}return null}
+    // If we have cached data for this company, use it instantly
+    if (cache[company].length > 0) {
+        raw = cache[company];
+        ld = true;
+        applyF();
+    } else {
+        // Otherwise, fetch it
+        raw = []; filt = []; all = []; ld = false;
+        go(false);
+    }
+}
 
-function burl(p){let b=window.API_CONFIG.API_URL;if(!b.endsWith('/'))b+='/';return b+'order-confirmer-reports'+(p?'?'+p:'')}
+/* Date functions */
+function fdu(d) { return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
+function fdn(s) { if(!s) return ''; return new Date(s+'T00:00:00Z').toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}); }
 
-function agg(raw){const m={};raw.forEach(r=>{const n=(r.itemsConfirmedByName||'').trim(),br=(r.orgBranchName||'').trim();if(!n)return;const k=n+'|||'+br;if(!m[k])m[k]={itemsConfirmedByName:n,orgBranchName:br,numberOfOrders:0,numberOfLineItems:0,orderAmount:0,ec:0};m[k].numberOfOrders+=(r.numberOfOrders||0);m[k].numberOfLineItems+=(r.numberOfLineItems||0);m[k].orderAmount+=(r.orderAmount||0);m[k].ec+=1});return Object.values(m).map(a=>{const d=Math.max(1,a.ec);delete a.ec;return{...a,daysWorked:d,hoursWorked:d*10}})}
+/* Get the fetch window: last 365 days */
+function getFetchWindow() {
+    const now = new Date();
+    const end = fdu(now);
+    const startD = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    startD.setUTCDate(startD.getUTCDate() - (FETCH_DAYS - 1));
+    return { s: fdu(startD), e: end };
+}
 
-function calcPct(l){if(!l.length)return;const o=l.map(a=>a.numberOfOrders/a.hoursWorked),i=l.map(a=>a.numberOfLineItems/a.hoursWorked),v=l.map(a=>a.numberOfOrders?a.orderAmount/a.numberOfOrders:0);const pc=(arr,val)=>(arr.filter(x=>x<=val).length/arr.length)*100;l.forEach(a=>{const op=a.numberOfOrders/a.hoursWorked,ip=a.numberOfLineItems/a.hoursWorked,av=a.numberOfOrders?a.orderAmount/a.numberOfOrders:0;a.pf={ordersPerHour:op,itemsPerHour:ip,avgOrderValue:av,score:pc(o,op)*.4+pc(i,ip)*.3+pc(v,av)*.3}})}
+function gdr(k) {
+    const n = new Date();
+    let s = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()));
+    let e = new Date(s);
+    switch(k) {
+        case 'today': break;
+        case 'yesterday': s.setUTCDate(s.getUTCDate()-1); e = new Date(s); break;
+        case '7d': s.setUTCDate(s.getUTCDate()-6); break;
+        case '30d': s.setUTCDate(s.getUTCDate()-29); break;
+        case '90d': s.setUTCDate(s.getUTCDate()-89); break;
+    }
+    return { s: fdu(s), e: fdu(e) };
+}
 
-function scc(s){return s>=80?'sh':s>=50?'sm':'sl'}
-function rwc(s){return s>=80?'rh':s>=50?'rm':'rl'}
-function rkc(r){return r===1?'r1':r===2?'r2':r===3?'r3':'rx'}
+function gpd(a, b) { return Math.round(Math.abs(new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / 864e5) + 1; }
 
-function popBr(){const sel=document.getElementById('bf'),cv=sel.value;const br=[...new Set(all.map(a=>a.orgBranchName))].filter(Boolean).sort();const ex=[];for(let i=1;i<sel.options.length;i++)ex.push(sel.options[i].value);if(br.length===ex.length&&br.every((b,i)=>b===ex[i])){if(![...sel.options].some(o=>o.value===cv))sel.value='ALL';return}while(sel.options.length>1)sel.remove(1);br.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o)});if([...sel.options].some(o=>o.value===cv))sel.value=cv;else{const sv=localStorage.getItem(BK);if(sv&&[...sel.options].some(o=>o.value===sv))sel.value=sv}}
+function exd(r) {
+    const v = r[DF];
+    if (v == null) return null;
+    const s = String(v).trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+    if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(s)) {
+        const p = s.split(/[\/\-\.]/), a = +p[0], b = +p[1], c = +p[2];
+        if (a > 12 && b >= 1 && b <= 12) return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');
+        if (a >= 1 && a <= 31 && b >= 1 && b <= 12) return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');
+        if (b >= 1 && b <= 31 && a >= 1 && a <= 12) return c+'-'+String(a).padStart(2,'0')+'-'+String(b).padStart(2,'0');
+    }
+    if (/^\d{13}$/.test(s)) { const d = new Date(+s); if (!isNaN(d) && d.getFullYear() >= 2000) return fdu(d); }
+    if (/^\d{10}$/.test(s)) { const d = new Date(+s*1e3); if (!isNaN(d) && d.getFullYear() >= 2000) return fdu(d); }
+    return null;
+}
 
-function updSt(d){const n=d.length;document.getElementById('s1').textContent=n;document.getElementById('s2').textContent=pd+'d';document.getElementById('s3').textContent=d.reduce((s,a)=>s+a.numberOfOrders,0).toLocaleString();document.getElementById('s4').textContent=d.reduce((s,a)=>s+a.numberOfLineItems,0).toLocaleString();const av=n?d.reduce((s,a)=>s+a.pf.score,0)/n:0;document.getElementById('s5').textContent=av.toFixed(1)+'%';document.getElementById('s6').textContent=n?Math.max(...d.map(a=>a.pf.score)).toFixed(1)+'%':'0%';document.getElementById('s7').textContent=new Set(d.map(a=>a.orgBranchName)).size}
+/* Dynamic Endpoint URL builder */
+function burl(p) {
+    const config = getActiveConfig();
+    let b = config.API_URL;
+    if (!b) return ""; 
+    if (!b.endsWith('/')) b += '/';
+    const endpoint = currentCompany === "pharma" ? "order-confirmer-reports" : "list-order-confirmer-reports";
+    return b + endpoint + (p ? '?' + p : '');
+}
 
-function updRi(s,e,tc,fc){const d=gpd(s,e);document.getElementById('ri').innerHTML='<span class="gr">✅ Filtered by <span class="pu">'+DF+'</span> (raw UTC)</span> · <span class="bl">Period:</span> '+fdn(s)+' — '+fdn(e)+' <span style="color:#4a6580">('+d+(d===1?' day':' days')+')</span> · <span class="gr">'+fc.toLocaleString()+' of '+tc.toLocaleString()+' records</span>'}
+function agg(rawData) {
+    const m = {};
+    rawData.forEach(r => {
+        const n = (r.itemsConfirmedByName || '').trim(), br = (r.orgBranchName || '').trim();
+        if (!n) return;
+        const k = n + '|||' + br;
+        if (!m[k]) m[k] = { itemsConfirmedByName: n, orgBranchName: br, numberOfOrders: 0, numberOfLineItems: 0, orderAmount: 0, ec: 0 };
+        m[k].numberOfOrders += (r.numberOfOrders || 0);
+        m[k].numberOfLineItems += (r.numberOfLineItems || 0);
+        m[k].orderAmount += (r.orderAmount || 0);
+        m[k].ec += 1;
+    });
+    return Object.values(m).map(a => {
+        const d = Math.max(1, a.ec);
+        delete a.ec;
+        return { ...a, daysWorked: d, hoursWorked: d * 10 };
+    });
+}
 
-function buildRows(d){if(!d.length)return'<tr><td colspan="11" class="em">No data found.</td></tr>';calcPct(d);d.sort((a,b)=>b.pf.score-a.pf.score);return d.map((a,i)=>{const r=i+1,sc=scc(a.pf.score),rc=rkc(r),rw=rwc(a.pf.score),dc=a.daysWorked>=pd?'f':'p';return'<tr class="'+rw+'"><td><span class="rb '+rc+'">'+r+'</span></td><td class="an">'+(a.itemsConfirmedByName||'—')+'</td><td><span class="bt" title="'+(a.orgBranchName||'')+'">'+(a.orgBranchName||'—')+'</span></td><td><span class="db '+dc+'">'+a.daysWorked+'/'+pd+'</span></td><td>'+a.hoursWorked+'</td><td>'+a.numberOfOrders.toLocaleString()+'</td><td>'+a.numberOfLineItems.toLocaleString()+'</td><td>'+a.pf.itemsPerHour.toFixed(2)+'</td><td>'+a.pf.ordersPerHour.toFixed(2)+'</td><td>'+a.pf.avgOrderValue.toFixed(0)+'</td><td><div class="scl '+sc+'"><div class="sbw"><div class="sb2" style="width:'+a.pf.score+'%"></div></div><span class="st">'+a.pf.score.toFixed(1)+'%</span></div></td></tr>'}).join('')}
+function calcPct(l) {
+    if (!l.length) return;
+    const o = l.map(a => a.numberOfOrders / a.hoursWorked);
+    const i = l.map(a => a.numberOfLineItems / a.hoursWorked);
+    const v = l.map(a => a.numberOfOrders ? a.orderAmount / a.numberOfOrders : 0);
+    const pc = (arr, val) => (arr.filter(x => x <= val).length / arr.length) * 100;
+    l.forEach(a => {
+        const op = a.numberOfOrders / a.hoursWorked;
+        const ip = a.numberOfLineItems / a.hoursWorked;
+        const av = a.numberOfOrders ? a.orderAmount / a.numberOfOrders : 0;
+        a.pf = { ordersPerHour: op, itemsPerHour: ip, avgOrderValue: av, score: pc(o, op) * .4 + pc(i, ip) * .3 + pc(v, av) * .3 };
+    });
+}
 
-function proc(s,e){pd=gpd(s,e);all=agg(filt).map(a=>({...a,pf:null}));updRi(s,e,raw.length,filt.length);popBr();applyBr()}
+function scc(s) { return s >= 80 ? 'sh' : s >= 50 ? 'sm' : 'sl'; }
+function rwc(s) { return s >= 80 ? 'rh' : s >= 50 ? 'rm' : 'rl'; }
+function rkc(r) { return r === 1 ? 'r1' : r === 2 ? 'r2' : r === 3 ? 'r3' : 'rx'; }
 
-/* Returns the currently displayed (filtered + branch) dataset with computed scores */
-function getDisplayData(){
+function popBr() {
+    const sel = document.getElementById('bf'), cv = sel.value;
+    const br = [...new Set(all.map(a => a.orgBranchName))].filter(Boolean).sort();
+    const ex = [];
+    for (let i = 1; i < sel.options.length; i++) ex.push(sel.options[i].value);
+    if (br.length === ex.length && br.every((b, i) => b === ex[i])) {
+        if (![...sel.options].some(o => o.value === cv)) sel.value = 'ALL';
+        return;
+    }
+    while (sel.options.length > 1) sel.remove(1);
+    br.forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; sel.appendChild(o); });
+    if ([...sel.options].some(o => o.value === cv)) sel.value = cv;
+    else {
+        const sv = localStorage.getItem(BK);
+        if (sv && [...sel.options].some(o => o.value === sv)) sel.value = sv;
+    }
+}
+
+function updSt(d) {
+    const n = d.length;
+    document.getElementById('s1').textContent = n;
+    document.getElementById('s2').textContent = pd + 'd';
+    document.getElementById('s3').textContent = d.reduce((s, a) => s + a.numberOfOrders, 0).toLocaleString();
+    document.getElementById('s4').textContent = d.reduce((s, a) => s + a.numberOfLineItems, 0).toLocaleString();
+    const av = n ? d.reduce((s, a) => s + a.pf.score, 0) / n : 0;
+    document.getElementById('s5').textContent = av.toFixed(1) + '%';
+    document.getElementById('s6').textContent = n ? Math.max(...d.map(a => a.pf.score)).toFixed(1) + '%' : '0%';
+    document.getElementById('s7').textContent = new Set(d.map(a => a.orgBranchName)).size;
+}
+
+function updRi(s, e, tc, fc) {
+    const d = gpd(s, e);
+    document.getElementById('ri').innerHTML =
+        '<span class="gr">✅ Filtered by <span class="pu">' + DF + '</span> (raw UTC)</span> · ' +
+        '<span class="bl">Period:</span> ' + fdn(s) + ' — ' + fdn(e) + ' <span style="color:#4a6580">(' + d + (d === 1 ? ' day' : ' days') + ')</span> · ' +
+        '<span class="gr">' + fc.toLocaleString() + ' of ' + tc.toLocaleString() + ' records</span> · ' +
+        '<span class="cy">🔄 Fetch window: Last 365 Days</span>';
+}
+
+function buildRows(d) {
+    if (!d.length) return '<tr><td colspan="11" class="em">No data found for this selection.</td></tr>';
+    calcPct(d);
+    d.sort((a, b) => b.pf.score - a.pf.score);
+    return d.map((a, i) => {
+        const r = i + 1, sc = scc(a.pf.score), rc = rkc(r), rw = rwc(a.pf.score), dc = a.daysWorked >= pd ? 'f' : 'p';
+        return '<tr class="' + rw + '"><td><span class="rb ' + rc + '">' + r + '</span></td><td class="an">' + (a.itemsConfirmedByName || '—') + '</td><td><span class="bt" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || '—') + '</span></td><td><span class="db ' + dc + '">' + a.daysWorked + '/' + pd + '</span></td><td>' + a.hoursWorked + '</td><td>' + a.numberOfOrders.toLocaleString() + '</td><td>' + a.numberOfLineItems.toLocaleString() + '</td><td>' + a.pf.itemsPerHour.toFixed(2) + '</td><td>' + a.pf.ordersPerHour.toFixed(2) + '</td><td>' + a.pf.avgOrderValue.toFixed(0) + '</td><td><div class="scl ' + sc + '"><div class="sbw"><div class="sb2" style="width:' + a.pf.score + '%"></div></div><span class="st">' + a.pf.score.toFixed(1) + '%</span></div></td></tr>';
+    }).join('');
+}
+
+function proc(s, e) {
+    pd = gpd(s, e);
+    all = agg(filt).map(a => ({ ...a, pf: null }));
+    updRi(s, e, raw.length, filt.length);
+    popBr();
+    applyBr();
+}
+
+function getDisplayData() {
     const bv = document.getElementById('bf').value;
     let d = bv === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === bv);
-    if(!d.length) return [];
+    if (!d.length) return [];
     calcPct(d);
-    d.sort((a,b) => b.pf.score - a.pf.score);
+    d.sort((a, b) => b.pf.score - a.pf.score);
     return d;
 }
 
-function applyBr(){const v=document.getElementById('bf').value;const d=v==='ALL'?[...all]:all.filter(a=>a.orgBranchName===v);const tb=document.getElementById('tb'),tc=document.getElementById('tc');if(!silent){tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=0}else{const sv=tc.scrollTop;tb.innerHTML=buildRows(d);updSt(d);tc.scrollTop=sv}}
+function applyBr() {
+    const v = document.getElementById('bf').value;
+    const d = v === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === v);
+    const tb = document.getElementById('tb'), tc = document.getElementById('tc');
+    if (!silent) {
+        tb.innerHTML = buildRows(d);
+        updSt(d);
+        tc.scrollTop = 0;
+    } else {
+        const sv = tc.scrollTop;
+        tb.innerHTML = buildRows(d);
+        updSt(d);
+        tc.scrollTop = sv;
+    }
+}
 
-function applyF(){const s=document.getElementById('sd').value,e=document.getElementById('ed').value;if(!s||!e||!ld)return;filt=raw.filter(r=>{const d=exd(r);return d&&d>=s&&d<=e});proc(s,e)}
+function applyF() {
+    const s = document.getElementById('sd').value, e = document.getElementById('ed').value;
+    if (!s || !e || !ld) return;
+    filt = raw.filter(r => { const d = exd(r); return d && d >= s && d <= e; });
+    proc(s, e);
+}
 
-async function fetchPages(lab,bp){let all=[],pn=0,hn=true,gc=0;while(hn&&gc<200){const p=(bp?bp+'&':'')+'pageNum='+pn+'&pageSize='+PS;const u=burl(p);const resp=await fetch(u,{headers:{'Authorization':window.API_CONFIG.API_TOKEN,'Content-Type':'application/json'}});if(!resp.ok)throw new Error('HTTP '+resp.status);const j=await resp.json();const pd=Array.isArray(j)?j:(j.data||[]);all=all.concat(pd);hn=j.hasNext===true;pn++;gc++;if(!pd.length)break}return all}
+// Simplified single fetch function for max page size
+async function fetchAllData(params) {
+    const u = burl(params);
+    const resp = await fetch(u, { headers: { 'Authorization': getActiveConfig().API_TOKEN, 'Content-Type': 'application/json' } });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const j = await resp.json();
+    return Array.isArray(j) ? j : (j.data || []);
+}
 
-async function go(sl){if(fetching)return;fetching=true;const tb=document.getElementById('tb'),tc=document.getElementById('tc'),sv=tc.scrollTop;
-var pSd=document.getElementById('sd').value,pEd=document.getElementById('ed').value,pBf=document.getElementById('bf').value,pQb=document.querySelector('.qb.on');
-if(!sl)tb.innerHTML='<tr><td colspan="11" class="lm">Loading data...</td></tr>';
-let data=[],err=null;
-try{try{data=await fetchPages('A',null)}catch(e){err=e}if(!data.length)try{data=await fetchPages('B','startDate=1970-01-01&endDate=2099-12-31')}catch(e){err=e}if(!data.length)try{data=await fetchPages('C','startDate=2020-01-01&endDate=2099-12-31')}catch(e){err=e}}catch(e){err=e}
-if(!data.length){if(!sl)tb.innerHTML='<tr><td colspan="11" class="em">Failed to fetch data<br><small style="color:#e67e22">'+burl(null)+'</small><br><small style="color:#8fa4b8">Error: '+(err?err.message:'Unknown')+'</small></td></tr>';fetching=false;return}
-raw=data;ld=true;
-document.getElementById('lu').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-if(sl){silent=true;document.getElementById('sd').value=pSd;document.getElementById('ed').value=pEd;applyF();var sel=document.getElementById('bf');if([...sel.options].some(o=>o.value===pBf))sel.value=pBf;if(pQb){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));pQb.classList.add('on')}applyBr();tc.scrollTop=sv;silent=false}else{silent=false;applyF()}fetching=false}
+async function go(sl) {
+    if (fetching) return;
+    fetching = true;
+    const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
+    
+    if (!sl) tb.innerHTML = '<tr><td colspan="11" class="lm">Loading data (Last 365 Days)...</td></tr>';
 
-function setQR(k){const d=gdr(k);document.getElementById('sd').value=d.s;document.getElementById('ed').value=d.e;document.querySelectorAll('.qb').forEach(b=>b.classList.toggle('on',b.dataset.r===k));localStorage.setItem(QK,k)}
+    var fw = getFetchWindow();
+    var fetchParams = 'pageSize=100000&startDate=' + fw.s + '&endDate=' + fw.e;
 
-/* ========== EXPORT TO EXCEL ========== */
-function exportExcel(){
+    let data = [], err = null;
+    try {
+        data = await fetchAllData(fetchParams);
+    } catch (e) {
+        err = e;
+    }
+
+    if (!data || !data.length) {
+        if (!sl) tb.innerHTML = '<tr><td colspan="11" class="em">Failed to fetch data<br><small style="color:#e67e22">' + burl(fetchParams) + '</small><br><small style="color:#8fa4b8">Error: ' + (err ? err.message : 'Unknown') + '</small></td></tr>';
+        fetching = false;
+        return;
+    }
+
+    raw = data;
+    cache[currentCompany] = raw; // Save to cache
+    ld = true;
+    document.getElementById('lu').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    if (sl) {
+        silent = true;
+        applyF();
+        silent = false;
+        tc.scrollTop = sv;
+    } else {
+        silent = false;
+        applyF();
+        var savedBranch = localStorage.getItem(BK);
+        if (savedBranch) {
+            var sel2 = document.getElementById('bf');
+            if ([...sel2.options].some(o => o.value === savedBranch)) {
+                sel2.value = savedBranch;
+                applyBr();
+            }
+        }
+    }
+    fetching = false;
+}
+
+function handlePeriodChange() {
+    const val = document.getElementById('periodSelect').value;
+    const bar = document.getElementById('customRangeBar');
+    
+    if (val === 'custom') {
+        bar.classList.add('active');
+        if (!document.getElementById('sd').value || !document.getElementById('ed').value) {
+            const d = gdr('today');
+            document.getElementById('sd').value = d.s;
+            document.getElementById('ed').value = d.e;
+        }
+    } else {
+        bar.classList.remove('active');
+        const d = gdr(val);
+        document.getElementById('sd').value = d.s;
+        document.getElementById('ed').value = d.e;
+        applyF();
+    }
+}
+
+/* ========== EXPORT TO EXCEL WITH FULL STYLING ========== */
+async function exportExcel() {
     const btn = document.getElementById('xbtn');
     const data = getDisplayData();
-    if(!data.length){
+    if (!data.length) {
         showToast('No data to export — adjust your filters first.', true);
         return;
     }
 
-    /* Build the summary row info */
+    btn.classList.add('disabled');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<span class="xi">⏳</span> Exporting...';
+
     const sVal = document.getElementById('sd').value;
     const eVal = document.getElementById('ed').value;
     const brVal = document.getElementById('bf').value;
-    const totalOrders = data.reduce((s,a) => s + a.numberOfOrders, 0);
-    const totalItems = data.reduce((s,a) => s + a.numberOfLineItems, 0);
-    const avgScore = data.reduce((s,a) => s + a.pf.score, 0) / data.length;
+    const totalOrders = data.reduce((s, a) => s + a.numberOfOrders, 0);
+    const totalItems = data.reduce((s, a) => s + a.numberOfLineItems, 0);
+    const avgScore = data.reduce((s, a) => s + a.pf.score, 0) / data.length;
 
-    /* Prepare export rows */
-    const rows = data.map((a, i) => ({
-        'Rank': i + 1,
-        'Confirmation Attendant': a.itemsConfirmedByName,
-        'Branch': a.orgBranchName,
-        'Days Worked': a.daysWorked,
-        'Period Days': pd,
-        'Hours Worked': a.hoursWorked,
-        'Total Orders': a.numberOfOrders,
-        'Line Items': a.numberOfLineItems,
-        'Items / Hr': parseFloat(a.pf.itemsPerHour.toFixed(2)),
-        'Orders / Hr': parseFloat(a.pf.ordersPerHour.toFixed(2)),
-        'Avg Order Value': parseFloat(a.pf.avgOrderValue.toFixed(0)),
-        'Efficiency Score (%)': parseFloat(a.pf.score.toFixed(1)),
-        'Performance': a.pf.score >= 80 ? 'High' : a.pf.score >= 50 ? 'Medium' : 'Low'
-    }));
+    const wb = new ExcelJS.Workbook();
+    
+    const ws1 = wb.addWorksheet('Confirmer Performance', {
+        properties: { defaultRowHeight: 22 },
+        views: [{ showGridLines: false }]
+    });
 
-    /* Create workbook with two sheets */
-    const wb = XLSX.utils.book_new();
-
-    /* Sheet 1: Detailed Data */
-    const ws1 = XLSX.utils.json_to_sheet(rows);
-
-    /* Set column widths */
-    ws1['!cols'] = [
-        {wch:6},  /* Rank */
-        {wch:28}, /* Name */
-        {wch:22}, /* Branch */
-        {wch:12}, /* Days Worked */
-        {wch:12}, /* Period Days */
-        {wch:12}, /* Hours Worked */
-        {wch:13}, /* Total Orders */
-        {wch:12}, /* Line Items */
-        {wch:11}, /* Items/Hr */
-        {wch:12}, /* Orders/Hr */
-        {wch:15}, /* Avg Order Val */
-        {wch:18}, /* Efficiency */
-        {wch:12}  /* Performance */
+    ws1.columns = [
+        { header: 'Rank', key: 'rank', width: 8 },
+        { header: 'Confirmer', key: 'name', width: 30 },
+        { header: 'Branch', key: 'branch', width: 25 },
+        { header: 'Days Worked', key: 'days', width: 14 },
+        { header: 'Hrs Worked', key: 'hrs', width: 14 },
+        { header: 'Total Orders', key: 'orders', width: 14 },
+        { header: 'Line Items', key: 'items', width: 14 },
+        { header: 'Items/Hr', key: 'iph', width: 12 },
+        { header: 'Orders/Hr', key: 'oph', width: 12 },
+        { header: 'Avg Order Val', key: 'aov', width: 16 },
+        { header: 'Efficiency Score', key: 'score', width: 18 },
+        { header: 'Performance', key: 'perf', width: 15 }
     ];
 
-    XLSX.utils.book_append_sheet(wb, ws1, 'Confirmer Performance');
+    const headerRow = ws1.getRow(1);
+    headerRow.height = 26;
+    headerRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
+        cell.font = { color: { argb: 'FF3498DB' }, bold: true, size: 11 }; // Blue theme for confirmer
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FF3498DB' } } };
+    });
 
-    /* Sheet 2: Summary */
-    const summaryRows = [
-        {'Metric': 'Report Generated', 'Value': new Date().toLocaleString()},
-        {'Metric': 'Period Start', 'Value': fdn(sVal)},
-        {'Metric': 'Period End', 'Value': fdn(eVal)},
-        {'Metric': 'Period Days', 'Value': pd},
-        {'Metric': 'Branch Filter', 'Value': brVal === 'ALL' ? 'All Branches' : brVal},
-        {'Metric': '', 'Value': ''},
-        {'Metric': 'Total Confirmers', 'Value': data.length},
-        {'Metric': 'Total Orders', 'Value': totalOrders},
-        {'Metric': 'Total Line Items', 'Value': totalItems},
-        {'Metric': 'Average Efficiency', 'Value': avgScore.toFixed(1) + '%'},
-        {'Metric': 'Top Efficiency', 'Value': Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%'},
-        {'Metric': 'Top Performer', 'Value': data[0].itemsConfirmedByName + ' (' + data[0].orgBranchName + ')'},
-        {'Metric': '', 'Value': ''},
-        {'Metric': 'High Performers (≥80%)', 'Value': data.filter(a => a.pf.score >= 80).length},
-        {'Metric': 'Medium Performers (50-79%)', 'Value': data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length},
-        {'Metric': 'Low Performers (<50%)', 'Value': data.filter(a => a.pf.score < 50).length},
+    data.forEach((a, i) => {
+        const r = i + 1;
+        const score = a.pf.score;
+        const perf = score >= 80 ? 'High' : score >= 50 ? 'Medium' : 'Low';
+        
+        let rowBg = 'FF0F1923';
+        if (score >= 80) rowBg = 'FF13241A';
+        else if (score >= 50) rowBg = 'FF242118';
+        else rowBg = 'FF241511';
+
+        let scoreColor = 'FFE0E6ED';
+        if (score >= 80) scoreColor = 'FF27AE60';
+        else if (score >= 50) scoreColor = 'FFF1C40F';
+        else scoreColor = 'FFE74C3C';
+
+        const row = ws1.addRow({
+            rank: r,
+            name: a.itemsConfirmedByName,
+            branch: a.orgBranchName,
+            days: a.daysWorked,
+            hrs: a.hoursWorked,
+            orders: a.numberOfOrders,
+            items: a.numberOfLineItems,
+            iph: parseFloat(a.pf.itemsPerHour.toFixed(2)),
+            oph: parseFloat(a.pf.ordersPerHour.toFixed(2)),
+            aov: parseFloat(a.pf.avgOrderValue.toFixed(0)),
+            score: parseFloat(score.toFixed(1)),
+            perf: perf
+        });
+
+        row.height = 22;
+        
+        row.eachCell((cell, colNumber) => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
+            cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.border = {};
+
+            if (colNumber === 1) {
+                if (r === 1) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1C40F' } };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
+                } else if (r === 2) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF95A5A6' } };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
+                } else if (r === 3) {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE67E22' } };
+                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11 };
+                }
+            }
+            
+            if (colNumber === 2 || colNumber === 3) {
+                cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            }
+
+            if (colNumber === 6 || colNumber === 7 || colNumber === 10) {
+                cell.numFmt = '#,##0';
+            }
+            if (colNumber === 8 || colNumber === 9) {
+                cell.numFmt = '0.00';
+            }
+            
+            if (colNumber === 11) {
+                cell.font = { color: { argb: scoreColor }, bold: true, size: 11 };
+                cell.numFmt = '0.0"%"';
+            }
+        });
+    });
+
+    const ws2 = wb.addWorksheet('Summary', {
+        properties: { defaultRowHeight: 20 },
+        views: [{ showGridLines: false }]
+    });
+    
+    ws2.columns = [
+        { header: 'Metric', key: 'metric', width: 35 },
+        { header: 'Value', key: 'value', width: 50 }
     ];
-    const ws2 = XLSX.utils.json_to_sheet(summaryRows);
-    ws2['!cols'] = [{wch: 32}, {wch: 50}];
-    XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
 
-    /* Generate filename with period and branch */
+    const headerRow2 = ws2.getRow(1);
+    headerRow2.height = 26;
+    headerRow2.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
+        cell.font = { color: { argb: 'FF3498DB' }, bold: true, size: 11 };
+        cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FF3498DB' } } };
+    });
+
+    const summaryData = [
+        { metric: 'Report Generated', value: new Date().toLocaleString() },
+        { metric: 'Period Start', value: fdn(sVal) },
+        { metric: 'Period End', value: fdn(eVal) },
+        { metric: 'Period Days', value: pd },
+        { metric: 'Branch Filter', value: brVal === 'ALL' ? 'All Branches' : brVal },
+        { metric: 'Backend Fetch Window', value: 'Last 365 Days' },
+        { metric: '', value: '' },
+        { metric: 'Total Confirmers', value: data.length },
+        { metric: 'Total Orders', value: totalOrders.toLocaleString() },
+        { metric: 'Total Line Items', value: totalItems.toLocaleString() },
+        { metric: 'Average Efficiency', value: avgScore.toFixed(1) + '%' },
+        { metric: 'Top Efficiency', value: Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%' },
+        { metric: 'Top Performer', value: data[0].itemsConfirmedByName + ' (' + data[0].orgBranchName + ')' },
+        { metric: '', value: '' },
+        { metric: 'High Performers (>=80%)', value: data.filter(a => a.pf.score >= 80).length },
+        { metric: 'Medium Performers (50-79%)', value: data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length },
+        { metric: 'Low Performers (<50%)', value: data.filter(a => a.pf.score < 50).length },
+    ];
+
+    summaryData.forEach(item => {
+        const row = ws2.addRow(item);
+        row.height = 20;
+        row.eachCell((cell, colNumber) => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F1923' } };
+            cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
+            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            cell.border = {};
+            
+            if (colNumber === 2) {
+                cell.font = { color: { argb: 'FF8FA4B8' }, size: 11, bold: true };
+            }
+        });
+    });
+
     const brSlug = brVal === 'ALL' ? 'AllBranches' : brVal.replace(/[^a-zA-Z0-9]/g, '_');
     const fname = 'Confirmer_Performance_' + sVal + '_to_' + eVal + '_' + brSlug + '.xlsx';
 
-    /* Download */
     try {
-        XLSX.writeFile(wb, fname);
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, fname);
         showToast('Exported ' + data.length + ' records to Excel ✓', false);
-    } catch(e) {
+    } catch (e) {
         showToast('Export failed: ' + e.message, true);
+    } finally {
+        btn.classList.remove('disabled');
+        btn.innerHTML = originalHtml;
     }
 }
 
-document.querySelectorAll('.qb').forEach(b=>b.addEventListener('click',function(){setQR(this.dataset.r);applyF()}));
-document.getElementById('sd').addEventListener('change',function(){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));localStorage.setItem(SK,this.value);localStorage.removeItem(QK);applyF()});
-document.getElementById('ed').addEventListener('change',function(){document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));localStorage.setItem(EK,this.value);localStorage.removeItem(QK);applyF()});
-document.getElementById('bf').addEventListener('change',function(){localStorage.setItem(BK,this.value);applyBr()});
+/* Event listeners */
+document.getElementById('sd').addEventListener('change', function() {
+    document.getElementById('periodSelect').value = 'custom';
+    document.getElementById('customRangeBar').classList.add('active');
+    applyF();
+});
+document.getElementById('ed').addEventListener('change', function() {
+    document.getElementById('periodSelect').value = 'custom';
+    document.getElementById('customRangeBar').classList.add('active');
+    applyF();
+});
+document.getElementById('bf').addEventListener('change', function() {
+    localStorage.setItem(BK, this.value);
+    applyBr();
+});
 
-(function init(){
-const sq=localStorage.getItem(QK),ss=localStorage.getItem(SK),se=localStorage.getItem(EK);
-if(sq&&!ss&&!se)setQR(sq);
-else if(ss&&se){document.getElementById('sd').value=ss;document.getElementById('ed').value=se;document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'))}
-else setQR('today');
-go(false);
-setInterval(()=>go(true),3600000)
+/* ========== INITIALIZATION ========== */
+(function init() {
+    // Default to Today
+    const d = gdr('today');
+    document.getElementById('sd').value = d.s;
+    document.getElementById('ed').value = d.e;
+    document.getElementById('periodSelect').value = 'today';
+
+    // Initial data fetch
+    go(false);
+
+    // Auto-refresh from backend every 20 minutes (silent — preserves all filters)
+    setInterval(() => go(true), 1200000);
 })();
 </script>
 </body>
