@@ -42,7 +42,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .sc:last-child{border-right:none}
 .sc .v{font-size:17px;font-weight:800;color:#e67e22}
 .sc .l{font-size:9px;color:#6b8299;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
-.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+
+/* Added padding-bottom to prevent fixed footer from hiding the last rows */
+.tc{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:45px}
 .tc::-webkit-scrollbar{width:5px}
 .tc::-webkit-scrollbar-track{background:#0f1923}
 .tc::-webkit-scrollbar-thumb{background:#2c3e50;border-radius:3px}
