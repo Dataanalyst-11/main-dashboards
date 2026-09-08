@@ -509,21 +509,22 @@
 
     // Filter cached data Client-Side
     let filteredData = cachedData.filter(row => {
-      // 1. Filter by Branch
+      // 1. ALWAYS Filter by Date first
+      const recordDate = row.createdAt ? row.createdAt.split('T')[0] : null;
+      if (!recordDate || recordDate < startDate || recordDate > endDate) {
+        return false;
+      }
+
+      // 2. Filter by Branch
       if (branchId === "") return true; // "All Branches" selected, skip branch filter
 
       const rowBranchId = row.orgBranchId || row.branchId || "";
       const rowBranchName = row.orgBranchName || row.branchName || "";
       
-      let branchMatch = false;
-      if (rowBranchId && rowBranchId === branchId) branchMatch = true;
-      if (!rowBranchId && rowBranchName.toLowerCase() === selectedBranchName.toLowerCase()) branchMatch = true;
-      
-      if (!branchMatch) return false;
+      if (rowBranchId && rowBranchId === branchId) return true;
+      if (!rowBranchId && rowBranchName.toLowerCase() === selectedBranchName.toLowerCase()) return true;
 
-      // 2. Filter by Date
-      const recordDate = row.createdAt ? row.createdAt.split('T')[0] : null;
-      return recordDate && recordDate >= startDate && recordDate <= endDate;
+      return false;
     });
 
     processData(filteredData);
