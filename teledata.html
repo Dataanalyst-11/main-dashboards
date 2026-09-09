@@ -414,14 +414,25 @@
   }
 
   .perf-bar-labels {
-    display: flex;
-    justify-content: space-between;
+    position: relative;
+    height: 16px;
     margin-top: 6px;
     font-size: 11px;
     color: #475569;
     font-weight: 600;
   }
 
+  .perf-bar-labels span {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  
+  .perf-bar-labels span.lbl-0 { left: 0%; transform: none; }
+  .perf-bar-labels span.lbl-50 { left: 50%; }
+  .perf-bar-labels span.lbl-80 { left: 80%; }
+  .perf-bar-labels span.lbl-100 { left: 100%; transform: translateX(-100%); }
+  
   .perf-bar-labels span.active-marker { color: #f8fafc; }
 
   /* ── Telesales: Table ───────────────────────────────────── */
@@ -879,10 +890,10 @@
           <div class="perf-bar-fill" id="branchPerfBar" style="width:0%;"></div>
         </div>
         <div class="perf-bar-labels">
-          <span>0%</span>
-          <span id="marker50" class="">50%</span>
-          <span>80%</span>
-          <span>100%</span>
+          <span class="lbl-0">0%</span>
+          <span id="marker50" class="lbl-50">50%</span>
+          <span class="lbl-80">80%</span>
+          <span class="lbl-100">100%</span>
         </div>
       </div>
     </div>
@@ -2012,8 +2023,7 @@
           ? "linear-gradient(90deg, #ca8a04, #facc15)"
           : "linear-gradient(90deg, #dc2626, #ef4444)";
 
-    document.getElementById("marker50").className =
-      branchPerfPct < 50 ? "active-marker" : "";
+    document.getElementById("marker50").classList.toggle("active-marker", branchPerfPct < 50);
 
     filteredData = processed;
     applySearchAndSort();
