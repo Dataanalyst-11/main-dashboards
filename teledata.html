@@ -716,6 +716,25 @@
     grid-column: 1 / -1;
   }
 
+  /* ── Days Worked Info (in table) ─────────────────────────── */
+  .days-worked-info {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  /* ── Branch Deficit Info (in branch cards) ────────────────── */
+  .branch-deficit-info {
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .branch-deficit-info .deficit-val { color: #ef4444; font-weight: 700; }
+  .branch-deficit-info .surplus-val { color: #22c55e; font-weight: 700; }
+
   /* ── Footer / Toast ─────────────────────────────────────── */
   footer {
     text-align: center;
@@ -1006,6 +1025,7 @@
   let filteredData = [];
   let displayedData = [];
   let lastDataFetchAt = null;
+  let currentDaysInRange = 0;
 
   /* ── Date helpers ────────────────────────────────────────── */
 
@@ -1141,6 +1161,15 @@
 
   function isDateInRange(dateKey, startDate, endDate) {
     return !!dateKey && dateKey >= startDate && dateKey <= endDate;
+  }
+
+  function getDaysInRange(startDate, endDate) {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate + "T00:00:00");
+    const end = new Date(endDate + "T00:00:00");
+    const diffMs = end - start;
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(diffDays, 0);
   }
 
   /* ── Branch names & IDs ────────────────────────────────────── */
@@ -1545,9 +1574,9 @@
           branchName,
           orgBranchId: branchId || getBranchIdByName(branchName),
           netValue: 0,
-          target: 0, 
+          target: 0,
           orders: 0,
-          days: 0
+          daysSet: new Set()
         });
       }
 
@@ -1557,12 +1586,18 @@
       g.netValue += getNetSales(row);
       g.target += rawTarget; // No multiplier, individual targets remain raw.
       g.orders += getCustomerOrders(row);
-      g.days += 1;
+      if (rowDate) g.daysSet.add(rowDate);
     }
 
     return [...groups.values()]
       .map(g => ({
-        ...g,
+        salesPersonName: g.salesPersonName,
+        branchName: g.branchName,
+        orgBranchId: g.orgBranchId,
+        netValue: g.netValue,
+        target: g.target,
+        orders: g.orders,
+        days: g.daysSet ? g.daysSet.size : 0,
         score: g.target > 0 ? (g.netValue / g.target) * 100 : 0,
         totalDaysCustomers: g.orders
       }))
@@ -1841,6 +1876,38 @@
       const isSpecialDay = b.hasData && b.rawTarget > 0 && b.target !== b.rawTarget;
       const isDouble = b.hasData && b.target > b.rawTarget;
 
+      // Calculate deficits for this branch
+      let deficitHTML = '';
+      if (b.hasData) {
+        const specialDeficit = b.target - b.netSales;
+        const rawDeficit = b.rawTarget - b.netSales;
+
+        deficitHTML = '<div class="branch-deficit-info">';
+
+        if (isSpecialDay) {
+          // Show both deficits when special/double gifting is active
+          if (specialDeficit > 0) {
+            deficitHTML += `Deficit (Special): <span class="deficit-val">${formatFullCurrency(specialDeficit)}</span><br>`;
+          } else if (specialDeficit < 0) {
+            deficitHTML += `Surplus (Special): <span class="surplus-val">${formatFullCurrency(Math.abs(specialDeficit))}</span><br>`;
+          }
+          if (rawDeficit > 0) {
+            deficitHTML += `Deficit (Raw): <span class="deficit-val">${formatFullCurrency(rawDeficit)}</span>`;
+          } else if (rawDeficit < 0) {
+            deficitHTML += `Surplus (Raw): <span class="surplus-val">${formatFullCurrency(Math.abs(rawDeficit))}</span>`;
+          }
+        } else {
+          // Show single deficit on normal days
+          if (specialDeficit > 0) {
+            deficitHTML += `Deficit: <span class="deficit-val">${formatFullCurrency(specialDeficit)}</span>`;
+          } else if (specialDeficit < 0) {
+            deficitHTML += `Surplus: <span class="surplus-val">${formatFullCurrency(Math.abs(specialDeficit))}</span>`;
+          }
+        }
+
+        deficitHTML += '</div>';
+      }
+
       html += `
         <div class="b-card tier-${tier}" data-name="${b.name.toLowerCase()}">
           <div class="b-card-name">${b.name}</div>
@@ -1856,6 +1923,7 @@
             `<div class="b-card-detail" style="margin-top: 4px; font-size: 11px; color: ${isDouble ? '#ba9305' : '#38bdf8'}; font-weight:700;">${isDouble ? 'DOUBLE GIFTING' : 'SPECIAL TARGET'} ACTIVE</div>
              <div style="font-size: 20px; font-weight: bold; color: ${rawPctColor}; margin-top: 2px;">Actual Score: ${b.rawPct.toFixed(1)}% (Raw: ${formatFullCurrency(b.rawTarget)})</div>` : 
              (b.hasData ? `<div style="font-size: 20px; font-weight: bold; color: ${rawPctColor}; margin-top: 4px;">Actual Score: ${b.rawPct.toFixed(1)}%</div>` : "")}
+          ${deficitHTML}
           <div class="b-card-bar">
             <div class="b-card-bar-fill bar-${tier}" style="width:${barWidth}%"></div>
           </div>
@@ -1884,6 +1952,7 @@
 
   function processAndRender() {
     const { startDate, endDate } = getDateRange();
+    currentDaysInRange = getDaysInRange(startDate, endDate);
     const selectedBranch = branchSelect.value;
     const selectedBranchName = selectedBranch
       ? (branchNames[selectedBranch] || "")
@@ -1998,16 +2067,34 @@
       detailHTML += `<div style="font-size:20px; font-weight:bold; color:${rawPctColor}; margin-top:4px;">Actual Score: ${branchRawPct.toFixed(1)}%</div><br>`;
     }
 
+    const rawDeficit = branchRawTarget - branchNetSales;
+
+    // Deficit on Special Target
     if (deficit > 0) {
       detailHTML +=
-        `Deficit on 100%: <span class="deficit">` +
+        `Deficit on Special Target: <span class="deficit">` +
         `${formatFullCurrency(deficit)}</span>`;
     } else if (deficit < 0) {
       detailHTML +=
-        `Surplus: <span class="surplus">` +
+        `Surplus on Special Target: <span class="surplus">` +
         `${formatFullCurrency(Math.abs(deficit))}</span>`;
     } else {
-      detailHTML += `<span class="surplus">Exactly on target</span>`;
+      detailHTML += `<span class="surplus">Special Target met exactly</span>`;
+    }
+
+    detailHTML += `<br>`;
+
+    // Deficit on Raw Target
+    if (rawDeficit > 0) {
+      detailHTML +=
+        `Deficit on Raw Target: <span class="deficit">` +
+        `${formatFullCurrency(rawDeficit)}</span>`;
+    } else if (rawDeficit < 0) {
+      detailHTML +=
+        `Surplus on Raw Target: <span class="surplus">` +
+        `${formatFullCurrency(Math.abs(rawDeficit))}</span>`;
+    } else {
+      detailHTML += `<span class="surplus">Raw Target met exactly</span>`;
     }
 
     document.getElementById("branchPerfDetail").innerHTML = detailHTML;
@@ -2100,11 +2187,13 @@
     }
 
     let html = "";
+    const showDaysInfo = currentDaysInRange > 1;
 
     data.forEach((item, i) => {
       const sales = Number(item.score) || 0; // Individual score uses raw target
       const orders = Number(item.totalDaysCustomers || 0);
       const value = Number(item.netValue) || 0;
+      const daysWorked = Number(item.days) || 0;
 
       const pctClass =
         sales >= 80 ? "pct-high" :
@@ -2132,6 +2221,7 @@
             <span class="pct-badge ${pctClass}">
               ${sales.toFixed(1)}%
             </span>
+            ${showDaysInfo ? `<div class="days-worked-info">on ${daysWorked} of ${currentDaysInRange} days</div>` : ''}
           </td>
           <td class="orders-cell" style="text-align:center;">
             ${orders.toLocaleString()}
