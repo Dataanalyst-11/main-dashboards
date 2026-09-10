@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Store Attendant Performance Dashboard</title>
-<!-- Switched to ExcelJS and FileSaver for full styling support -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0e6ed;height:100vh;overflow:hidden;display:flex;flex-direction:column}
@@ -19,9 +19,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .fr select{min-width:160px;cursor:pointer}
 .fr input:focus,.fr select:focus{border-color:#e67e22;box-shadow:0 0 0 2px rgba(230,126,34,.25)}
 .fdiv{width:1px;height:24px;background:#1e3347;flex-shrink:0}
-.qb{background:#1e3347;color:#6b8299;border:1px solid #2c4a63;border-radius:4px;padding:5px 12px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all .15s}
-.qb:hover{background:#243d54;color:#b0c4d8}
-.qb.on{background:#e67e22;color:#fff;border-color:#e67e22}
+
+.company-toggle{display:flex;gap:4px;background:#0f1923;border:1px solid #2c4a63;border-radius:6px;padding:3px}
+.company-toggle button{background:transparent;color:#6b8299;border:none;padding:6px 16px;font-size:11px;font-weight:700;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .2s}
+.company-toggle button:hover{color:#b0c4d8}
+.company-toggle button.on{background:#e67e22;color:#fff}
+
+.custom-range-bar{display:none;align-items:center;gap:12px}
+.custom-range-bar.active{display:flex}
+
 .xb{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;border-radius:5px;padding:7px 18px;font-size:11px;font-family:inherit;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(39,174,96,.3);flex-shrink:0}
 .xb:hover{background:linear-gradient(135deg,#2ecc71,#58d68d);box-shadow:0 4px 14px rgba(39,174,96,.45);transform:translateY(-1px)}
 .xb:active{transform:translateY(0);box-shadow:0 1px 4px rgba(39,174,96,.3)}
@@ -30,16 +36,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0f1923;color:#e0
 .ri{background:#0f1923;padding:5px 20px;font-size:10px;color:#4a6580;border-bottom:1px solid #1a2a3a;flex-shrink:0;display:flex;gap:10px;flex-wrap:wrap}
 .ri .bl{color:#e67e22;font-weight:700}.ri .gr{color:#27ae60;font-weight:600}.ri .pu{color:#9b59b6;font-weight:700;font-family:monospace}.ri .cy{color:#5dade2;font-weight:600}
 .sb{display:flex;background:#162230;border-bottom:1px solid #1e3347;flex-shrink:0}
-.sc{flex:1;min-width:100px;padding:10px 8px;text-align:center;border-right:1px solid #1e3347}
+.sc{flex:1;min-width:80px;padding:8px 4px;text-align:center;border-right:1px solid #1e3347}
 .sc:last-child{border-right:none}
-.sc .v{font-size:17px;font-weight:800;color:#e67e22}
-.sc .l{font-size:9px;color:#6b8299;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
-.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+.sc .v{font-size:15px;font-weight:800;color:#e67e22}
+.sc .l{font-size:8px;color:#6b8299;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+
+.tc{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:45px}
 .tc::-webkit-scrollbar{width:5px}
 .tc::-webkit-scrollbar-track{background:#0f1923}
 .tc::-webkit-scrollbar-thumb{background:#2c3e50;border-radius:3px}
 table{width:100%;border-collapse:collapse}
-th,td{padding:8px;text-align:center;font-size:12px;white-space:nowrap;border:none !important} /* Borders Removed */
+th,td{padding:8px;text-align:center;font-size:12px;white-space:nowrap;border:none !important}
 th{background:#162230;color:#8fa4b8;font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;position:sticky;top:0;z-index:10}
 tr.rh{background:rgba(39,174,96,.12)}
 tr.rm{background:rgba(241,196,15,.1)}
@@ -67,47 +74,64 @@ tr.rl{background:rgba(231,76,60,.1)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:linear-gradient(135deg,#e74c3c,#c0392b);box-shadow:0 6px 20px rgba(231,76,60,.4)}
 
-/* --- INACTIVE STAFF STYLING (White Background, Blue Bold Italic Text) --- */
 tr.inactive-staff, tr.inactive-staff td {
-    background-color: #FFFFFF !important; /* Pure White Background */
-    color: #0000FF !important;           /* Blue Text */
-    font-style: italic !important;       /* Italic Text */
-    font-weight: bold !important;        /* Bold Text */
-}
-tr.inactive-staff .an, tr.inactive-staff .bt, tr.inactive-staff .db, tr.inactive-staff .st {
-    color: #0000FF !important;
-    font-weight: bold !important;
+    background-color: #FF0000 !important; 
+    color: #000000 !important;           
     font-style: italic !important;
 }
 tr.inactive-staff .bt, tr.inactive-staff .db {
-    background-color: rgba(0, 0, 255, 0.1) !important; /* Light blue tint for tags */
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #000000 !important;
+    font-style: italic !important;
 }
 tr.inactive-staff .rb {
-    background-color: #0000FF !important; /* Blue badge */
-    color: #FFFFFF !important;            /* White text on badge */
+    background-color: #000000 !important;
+    color: #FF0000 !important;
     font-style: normal !important; 
-    font-weight: bold !important;
 }
 tr.inactive-staff .sbw {
-    background-color: rgba(0, 0, 255, 0.1) !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
 }
 tr.inactive-staff .sb2 {
-    background-color: #0000FF !important;
+    background-color: #000000 !important;
+}
+tr.inactive-staff .st {
+    color: #000000 !important;
 }
 </style>
 </head>
 <body>
-<div class="hd"><h1>📦 Store Attendant Performance — All Branches</h1><div id="clock"></div></div>
+<div class="hd"><h1 id="pageTitle">📦 Store Attendant Performance — Pharma</h1><div id="clock"></div></div>
 <div class="fr">
-<div><label>From</label><input type="date" id="sd"></div>
-<div><label>To</label><input type="date" id="ed"></div>
-<div class="fdiv"></div>
-<div id="qbs" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-<div class="fdiv"></div>
-<div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
-<div class="fdiv"></div>
-<button class="xb" id="xbtn" onclick="exportExcel()"><span class="xi">📥</span> Export Excel</button>
+    <div class="company-toggle">
+        <button id="btnPharma" class="on" onclick="switchCompany('pharma')">Pharma</button>
+        <button id="btnBeibora" onclick="switchCompany('beibora')">Beibora</button>
+    </div>
+    <div class="fdiv"></div>
+
+    <div>
+        <label>Period</label>
+        <select id="periodSelect" onchange="handlePeriodChange()">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 90 Days</option>
+            <option value="custom">Custom Range</option>
+        </select>
+    </div>
+    
+    <div class="custom-range-bar" id="customRangeBar">
+        <div><label>From</label><input type="date" id="sd"></div>
+        <div><label>To</label><input type="date" id="ed"></div>
+    </div>
+
+    <div class="fdiv"></div>
+    <div><label>Branch</label><select id="bf"><option value="ALL">All Branches</option></select></div>
+    <div class="fdiv"></div>
+    <button class="xb" id="xbtn" onclick="exportExcel()"><span class="xi">📥</span> Export Excel</button>
 </div>
+
 <div class="ri" id="ri">Loading...</div>
 <div class="sb">
 <div class="sc"><div class="v" id="s1">--</div><div class="l">Attendants</div></div>
@@ -117,6 +141,9 @@ tr.inactive-staff .sb2 {
 <div class="sc"><div class="v" id="s5">--</div><div class="l">Avg Score</div></div>
 <div class="sc"><div class="v" id="s6">--</div><div class="l">Top Score</div></div>
 <div class="sc"><div class="v" id="s7">--</div><div class="l">Branches</div></div>
+<div class="sc"><div class="v" id="s11" title="Total orders YTD ÷ Working Days (excl. Saturdays) from Jan 1 to today">--</div><div class="l">Daily Avg Orders (WD YTD)</div></div>
+<div class="sc"><div class="v" id="s9" title="Average orders per attendant from Jan 1 to today (Independent of Date Filter)">--</div><div class="l">Avg Orders (YTD)</div></div>
+<div class="sc"><div class="v" id="s10" title="Daily Average Invoices (Working Days YTD) ÷ 100 (Independent of Date Filter)">--</div><div class="l">Attendants Needed (YTD)</div></div>
 </div>
 <div class="tc" id="tc">
 <table><thead><tr>
@@ -124,7 +151,6 @@ tr.inactive-staff .sb2 {
 </tr></thead><tbody id="tb"><tr><td colspan="12" class="lm">Loading data...</td></tr></tbody></table>
 </div>
 
-<!-- Blue Footer -->
 <div style="position:fixed;bottom:0;left:60px;right:0;z-index:90;background:#1e3a8a;border-top:2px solid #172554;overflow:hidden;height:36px;display:flex;align-items:center;">
   <div style="display:flex;white-space:nowrap;animation:scrollFooter 18s linear infinite;font-weight:700;font-size:.78rem;color:#ffffff;letter-spacing:.3px; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);">
     <span style="padding:0 40px">Last updated: <span id="lu">--</span></span>
@@ -157,13 +183,16 @@ document.getElementById('lu2').textContent = full;
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>
-const DF='createdAt', PS=5000, FETCH_DAYS=90;
-let raw=[], filt=[], all=[], pd=7, ld=false, fetching=false, silent=false;
-const BK='spbf', SK='spsd', EK='sped', QK='spqr';
-const ranges=[['today','Today'],['yesterday','Yesterday'],['7d','7D'],['30d','30D'],['90d','90D'],['mtd','MTD']];
+<script src="beibora.js"></script>
 
-/* Toast notification */
+<script>
+let currentCompany = "pharma";
+const DF='createdAt', FETCH_DAYS=365;
+
+let cache = { pharma: [], beibora: [] }; 
+let raw=[], filt=[], all=[], pd=7, ld=false, fetching=false, silent=false;
+const BK='spbf';
+
 function showToast(msg, isErr) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -173,42 +202,67 @@ function showToast(msg, isErr) {
     t._tid = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-const qbc = document.getElementById('qbs');
-ranges.forEach(r => {
-    const b = document.createElement('button');
-    b.className = 'qb';
-    b.textContent = r[1];
-    b.dataset.r = r[0];
-    b.onclick = () => { setQR(r[0]); applyF(); };
-    qbc.appendChild(b);
-});
-
 function updClk() {
     const n = new Date();
     document.getElementById('clock').textContent = n.toLocaleDateString(undefined, {weekday:'short',month:'short',day:'numeric'}) + ' — ' + n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }
 setInterval(updClk, 1000); updClk();
 
+function getActiveConfig() {
+    if (currentCompany === "pharma") {
+        return window.PHARMA_CONFIG || window.API_CONFIG || { API_URL: "", API_TOKEN: "" };
+    } else {
+        return window.BEIBORA_CONFIG || { API_URL: "", API_TOKEN: "" };
+    }
+}
+
+function switchCompany(company) {
+    currentCompany = company;
+    document.getElementById("btnPharma").classList.toggle("on", company === "pharma");
+    document.getElementById("btnBeibora").classList.toggle("on", company === "beibora");
+    document.getElementById("pageTitle").textContent = company === "pharma" 
+        ? "📦 Store Attendant Performance — Pharma" 
+        : "📦 Store Attendant Performance — Beibora";
+    
+    document.getElementById('bf').innerHTML = '<option value="ALL">All Branches</option>';
+    document.getElementById('periodSelect').value = 'today';
+    document.getElementById('customRangeBar').classList.remove('active');
+    
+    const d = gdr('today');
+    document.getElementById('sd').value = d.s;
+    document.getElementById('ed').value = d.e;
+
+    if (cache[company].length > 0) {
+        raw = cache[company];
+        ld = true;
+        applyF();
+    } else {
+        raw = []; filt = []; all = []; ld = false;
+        go(false);
+    }
+}
+
 function fdu(d) { return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
 function fdn(s) { if(!s) return ''; return new Date(s+'T00:00:00Z').toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}); }
 
-/* Get the 90-day fetch window: [today - (FETCH_DAYS-1), today] */
 function getFetchWindow() {
     const now = new Date();
     const end = fdu(now);
-    const start = fdu(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (FETCH_DAYS - 1))));
-    return { s: start, e: end };
+    const startD = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    startD.setUTCDate(startD.getUTCDate() - (FETCH_DAYS - 1));
+    return { s: fdu(startD), e: end };
 }
 
 function gdr(k) {
-    const n = new Date(), s = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate())), e = new Date(s);
+    const n = new Date();
+    let s = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()));
+    let e = new Date(s);
     switch(k) {
         case 'today': break;
         case 'yesterday': s.setUTCDate(s.getUTCDate()-1); e = new Date(s); break;
         case '7d': s.setUTCDate(s.getUTCDate()-6); break;
         case '30d': s.setUTCDate(s.getUTCDate()-29); break;
         case '90d': s.setUTCDate(s.getUTCDate()-89); break;
-        case 'mtd': s = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), 1)); break;
     }
     return { s: fdu(s), e: fdu(e) };
 }
@@ -232,20 +286,13 @@ function exd(r) {
     return null;
 }
 
-function daysSinceLastWorked(lastWorkedStr) {
-    if (!lastWorkedStr) return Infinity; // No record = treat as inactive
-    const today = new Date();
-    const todayUTC = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-    const last = new Date(lastWorkedStr + 'T00:00:00Z');
-    if (isNaN(last.getTime())) return Infinity;
-    const lastUTC = Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate());
-    return Math.floor((todayUTC - lastUTC) / 86400000);
-}
-
 function burl(p) {
-    let b = window.API_CONFIG.API_URL;
+    const config = getActiveConfig();
+    let b = config.API_URL;
+    if (!b) return ""; 
     if (!b.endsWith('/')) b += '/';
-    return b + 'store-picker-reports' + (p ? '?' + p : '');
+    const endpoint = currentCompany === "pharma" ? "store-picker-reports" : "list-store-picker-reports";
+    return b + endpoint + (p ? '?' + p : '');
 }
 
 function agg(rawData) {
@@ -255,19 +302,19 @@ function agg(rawData) {
         const n = (r.storePickerName || '').trim(), br = (r.orgBranchName || '').trim();
         if (!n) return;
         const k = n + '|||' + br;
-        if (!m[k]) m[k] = { storePickerName: n, orgBranchName: br, numberOfOrders: 0, numberOfLineItems: 0, orderAmount: 0, ec: 0, lastWorked: '' };
+        if (!m[k]) m[k] = { storePickerName: n, orgBranchName: br, numberOfOrders: 0, numberOfLineItems: 0, orderAmount: 0, ec: 0, maxDate: '' };
         m[k].numberOfOrders += (r.numberOfOrders || 0);
         m[k].numberOfLineItems += (r.numberOfLineItems || 0);
         m[k].orderAmount += (r.orderAmount || 0);
         m[k].ec += 1;
-        // Track the most recent date worked
+        
         const d = exd(r);
-        if (d && d > m[k].lastWorked) m[k].lastWorked = d;
+        if (d && d > m[k].maxDate) m[k].maxDate = d;
     });
     return Object.values(m).map(a => {
         const d = Math.max(1, a.ec);
         delete a.ec;
-        return { ...a, daysWorked: d, hoursWorked: d * 10 };
+        return { ...a, daysWorked: d, hoursWorked: d * 10, lastDutyDate: a.maxDate };
     });
 }
 
@@ -289,6 +336,55 @@ function scc(s) { return s >= 80 ? 'sh' : s >= 50 ? 'sm' : 'sl'; }
 function rwc(s) { return s >= 80 ? 'rh' : s >= 50 ? 'rm' : 'rl'; }
 function rkc(r) { return r === 1 ? 'r1' : r === 2 ? 'r2' : r === 3 ? 'r3' : 'rx'; }
 
+// Filter staff active within the last 10 days
+function filterOnDuty10Days(data) {
+    const today = new Date();
+    const tenDaysAgo = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 10));
+    const tenDaysAgoStr = fdu(tenDaysAgo);
+    return data.filter(a => a.lastDutyDate && a.lastDutyDate >= tenDaysAgoStr);
+}
+
+function getAllInRangeData() {
+    const bv = document.getElementById('bf').value;
+    return bv === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === bv);
+}
+
+/* === YTD metrics: uses cached `raw` data, entirely ignoring UI date filters === */
+function getYTDData() {
+    if (!raw.length) return { avg: 0, total: 0, attendants: 0, dailyAvg: 0, workingDays: 0 };
+    const now = new Date();
+    const ytdStart = fdu(new Date(Date.UTC(now.getUTCFullYear(), 0, 1)));
+    const todayStr = fdu(now);
+    const ytdRaw = raw.filter(r => { const d = exd(r); return d && d >= ytdStart && d <= todayStr; });
+    let ytdAgg = agg(ytdRaw);
+    
+    const bv = document.getElementById('bf').value;
+    if (bv !== 'ALL') ytdAgg = ytdAgg.filter(a => a.orgBranchName === bv);
+    
+    if (!ytdAgg.length) return { avg: 0, total: 0, attendants: 0, dailyAvg: 0, workingDays: 0 };
+    const totalOrders = ytdAgg.reduce((s, a) => s + a.numberOfOrders, 0);
+    
+    // Calculate Working Days from Jan 1 to Today (Excluding Saturdays -> 6 in getUTCDay)
+    const start = new Date(ytdStart + 'T00:00:00Z');
+    const end = new Date(todayStr + 'T00:00:00Z');
+    let ytdWorkingDays = 0;
+    let tempDate = new Date(start);
+    while (tempDate <= end) {
+        if (tempDate.getUTCDay() !== 6) {
+            ytdWorkingDays++;
+        }
+        tempDate.setUTCDate(tempDate.getUTCDate() + 1);
+    }
+    
+    return { 
+        avg: totalOrders / ytdAgg.length, 
+        total: totalOrders, 
+        attendants: ytdAgg.length,
+        workingDays: ytdWorkingDays,
+        dailyAvg: ytdWorkingDays > 0 ? totalOrders / ytdWorkingDays : 0 
+    };
+}
+
 function popBr() {
     const sel = document.getElementById('bf'), cv = sel.value;
     const br = [...new Set(all.map(a => a.orgBranchName))].filter(Boolean).sort();
@@ -307,16 +403,32 @@ function popBr() {
     }
 }
 
-function updSt(d) {
-    const n = d.length;
+function updSt(displayData, allInRange) {
+    const n = displayData.length;
     document.getElementById('s1').textContent = n;
     document.getElementById('s2').textContent = pd + 'd';
-    document.getElementById('s3').textContent = d.reduce((s, a) => s + a.numberOfOrders, 0).toLocaleString();
-    document.getElementById('s4').textContent = d.reduce((s, a) => s + a.numberOfLineItems, 0).toLocaleString();
-    const av = n ? d.reduce((s, a) => s + a.pf.score, 0) / n : 0;
+    
+    document.getElementById('s3').textContent = allInRange.reduce((s, a) => s + a.numberOfOrders, 0).toLocaleString();
+    document.getElementById('s4').textContent = allInRange.reduce((s, a) => s + a.numberOfLineItems, 0).toLocaleString();
+    
+    const av = n ? displayData.reduce((s, a) => s + a.pf.score, 0) / n : 0;
     document.getElementById('s5').textContent = av.toFixed(1) + '%';
-    document.getElementById('s6').textContent = n ? Math.max(...d.map(a => a.pf.score)).toFixed(1) + '%' : '0%';
-    document.getElementById('s7').textContent = new Set(d.map(a => a.orgBranchName)).size;
+    document.getElementById('s6').textContent = n ? Math.max(...displayData.map(a => a.pf.score)).toFixed(1) + '%' : '0%';
+    
+    document.getElementById('s7').textContent = new Set(allInRange.map(a => a.orgBranchName)).size;
+    
+    // YTD metrics (Independent of Date Filter Range)
+    const ytdData = getYTDData();
+    
+    // 1. Daily Average Orders YTD (Based on working days excluding Saturdays)
+    document.getElementById('s11').textContent = ytdData.dailyAvg.toFixed(0);
+    
+    // 2. Average Orders per attendant YTD
+    document.getElementById('s9').textContent = ytdData.avg.toFixed(0);
+    
+    // 3. Attendants Needed (Strictly Daily Average Invoices YTD ÷ 100)
+    const attendantsNeeded = Math.ceil(ytdData.dailyAvg / 100);
+    document.getElementById('s10').textContent = attendantsNeeded;
 }
 
 function updRi(s, e, tc, fc) {
@@ -325,21 +437,19 @@ function updRi(s, e, tc, fc) {
         '<span class="gr">✅ Filtered by <span class="pu">' + DF + '</span> (raw UTC)</span> · ' +
         '<span class="bl">Period:</span> ' + fdn(s) + ' — ' + fdn(e) + ' <span style="color:#4a6580">(' + d + (d === 1 ? ' day' : ' days') + ')</span> · ' +
         '<span class="gr">' + fc.toLocaleString() + ' of ' + tc.toLocaleString() + ' records</span> · ' +
-        '<span class="cy">🔄 Fetch window: last ' + FETCH_DAYS + ' days</span>';
+        '<span class="cy">🔄 Fetch window: Last 365 Days</span> · ' +
+        '<span style="color:#e67e22;font-weight:700">⚠ Display: Active staff only (on duty within last 10 days)</span>';
 }
 
 function buildRows(d) {
-    if (!d.length) return '<tr><td colspan="12" class="em">No data found for this selection.</td></tr>';
-    calcPct(d);
+    if (!d.length) return '<tr><td colspan="12" class="em">No active staff on duty in the last 10 days for this selection.</td></tr>';
+    
+    // Sort by score (already calculated in applyBr/getDisplayData)
     d.sort((a, b) => b.pf.score - a.pf.score);
+    
     return d.map((a, i) => {
         const r = i + 1, sc = scc(a.pf.score), rc = rkc(r), rw = rwc(a.pf.score), dc = a.daysWorked >= pd ? 'f' : 'p';
-        
-        // Check if staff has not worked for OVER 10 days (> 10)
-        const isInactive = daysSinceLastWorked(a.lastWorked) > 10;
-        const inactiveClass = isInactive ? ' inactive-staff' : '';
-        
-        return '<tr class="' + rw + inactiveClass + '"><td><span class="rb ' + rc + '">' + r + '</span></td><td class="an">' + (a.storePickerName || '—') + '</td><td><span class="bt" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || '—') + '</span></td><td><span class="db ' + dc + '">' + a.daysWorked + '/' + pd + '</span></td><td>' + a.hoursWorked + '</td><td>' + a.numberOfOrders.toLocaleString() + '</td><td>' + a.numberOfLineItems.toLocaleString() + '</td><td>' + a.pf.itemsPerHour.toFixed(2) + '</td><td>' + a.pf.ordersPerHour.toFixed(2) + '</td><td>' + a.pf.avgOrderValue.toFixed(0) + '</td><td>' + (a.lastWorked ? fdn(a.lastWorked) : '—') + '</td><td><div class="scl ' + sc + '"><div class="sbw"><div class="sb2" style="width:' + a.pf.score + '%"></div></div><span class="st">' + a.pf.score.toFixed(1) + '%</span></div></td></tr>';
+        return '<tr class="' + rw + '"><td><span class="rb ' + rc + '">' + r + '</span></td><td class="an">' + (a.storePickerName || '—') + '</td><td><span class="bt" title="' + (a.orgBranchName || '') + '">' + (a.orgBranchName || '—') + '</span></td><td><span class="db ' + dc + '">' + a.daysWorked + '/' + pd + '</span></td><td>' + a.hoursWorked + '</td><td>' + a.numberOfOrders.toLocaleString() + '</td><td>' + a.numberOfLineItems.toLocaleString() + '</td><td>' + a.pf.itemsPerHour.toFixed(2) + '</td><td>' + a.pf.ordersPerHour.toFixed(2) + '</td><td>' + a.pf.avgOrderValue.toFixed(0) + '</td><td>' + (a.lastDutyDate ? fdn(a.lastDutyDate) : '—') + '</td><td><div class="scl ' + sc + '"><div class="sbw"><div class="sb2" style="width:' + a.pf.score + '%"></div></div><span class="st">' + a.pf.score.toFixed(1) + '%</span></div></td></tr>';
     }).join('');
 }
 
@@ -353,25 +463,37 @@ function proc(s, e) {
 
 function getDisplayData() {
     const bv = document.getElementById('bf').value;
-    let d = bv === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === bv);
-    if (!d.length) return [];
-    calcPct(d);
+    const allInRange = bv === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === bv);
+    
+    // ORIGINAL LOGIC: Calculate performance for ALL staff in range first!
+    if (allInRange.length) calcPct(allInRange);
+    
+    // THEN filter to only active staff (on duty within last 10 days)
+    let d = filterOnDuty10Days(allInRange);
     d.sort((a, b) => b.pf.score - a.pf.score);
     return d;
 }
 
 function applyBr() {
     const v = document.getElementById('bf').value;
-    const d = v === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === v);
+    const allInRange = v === 'ALL' ? [...all] : all.filter(a => a.orgBranchName === v);
+    
+    // ORIGINAL LOGIC: Calculate performance for ALL staff in range first!
+    if (allInRange.length) calcPct(allInRange);
+    
+    // THEN filter to only active staff (on duty within last 10 days)
+    const displayData = filterOnDuty10Days(allInRange);
+    displayData.sort((a, b) => b.pf.score - a.pf.score);
+    
     const tb = document.getElementById('tb'), tc = document.getElementById('tc');
     if (!silent) {
-        tb.innerHTML = buildRows(d);
-        updSt(d);
+        tb.innerHTML = buildRows(displayData);
+        updSt(displayData, allInRange);
         tc.scrollTop = 0;
     } else {
         const sv = tc.scrollTop;
-        tb.innerHTML = buildRows(d);
-        updSt(d);
+        tb.innerHTML = buildRows(displayData);
+        updSt(displayData, allInRange);
         tc.scrollTop = sv;
     }
 }
@@ -383,22 +505,12 @@ function applyF() {
     proc(s, e);
 }
 
-async function fetchPages(lab, bp) {
-    let pages = [], pn = 0, hn = true, gc = 0;
-    while (hn && gc < 200) {
-        const p = (bp ? bp + '&' : '') + 'pageNum=' + pn + '&pageSize=' + PS;
-        const u = burl(p);
-        const resp = await fetch(u, { headers: { 'Authorization': window.API_CONFIG.API_TOKEN, 'Content-Type': 'application/json' } });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const j = await resp.json();
-        const pg = Array.isArray(j) ? j : (j.data || []);
-        pages = pages.concat(pg);
-        hn = j.hasNext === true;
-        pn++;
-        gc++;
-        if (!pg.length) break;
-    }
-    return pages;
+async function fetchAllData(params) {
+    const u = burl(params);
+    const resp = await fetch(u, { headers: { 'Authorization': getActiveConfig().API_TOKEN, 'Content-Type': 'application/json' } });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const j = await resp.json();
+    return Array.isArray(j) ? j : (j.data || []);
 }
 
 async function go(sl) {
@@ -406,25 +518,26 @@ async function go(sl) {
     fetching = true;
     const tb = document.getElementById('tb'), tc = document.getElementById('tc'), sv = tc.scrollTop;
     
-    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (last ' + FETCH_DAYS + ' days)...</td></tr>';
+    if (!sl) tb.innerHTML = '<tr><td colspan="12" class="lm">Loading data (Last 365 Days)...</td></tr>';
 
     var fw = getFetchWindow();
-    var fetchParams = 'startDate=' + fw.s + '&endDate=' + fw.e;
+    var fetchParams = 'pageSize=100000&startDate=' + fw.s + '&endDate=' + fw.e;
 
     let data = [], err = null;
     try {
-        data = await fetchPages('A', fetchParams);
+        data = await fetchAllData(fetchParams);
     } catch (e) {
         err = e;
     }
 
-    if (!data.length) {
+    if (!data || !data.length) {
         if (!sl) tb.innerHTML = '<tr><td colspan="12" class="em">Failed to fetch data<br><small style="color:#e67e22">' + burl(fetchParams) + '</small><br><small style="color:#8fa4b8">Error: ' + (err ? err.message : 'Unknown') + '</small></td></tr>';
         fetching = false;
         return;
     }
 
     raw = data;
+    cache[currentCompany] = raw;
     ld = true;
     document.getElementById('lu').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -448,20 +561,34 @@ async function go(sl) {
     fetching = false;
 }
 
-function setQR(k) {
-    const d = gdr(k);
-    document.getElementById('sd').value = d.s;
-    document.getElementById('ed').value = d.e;
-    document.querySelectorAll('.qb').forEach(b => b.classList.toggle('on', b.dataset.r === k));
-    localStorage.setItem(QK, k);
+function handlePeriodChange() {
+    const val = document.getElementById('periodSelect').value;
+    const bar = document.getElementById('customRangeBar');
+    
+    if (val === 'custom') {
+        bar.classList.add('active');
+        if (!document.getElementById('sd').value || !document.getElementById('ed').value) {
+            const d = gdr('today');
+            document.getElementById('sd').value = d.s;
+            document.getElementById('ed').value = d.e;
+        }
+    } else {
+        bar.classList.remove('active');
+        const d = gdr(val);
+        document.getElementById('sd').value = d.s;
+        document.getElementById('ed').value = d.e;
+        applyF();
+    }
 }
 
-/* ========== EXPORT TO EXCEL WITH FULL HTML COLOR MATCHING ========== */
+/* ========== EXPORT TO EXCEL ========== */
 async function exportExcel() {
     const btn = document.getElementById('xbtn');
-    const data = getDisplayData();
+    const data = getDisplayData(); // Already calculates pct on ALL in range, then filters to 10 days active
+    const allInRange = getAllInRangeData();
+    
     if (!data.length) {
-        showToast('No data to export — adjust your filters first.', true);
+        showToast('No active staff on duty in last 10 days to export.', true);
         return;
     }
 
@@ -472,13 +599,17 @@ async function exportExcel() {
     const sVal = document.getElementById('sd').value;
     const eVal = document.getElementById('ed').value;
     const brVal = document.getElementById('bf').value;
-    const totalOrders = data.reduce((s, a) => s + a.numberOfOrders, 0);
-    const totalItems = data.reduce((s, a) => s + a.numberOfLineItems, 0);
+    
+    const totalOrders = allInRange.reduce((s, a) => s + a.numberOfOrders, 0);
+    const totalItems = allInRange.reduce((s, a) => s + a.numberOfLineItems, 0);
     const avgScore = data.reduce((s, a) => s + a.pf.score, 0) / data.length;
+    
+    // YTD Data for export
+    const ytdData = getYTDData();
+    const attendantsNeeded = Math.ceil(ytdData.dailyAvg / 100);
 
     const wb = new ExcelJS.Workbook();
     
-    // === Sheet 1: Performance Data ===
     const ws1 = wb.addWorksheet('Store Attendant Performance', {
         properties: { defaultRowHeight: 22 },
         views: [{ showGridLines: false }]
@@ -500,36 +631,29 @@ async function exportExcel() {
         { header: 'Performance', key: 'perf', width: 15 }
     ];
 
-    // Style Header Row
     const headerRow = ws1.getRow(1);
     headerRow.height = 26;
     headerRow.eachCell((cell) => {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
-        cell.font = { color: { argb: 'FF8FA4B8' }, bold: true, size: 11 };
+        cell.font = { color: { argb: 'FFE67E22' }, bold: true, size: 11 };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.border = {}; // Borders Removed
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE67E22' } } };
     });
 
-    // Add Data Rows
     data.forEach((a, i) => {
         const r = i + 1;
         const score = a.pf.score;
         const perf = score >= 80 ? 'High' : score >= 50 ? 'Medium' : 'Low';
         
-        // Check if staff has not worked for OVER 10 days (> 10)
-        const daysInactive = daysSinceLastWorked(a.lastWorked);
-        const isInactive = daysInactive > 10;
-        
-        // Determine row background (White if inactive)
-        let rowBg = 'FF0F1923'; 
-        if (isInactive) rowBg = 'FFFFFFFF'; // Pure White
-        else if (score >= 80) rowBg = 'FF15241A'; 
-        else if (score >= 50) rowBg = 'FF242118'; 
+        let rowBg = 'FF0F1923';
+        if (score >= 80) rowBg = 'FF13241A';
+        else if (score >= 50) rowBg = 'FF242118';
         else rowBg = 'FF241511';
 
-        const defaultFontColor = isInactive ? 'FF0000FF' : 'FFE0E6ED'; // Blue if inactive, light grey otherwise
-        const isItalic = isInactive;
-        const isBoldInactive = isInactive; // Make bold if inactive
+        let scoreColor = 'FFE0E6ED';
+        if (score >= 80) scoreColor = 'FF27AE60';
+        else if (score >= 50) scoreColor = 'FFF1C40F';
+        else scoreColor = 'FFE74C3C';
 
         const row = ws1.addRow({
             rank: r,
@@ -542,73 +666,36 @@ async function exportExcel() {
             iph: parseFloat(a.pf.itemsPerHour.toFixed(2)),
             oph: parseFloat(a.pf.ordersPerHour.toFixed(2)),
             aov: parseFloat(a.pf.avgOrderValue.toFixed(0)),
-            lastduty: a.lastWorked ? fdn(a.lastWorked) : '—',
+            lastduty: a.lastDutyDate ? fdn(a.lastDutyDate) : '—',
             score: parseFloat(score.toFixed(1)),
             perf: perf
         });
 
         row.height = 22;
         
-        // Style Individual Cells in the Row
         row.eachCell((cell, colNumber) => {
-            // Base styling
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-            cell.font = {
-                color: { argb: defaultFontColor },
-                size: 11,
-                italic: isItalic,
-                bold: isBoldInactive
-            };
+            cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
             cell.alignment = { vertical: 'middle', horizontal: 'center' };
-            cell.border = {}; // Borders Removed
+            cell.border = {};
 
-            // Special styling for Rank (Badges) — preserve badge colors even for inactive staff
             if (colNumber === 1) {
-                if (isInactive) {
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0000FF' } }; // Blue badge
-                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11, italic: isItalic }; // White text on badge
-                } else if (r === 1) {
+                if (r === 1) {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1C40F' } };
-                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11, italic: isItalic };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
                 } else if (r === 2) {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF95A5A6' } };
-                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11, italic: isItalic };
+                    cell.font = { color: { argb: 'FF1A1A1A' }, bold: true, size: 11 };
                 } else if (r === 3) {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE67E22' } };
-                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11, italic: isItalic };
-                } else {
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-                    cell.font = { color: { argb: defaultFontColor }, bold: isBoldInactive, size: 11, italic: isItalic };
+                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11 };
                 }
             }
             
-            // Align Name and Branch left
             if (colNumber === 2 || colNumber === 3) {
                 cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
             }
 
-            // Branch Tag Styling (Mimic .bt class)
-            if (colNumber === 3 && !isInactive) {
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3347' } };
-                cell.font = { color: { argb: 'FF8FA4B8' }, size: 11, italic: isItalic, bold: isBoldInactive };
-            }
-
-            // Days Worked Badge Styling (Mimic .db class)
-            if (colNumber === 4 && !isInactive) {
-                let daysBg = 'FF1E3347';
-                let daysFont = 'FF8FA4B8';
-                if (a.daysWorked >= pd) {
-                    daysBg = 'FF15241A'; 
-                    daysFont = 'FF27AE60'; 
-                } else {
-                    daysBg = 'FF242118'; 
-                    daysFont = 'FFF1C40F'; 
-                }
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: daysBg } };
-                cell.font = { color: { argb: daysFont }, size: 11, bold: true, italic: isItalic };
-            }
-
-            // Number formatting
             if (colNumber === 6 || colNumber === 7 || colNumber === 10) {
                 cell.numFmt = '#,##0';
             }
@@ -616,50 +703,30 @@ async function exportExcel() {
                 cell.numFmt = '0.00';
             }
             
-            // Score text color (Col 12)
-            if (colNumber === 12) {
-                let scoreColor = 'FFE0E6ED';
-                if (isInactive) scoreColor = 'FF0000FF'; // Blue
-                else if (score >= 80) scoreColor = 'FF27AE60'; 
-                else if (score >= 50) scoreColor = 'FFF1C40F'; 
-                else scoreColor = 'FFE74C3C'; 
-
-                cell.font = { color: { argb: scoreColor }, bold: isBoldInactive, size: 11, italic: isItalic };
-                cell.numFmt = '0.0"%"'; 
-            }
-            
-            // Performance column coloring (Col 13)
-            if (colNumber === 13) {
-                let perfColor = 'FFE0E6ED';
-                if (isInactive) perfColor = 'FF0000FF'; // Blue
-                else if (perf === 'High') perfColor = 'FF27AE60';
-                else if (perf === 'Medium') perfColor = 'FFF1C40F';
-                else perfColor = 'FFE74C3C';
-
-                cell.font = { color: { argb: perfColor }, bold: isBoldInactive, size: 11, italic: isItalic };
+            if (colNumber === 12) { // Score column shifted left after removing Order Value
+                cell.font = { color: { argb: scoreColor }, bold: true, size: 11 };
+                cell.numFmt = '0.0"%"';
             }
         });
     });
 
-    // === Sheet 2: Summary ===
     const ws2 = wb.addWorksheet('Summary', {
         properties: { defaultRowHeight: 20 },
         views: [{ showGridLines: false }]
     });
     
     ws2.columns = [
-        { header: 'Metric', key: 'metric', width: 35 },
+        { header: 'Metric', key: 'metric', width: 40 },
         { header: 'Value', key: 'value', width: 50 }
     ];
 
-    // Style Summary Header
     const headerRow2 = ws2.getRow(1);
     headerRow2.height = 26;
     headerRow2.eachCell((cell) => {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162230' } };
-        cell.font = { color: { argb: 'FF8FA4B8' }, bold: true, size: 11 };
+        cell.font = { color: { argb: 'FFE67E22' }, bold: true, size: 11 };
         cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-        cell.border = {}; // Borders Removed
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE67E22' } } };
     });
 
     const summaryData = [
@@ -668,23 +735,32 @@ async function exportExcel() {
         { metric: 'Period End', value: fdn(eVal) },
         { metric: 'Period Days', value: pd },
         { metric: 'Branch Filter', value: brVal === 'ALL' ? 'All Branches' : brVal },
-        { metric: 'Backend Fetch Window', value: 'Last ' + FETCH_DAYS + ' days' },
+        { metric: 'Backend Fetch Window', value: 'Last 365 Days' },
         { metric: '', value: '' },
-        { metric: 'Total Attendants', value: data.length },
-        { metric: 'Total Orders', value: totalOrders.toLocaleString() },
-        { metric: 'Total Line Items', value: totalItems.toLocaleString() },
-        { metric: 'Average Efficiency', value: avgScore.toFixed(1) + '%' },
-        { metric: 'Top Efficiency', value: Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%' },
+        { metric: '📊 DISPLAY (10-Day Active Staff Only)', value: '' },
+        { metric: 'Displayed Attendants (on duty last 10 days)', value: data.length },
+        { metric: 'Average Efficiency (displayed)', value: avgScore.toFixed(1) + '%' },
+        { metric: 'Top Efficiency (displayed)', value: Math.max(...data.map(a => a.pf.score)).toFixed(1) + '%' },
         { metric: 'Top Performer', value: data[0].storePickerName + ' (' + data[0].orgBranchName + ')' },
+        { metric: '', value: '' },
+        { metric: '📈 TOTALS (All Staff in Date Range)', value: '' },
+        { metric: 'Total Attendants (in date range)', value: allInRange.length },
+        { metric: 'Total Orders (all staff in date range)', value: totalOrders.toLocaleString() },
+        { metric: 'Total Line Items', value: totalItems.toLocaleString() },
+        { metric: '', value: '' },
+        { metric: '⚖️ WORKLOAD ANALYSIS (YTD - Constant vs Date Filter)', value: '' },
+        { metric: 'Total Orders (YTD)', value: ytdData.total.toLocaleString() },
+        { metric: 'Working Days Elapsed (YTD, excl. Saturdays)', value: ytdData.workingDays },
+        { metric: 'Daily Average Invoices (YTD Working Days)', value: ytdData.dailyAvg.toFixed(0) },
+        { metric: 'Avg Orders per Attendant (YTD)', value: ytdData.avg.toFixed(0) },
+        { metric: 'Benchmark per Attendant', value: '100 orders/day' },
+        { metric: 'Attendants Needed (Daily Avg YTD ÷ 100)', value: attendantsNeeded },
         { metric: '', value: '' },
         { metric: 'High Performers (>=80%)', value: data.filter(a => a.pf.score >= 80).length },
         { metric: 'Medium Performers (50-79%)', value: data.filter(a => a.pf.score >= 50 && a.pf.score < 80).length },
         { metric: 'Low Performers (<50%)', value: data.filter(a => a.pf.score < 50).length },
-        { metric: '', value: '' },
-        { metric: '⚠ Inactive Staff (>10 days)', value: data.filter(a => daysSinceLastWorked(a.lastWorked) > 10).length },
     ];
 
-    // Add Summary Data Rows
     summaryData.forEach(item => {
         const row = ws2.addRow(item);
         row.height = 20;
@@ -692,15 +768,18 @@ async function exportExcel() {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F1923' } };
             cell.font = { color: { argb: 'FFE0E6ED' }, size: 11 };
             cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-            cell.border = {}; // Borders Removed
+            cell.border = {};
             
-            if (colNumber === 2) {
+            if (item.metric.startsWith('📊') || item.metric.startsWith('📈') || item.metric.startsWith('⚖️')) {
+                cell.font = { color: { argb: 'FFE67E22' }, size: 11, bold: true };
+            }
+            
+            if (colNumber === 2 && item.value !== '') {
                 cell.font = { color: { argb: 'FF8FA4B8' }, size: 11, bold: true };
             }
         });
     });
 
-    // Generate and Save File
     const brSlug = brVal === 'ALL' ? 'AllBranches' : brVal.replace(/[^a-zA-Z0-9]/g, '_');
     const fname = 'StoreAttendant_Performance_' + sVal + '_to_' + eVal + '_' + brSlug + '.xlsx';
 
@@ -708,7 +787,7 @@ async function exportExcel() {
         const buffer = await wb.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, fname);
-        showToast('Exported ' + data.length + ' records to Excel ✓', false);
+        showToast('Exported ' + data.length + ' records (10-day active) to Excel ✓', false);
     } catch (e) {
         showToast('Export failed: ' + e.message, true);
     } finally {
@@ -718,17 +797,14 @@ async function exportExcel() {
 }
 
 /* Event listeners */
-document.querySelectorAll('.qb').forEach(b => b.addEventListener('click', function() { setQR(this.dataset.r); applyF(); }));
 document.getElementById('sd').addEventListener('change', function() {
-    document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'));
-    localStorage.setItem(SK, this.value);
-    localStorage.removeItem(QK);
+    document.getElementById('periodSelect').value = 'custom';
+    document.getElementById('customRangeBar').classList.add('active');
     applyF();
 });
 document.getElementById('ed').addEventListener('change', function() {
-    document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'));
-    localStorage.setItem(EK, this.value);
-    localStorage.removeItem(QK);
+    document.getElementById('periodSelect').value = 'custom';
+    document.getElementById('customRangeBar').classList.add('active');
     applyF();
 });
 document.getElementById('bf').addEventListener('change', function() {
@@ -738,17 +814,14 @@ document.getElementById('bf').addEventListener('change', function() {
 
 /* ========== INITIALIZATION ========== */
 (function init() {
-    /* Always default to Today upon opening, clearing any previously saved date ranges */
-    localStorage.removeItem(SK);
-    localStorage.removeItem(EK);
-    localStorage.removeItem(QK);
-    setQR('today');
+    const d = gdr('today');
+    document.getElementById('sd').value = d.s;
+    document.getElementById('ed').value = d.e;
+    document.getElementById('periodSelect').value = 'today';
 
-    /* Initial data fetch */
     go(false);
 
-    /* Auto-refresh from backend every 1 hour (silent — preserves all filters) */
-    setInterval(() => go(true), 3600000);
+    setInterval(() => go(true), 1200000);
 })();
 </script>
 </body>
