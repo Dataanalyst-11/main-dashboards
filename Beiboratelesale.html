@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beibora Telesale Performance </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    background: #0f172a;
+    color: #e5e7eb;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 16px;
+    text-align: center;
+    font-size: 28px;
+    background: linear-gradient(135deg, #006400 0%, #006400 100%);
+    border-bottom: 3px solid #006400;
+    color: ffffff;
+  }
+
+  .container {
+    flex: 1;
+    padding: 0 20px;
+    overflow: hidden;
+  }
+
+  .table-container {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .table-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 24px;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #1e293b;
+  color: #93c5fd;
+  text-transform: uppercase;
+  font-size: 15px;
+  z-index: 2;
+}
+
+th,
+td {
+  padding: 14px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 70px;
+  text-align: center;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 35%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 25%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 20%;
+  text-align: center;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 20%;
+  text-align: center;
+}
+
+  tbody tr:nth-child(even) {
+    background: #020617;
+  }
+
+  tbody tr:hover {
+    background: #1e293b;
+  }
+
+  .high { color: #2563eb; }
+  .medium { color: #facc15; }
+  .low { color: #ef4444; }
+
+  .rank {
+    color: #38bdf8;
+    font-weight: bold;
+    width: 60px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    background: #f8fafc;
+    color: #020617;
+  }
+
+#branchStats {
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 22px;
+    font-weight: bold;
+    gap: 12px;
+}
+
+#branchStats .perf-label {
+    color: #93c5fd;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#branchStats .perf-value {
+    font-size: 32px;
+}
+
+.perf-high { color: #22c55e; }
+.perf-medium { color: #facc15; }
+.perf-low { color: #ef4444; }
+
+</style>
+</head>
+
+<body>
+
+<header>Beibora Telesales Performance</header>
+
+<div id="branchStats"></div>
+
+<div class="container">
+  <div class="table-container" id="scrollContainer">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Telesale Name</th>
+          <th>Branch</th>
+          <th>Sales (%)</th>
+          <th>Customer Orders</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="5">Loading data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  Last updated: <span id="lastUpdated"></span><br>
+  Designed and Managed by MIS.DPT
+</footer>
+
+<script>
+  // Not a credential — proxy only accepts requests from this site's origin.
+  // The real API token lives ONLY in the Cloudflare worker's secrets.
+  window.API_CONFIG = {
+    API_URL: "https://dashboard-proxy.mis-philmed01-dpt.workers.dev/beibora/"
+  };
+</script>
+
+ <script>
+    let scrollInterval = null;
+    let pauseTimeout = null;
+
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    let formattedEnd = `${yyyy}-${mm}-${dd}`;
+
+    let pastDate = new Date();
+    pastDate.setDate(today.getDate() - 7);
+    let pastY = pastDate.getFullYear();
+    let pastM = String(pastDate.getMonth() + 1).padStart(2, '0');
+    let pastD = String(pastDate.getDate()).padStart(2, '0');
+    let formattedStart = `${pastY}-${pastM}-${pastD}`;
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+const branchId = urlParams.get("branch") || "";
+
+const branchNames = {
+    "orgbranch-6a74b425a74cd8c01f57e287": "Bei Bora Head Office",
+    "orgbranch-6a74b353a74cd8c01f57e046": "Bei Bora Githurai",
+    "orgbranch-6a74b35fa74cd8c01f57e0c7": "Bei Bora Kitengela",
+    "orgbranch-6a74b34da74cd8c01f57e006": "Bei Bora Thika",
+    "orgbranch-6a74b358a74cd8c01f57e086": "Bei Bora Rongai",
+    "orgbranch-6aa000f3374af26d46f95a9a": "Bei Bora Shoppers"
+  };
+
+  /*
+   * ── branchTargets REMOVED ─────────────────────────────────
+   * Targets now come from branch-sales-performance-reports
+   * endpoint — no more hardcoded values.
+   */
+
+const displayName = branchId
+    ? (branchNames[branchId] || branchId)
+    : "All Branches";
+
+document.querySelector("header").textContent =
+    `Live Telesales Performance — ${displayName}`;
+
+let BASE_API =
+`${window.API_CONFIG.API_URL}sales-person/performance-reports?pageSize=10000&startDate=${formattedEnd}&endDate=${formattedEnd}`;
+
+if (branchId) {
+    BASE_API += `&orgBranchId=${branchId}`;
+}
+
+/* ── Branch performance data store (cached) ──────────────── */
+let branchPerfData = [];
+
+/* ── Match branch by name across the two endpoints ───────── */
+function getBranchPerfByName(name) {
+  if (!name) return null;
+  const normalized = name.toLowerCase().trim();
+  return branchPerfData.find(d =>
+    (d.orgBranchName || "").toLowerCase().trim() === normalized
+  ) || null;
+}
+
+/* ================= AUTO SCROLL ================= */
+function startAutoScroll() {
+  const c = document.getElementById("scrollContainer");
+
+  if (scrollInterval) clearInterval(scrollInterval);
+  if (pauseTimeout) clearTimeout(pauseTimeout);
+
+  if (c.scrollHeight <= c.clientHeight) return;
+
+  let direction = 1;
+  let isPaused = false;
+
+  scrollInterval = setInterval(() => {
+    if (isPaused) return;
+
+    c.scrollTop += direction * 2;
+
+    if (c.scrollTop >= c.scrollHeight - c.clientHeight && direction === 1) {
+      c.scrollTop = c.scrollHeight - c.clientHeight;
+      isPaused = true;
+      pauseTimeout = setTimeout(() => {
+        direction = -1;
+        isPaused = false;
+      }, 5000);
+    }
+
+    if (c.scrollTop <= 0 && direction === -1) {
+      c.scrollTop = 0;
+      isPaused = true;
+      pauseTimeout = setTimeout(() => {
+        direction = 1;
+        isPaused = false;
+      }, 5000);
+    }
+  }, 30);
+}
+
+/* ================= FETCH SALES PERSON ================= */
+async function fetchPage(pageNum) {
+  const response = await fetch(`${BASE_API}&pageNum=${pageNum}`, {
+    headers: {
+     
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
+  return await response.json();
+}
+
+/* ================= FETCH BRANCH PERFORMANCE ================= */
+async function fetchBranchPerformance() {
+  /* No date params — endpoint returns today's data */
+  const url = `${window.API_CONFIG.API_URL}branch-performance/reports`;
+
+  const res = await fetch(url, {
+    headers: {
+      
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!res.ok) throw new Error("Branch perf HTTP " + res.status);
+  const json = await res.json();
+
+  const dataArr = Array.isArray(json) ? json : (json.data || []);
+  if (dataArr.length > 0) {
+    console.log("%c[Branch Perf Sample]", "color:#ba9305;font-weight:bold", dataArr[0]);
+  }
+
+  return dataArr;
+}
+
+/* ================= LOAD ALL DATA ================= */
+async function loadAllPages() {
+  try {
+    /* Fetch branch perf only if not cached yet */
+    if (branchPerfData.length === 0) {
+      branchPerfData = await fetchBranchPerformance();
+    }
+
+    /* Fetch salesperson data */
+    let allData = [];
+
+    const firstResponse = await fetchPage(0);
+    const pageCount = firstResponse.pageCount || 1;
+    allData.push(...(firstResponse.data || []));
+
+    const promises = [];
+    for (let i = 1; i < pageCount; i++) {
+      promises.push(fetchPage(i));
+    }
+
+    const responses = await Promise.all(promises);
+    responses.forEach(res => {
+      allData.push(...(res.data || []));
+    });
+
+    /*
+     * ── Branch performance from API ────────────────────────
+     * Target, net sales, and % all come from
+     * branch-sales-performance-reports — matched by name.
+     */
+    let branchTarget = 0;
+    let branchNetSales = 0;
+    let branchPerfPct = 0;
+
+    if (branchId) {
+      /* Single branch specified in URL */
+      const name = branchNames[branchId] || "";
+      const entry = getBranchPerfByName(name);
+      if (entry) {
+        /*
+         * ⚠️ Update these field names if your API uses
+         * different ones. Check the [Branch Perf Sample]
+         * console log to confirm.
+         */
+        branchTarget   = Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
+        branchNetSales = Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
+        branchPerfPct  = Number(entry.dailySalesScore || entry.performancePercentage || entry.dailyPerformance || 0);
+      } else {
+        console.warn(`[No Match] Branch "${name}" not found in branch performance data.`);
+      }
+    } else {
+      /* All branches — aggregate only branches in our dropdown */
+      for (const id in branchNames) {
+        const name = branchNames[id];
+        const entry = getBranchPerfByName(name);
+        if (entry) {
+          branchTarget   += Number(entry.dailySalesTarget || entry.target || entry.branchTarget || 0);
+          branchNetSales += Number(entry.netDailySales || entry.netSales || entry.branchNetSales || 0);
+        }
+      }
+      branchPerfPct = branchTarget > 0 ? (branchNetSales / branchTarget) * 100 : 0;
+    }
+
+    const perfClass =
+        branchPerfPct >= 80 ? "perf-high" :
+        branchPerfPct >= 50 ? "perf-medium" :
+        "perf-low";
+
+    document.getElementById("branchStats").innerHTML = `
+        <span class="perf-label">Branch Performance</span>
+        <span class="perf-value ${perfClass}">${branchPerfPct.toFixed(1)}%</span>
+    `;
+
+    /* ================= PROCESS ================= */
+    const hiddenSalesPeople = [
+      "Triphonia Wanza",
+      "Maronga Ombaso Benerd",
+      "Dennis Nyabuto Nyaberi"
+    ];
+
+    const processed = allData
+      .map(d => {
+        let score = d.dailySalesScore;
+        if (typeof score === "string") {
+          score = score.replace("%", "");
+        }
+        score = Number(score);
+        return { ...d, score };
+      })
+      .filter(d => !isNaN(d.score) && d.score > 0)
+      .filter(d => !hiddenSalesPeople.includes(d.salesPersonName))
+      .sort((a, b) => b.score - a.score);
+
+    renderTable(processed);
+
+    document.getElementById("lastUpdated").textContent =
+      new Date().toLocaleTimeString();
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("tableBody").innerHTML =
+      `<tr><td colspan="5">Failed to load data</td></tr>`;
+  }
+}
+
+/* ================= RENDER ================= */
+function renderTable(data) {
+  const tbody = document.getElementById("tableBody");
+
+  if (!data.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="5">No sales Data Available</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  data.forEach((item, index) => {
+    const sales = item.score;
+    const orders = Number(item.totalDaysCustomers || 0);
+    const cls =
+      sales >= 80 ? "high" :
+      sales >= 50 ? "medium" :
+      "low";
+
+    tbody.innerHTML += `
+      <tr>
+        <td class="rank">${index + 1}</td>
+        <td>${item.salesPersonName}</td>
+        <td>${item.branchName}</td>
+        <td class="${cls}">
+          ${sales.toFixed(1)}%
+        </td>
+        <td>${orders}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("scrollContainer").scrollTop = 0;
+  startAutoScroll();
+}
+
+/* ================= INIT ================= */
+loadAllPages();
+setInterval(() => {
+  /* Clear cache so branch perf refreshes too */
+  branchPerfData = [];
+  loadAllPages();
+}, 120000);
+</script>
+
+</body>
+</html>
