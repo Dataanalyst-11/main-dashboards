@@ -3256,6 +3256,87 @@
     setTimeout(tryAutoAnnounce, 15000);
   })();
 </script>
+<script>
+  /* ════════════════════════════════════════════════════════════
+     SPEECH UNLOCK + SCHEDULED-ANNOUNCE GUARD
+     (Addition only — does NOT modify any of your existing code)
+     ════════════════════════════════════════════════════════════ */
+  (function () {
+    if (!('speechSynthesis' in window)) return;
 
+    var speechUnlocked = false;
+    var pendingScheduledFire = false;     // set true when scheduler fires but speech is locked
+    var pendingFireHour = null;
+
+    /* --- Unlock speech synthesis on first user interaction --- */
+    function unlockSpeech() {
+      if (speechUnlocked) return;
+      try {
+        // Prime the voices list
+        window.speechSynthesis.getVoices();
+
+        // Speak a tiny silent utterance to unlock the audio context
+        var u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        u.rate = 1;
+        window.speechSynthesis.speak(u);
+        setTimeout(function () {
+          try { window.speechSynthesis.cancel(); } catch (e) {}
+        }, 120);
+
+        speechUnlocked = true;
+        console.log('[SPEECH] Speech synthesis unlocked by user interaction');
+
+        // If a scheduled fire was missed because speech was locked, replay it now
+        if (pendingScheduledFire) {
+          pendingScheduledFire = false;
+          console.log('[SPEECH] Replaying missed scheduled announcement for hour ' + pendingFireHour);
+          setTimeout(function () {
+            if (typeof speakBranchPerformance === 'function' &&
+                !window.speechSynthesis.speaking) {
+              speakBranchPerformance();
+            }
+          }, 800);
+        }
+      } catch (e) {
+        console.warn('[SPEECH] Unlock failed:', e);
+      }
+    }
+
+    // Listen for ANY user interaction (capture phase so we catch it first)
+    ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+      document.addEventListener(evt, unlockSpeech, { passive: true });
+    });
+
+    /* --- Hook into the scheduler: detect when a scheduled fire happens
+           while speech is still locked, so we can replay it once unlocked --- */
+    var origCheckScheduled = (typeof checkScheduledAnnouncement === 'function')
+      ? checkScheduledAnnouncement : null;
+
+    if (origCheckScheduled) {
+      // Wrap by polling lastScheduledHour changes (non-invasive)
+      var lastSeen = (typeof lastScheduledHour !== 'undefined') ? lastScheduledHour : null;
+      setInterval(function () {
+        try {
+          var cur = (typeof lastScheduledHour !== 'undefined') ? lastScheduledHour : null;
+          if (cur !== lastSeen && cur !== null) {
+            lastSeen = cur;
+            // A scheduled fire just happened
+            if (!speechUnlocked) {
+              pendingScheduledFire = true;
+              pendingFireHour = cur;
+              try {
+                showToast('Tap anywhere to enable auto-announcements…', 'retry');
+              } catch (e) {}
+            }
+          }
+        } catch (e) {}
+      }, 5000);
+    }
+
+    // Expose for debugging
+    window._isSpeechUnlocked = function () { return speechUnlocked; };
+  })();
+</script>
 </body>
 </html>
